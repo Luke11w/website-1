@@ -154,6 +154,10 @@
   <h1>📞 JOHN PORK IS CALLING 🐷</h1>
 
   <div class="box">
+    <button onclick="showPork()">ZEIG JOHN PORK</button>
+<div id="pork"></div>
+    <img src="https://i.imgur.com/9XnK4bM.png" style="width:200px; margin:10px; border-radius:15px;">
+<img src="https://i.imgur.com/9XnK4bM.png" style="width:200px; margin:10px; border-radius:15px;">
     <p class="small-text">du hast nicht abgenommen...</p>
     <img
       class="main-pork"
@@ -176,6 +180,15 @@
       texte spawnen, bilder fliegen, alles wackelt, komplett vorbei
     </p>
   </div>
+  <div class="box">
+  <h2>💀 cursed bilder 💀</h2>
+
+  <img src="https://i.imgur.com/9XnK4bM.png" style="width:250px; margin:10px; border-radius:15px;">
+  <img src="https://i.imgur.com/9XnK4bM.png" style="width:250px; margin:10px; border-radius:15px;">
+  <img src="https://i.imgur.com/9XnK4bM.png" style="width:250px; margin:10px; border-radius:15px;">
+
+  <p>du bist zu tief drin 💀</p>
+</div>
 
   <footer>
     ⚠️ diese seite ist cursed ⚠️
@@ -311,6 +324,23 @@
       playBoom();
     });
   </script>
+  setInterval(() => {
+  const img = document.createElement("img");
+  img.src = "https://i.imgur.com/9XnK4bM.png";
 
+  img.style.position = "fixed";
+  img.style.left = Math.random()*100 + "vw";
+  img.style.top = Math.random()*100 + "vh";
+  img.style.width = "120px";
+  img.style.zIndex = "9999";
+
+  document.body.appendChild(img);
+
+  setTimeout(() => img.remove(), 2000);
+}, 1500);
+function showPork() {
+  document.getElementById("pork").innerHTML = 
+    "<img src='https://i.imgur.com/9XnK4bM.png' style='width:300px; border-radius:20px;'>";
+}
 </body>
 </html>
