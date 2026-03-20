@@ -2,474 +2,113 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ultra Cool</title>
+  <title>JOHN PORK 📞</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      scroll-behavior: smooth;
-    }
-
     body {
-      font-family: Arial, sans-serif;
+      margin: 0;
+      font-family: Comic Sans MS;
       color: white;
-      background:
-        linear-gradient(rgba(5, 5, 15, 0.82), rgba(20, 0, 35, 0.88)),
-        url("https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=80");
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      overflow-x: hidden;
-    }
-
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 999;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(10px);
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      padding: 18px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    nav a {
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-      transition: 0.25s;
-    }
-
-    nav a:hover {
-      color: #00e5ff;
-      text-shadow: 0 0 10px #00e5ff;
-    }
-
-    header {
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       text-align: center;
-      padding: 30px;
+      background: linear-gradient(45deg, red, purple, blue, black);
+      background-size: 400% 400%;
+      animation: bg 5s infinite;
     }
 
-    .hero {
-      max-width: 950px;
-      background: rgba(0,0,0,0.45);
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 40px;
-      border-radius: 24px;
-      box-shadow: 0 0 30px rgba(0,0,0,0.35);
-      animation: fadeUp 1.2s ease;
+    @keyframes bg {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
     }
 
-    .hero h1 {
-      font-size: 70px;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      margin-bottom: 15px;
-      text-shadow: 0 0 14px #ff2a6d, 0 0 35px #00e5ff;
+    h1 {
+      font-size: 60px;
+      margin-top: 40px;
+      text-shadow: 0 0 20px white;
+      animation: shake 0.3s infinite;
     }
 
-    .hero p {
-      font-size: 22px;
-      color: #e7e7e7;
-      line-height: 1.6;
-      margin-bottom: 28px;
+    @keyframes shake {
+      0% {transform: translate(0,0);}
+      25% {transform: translate(5px,-5px);}
+      50% {transform: translate(-5px,5px);}
+      75% {transform: translate(5px,5px);}
+      100% {transform: translate(-5px,-5px);}
     }
 
-    .hero-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 15px;
+    .box {
+      margin: 30px auto;
+      padding: 20px;
+      width: 80%;
+      max-width: 600px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 20px;
+      box-shadow: 0 0 30px red;
     }
 
-    .btn {
-      padding: 15px 24px;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.25s;
-      color: white;
-      background: linear-gradient(90deg, #ff2a6d, #00e5ff);
-      box-shadow: 0 0 20px rgba(0, 229, 255, 0.25);
+    img {
+      width: 300px;
+      border-radius: 20px;
+      box-shadow: 0 0 25px white;
+      animation: spin 5s linear infinite;
     }
 
-    .btn:hover {
-      transform: scale(1.06);
-      box-shadow: 0 0 28px rgba(255, 42, 109, 0.45);
+    @keyframes spin {
+      from {transform: rotate(0deg);}
+      to {transform: rotate(360deg);}
     }
 
-    section {
-      max-width: 1200px;
-      margin: auto;
-      padding: 90px 20px;
-    }
-
-    .section-title {
-      text-align: center;
-      font-size: 42px;
-      margin-bottom: 40px;
-      text-shadow: 0 0 10px rgba(255,255,255,0.2);
-    }
-
-    .glass {
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.1);
-      backdrop-filter: blur(8px);
-      border-radius: 22px;
-      box-shadow: 0 0 24px rgba(0,0,0,0.25);
-    }
-
-    .games-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 22px;
-    }
-
-    .game-card {
-      overflow: hidden;
-      transition: 0.3s;
-    }
-
-    .game-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
-    }
-
-    .game-card img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-      display: block;
-    }
-
-    .game-card-content {
-      padding: 18px;
-    }
-
-    .game-card h3 {
-      color: #00e5ff;
-      margin-bottom: 10px;
-      font-size: 24px;
-    }
-
-    .game-card p {
-      color: #e6e6e6;
-      line-height: 1.5;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 20px;
-    }
-
-    .stat {
-      padding: 28px 20px;
-      text-align: center;
-      transition: 0.3s;
-    }
-
-    .stat:hover {
-      transform: scale(1.05);
-    }
-
-    .stat-number {
-      font-size: 40px;
-      font-weight: bold;
-      color: #ff2a6d;
-      margin-bottom: 8px;
-      text-shadow: 0 0 12px rgba(255,42,109,0.5);
-    }
-
-    .about-box {
-      padding: 35px;
-      text-align: center;
-      line-height: 1.8;
+    button {
+      padding: 15px 25px;
       font-size: 18px;
-      color: #f0f0f0;
-    }
-
-    .contact-wrap {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-    }
-
-    .contact-box, .form-box {
-      padding: 28px;
-    }
-
-    .contact-box h3,
-    .form-box h3 {
-      margin-bottom: 15px;
-      color: #00e5ff;
-      font-size: 26px;
-    }
-
-    .contact-box p {
-      line-height: 1.8;
-      color: #e6e6e6;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 14px;
+      background: yellow;
       border: none;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.1);
-      color: white;
-      font-size: 15px;
-      outline: none;
+      cursor: pointer;
+      margin-top: 20px;
+      border-radius: 10px;
     }
 
-    input::placeholder, textarea::placeholder {
-      color: #d0d0d0;
-    }
-
-    textarea {
-      min-height: 140px;
-      resize: vertical;
-    }
-
-    .music-note {
-      position: fixed;
-      right: 18px;
-      bottom: 18px;
-      z-index: 999;
+    button:hover {
+      background: orange;
     }
 
     footer {
-      text-align: center;
-      padding: 30px 20px;
-      margin-top: 20px;
-      background: rgba(0,0,0,0.72);
-      color: #bdbdbd;
-      border-top: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .floating {
-      position: fixed;
-      width: 12px;
-      height: 12px;
-      background: rgba(0,229,255,0.65);
-      border-radius: 50%;
-      box-shadow: 0 0 14px rgba(0,229,255,0.95);
-      animation: floatUp linear infinite;
-      z-index: -1;
-    }
-
-    @keyframes floatUp {
-      from {
-        transform: translateY(100vh) scale(1);
-        opacity: 1;
-      }
-      to {
-        transform: translateY(-10vh) scale(0.2);
-        opacity: 0;
-      }
-    }
-
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(35px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @media (max-width: 850px) {
-      .hero h1 {
-        font-size: 44px;
-      }
-
-      .hero p {
-        font-size: 18px;
-      }
-
-      .contact-wrap {
-        grid-template-columns: 1fr;
-      }
-
-      nav {
-        flex-wrap: wrap;
-        gap: 14px;
-      }
+      margin-top: 40px;
+      padding: 20px;
+      background: black;
+      color: gray;
     }
   </style>
 </head>
 <body>
 
-  <div class="floating" style="left: 8%; animation-duration: 8s; animation-delay: 0s;"></div>
-  <div class="floating" style="left: 20%; animation-duration: 10s; animation-delay: 1s;"></div>
-  <div class="floating" style="left: 35%; animation-duration: 7s; animation-delay: 2s;"></div>
-  <div class="floating" style="left: 52%; animation-duration: 9s; animation-delay: 1s;"></div>
-  <div class="floating" style="left: 68%; animation-duration: 11s; animation-delay: 3s;"></div>
-  <div class="floating" style="left: 84%; animation-duration: 8.5s; animation-delay: 2s;"></div>
+  <h1>📞 JOHN PORK IS CALLING 🐷</h1>
 
-  <nav>
-    <a href="#home">Home</a>
-    <a href="#games">Games</a>
-    <a href="#stats">Stats</a>
-    <a href="#about">Über mich</a>
-    <a href="#contact">Kontakt</a>
-  </nav>
-
-  <header id="home">
-    <div class="hero">
-      <h1>Kimi Gaming Ultra</h1>
-      <p>
-        Willkommen auf meiner krassen Gaming-Seite. Hier gibt es Style, Games,
-        Animationen, Bilder und pure Energie 🔥🎮
-      </p>
-      <div class="hero-buttons">
-        <button class="btn" onclick="showPower()">Power klicken</button>
-        <button class="btn" onclick="document.getElementById('games').scrollIntoView()">Zu den Games</button>
-      </div>
-    </div>
-  </header>
-
-  <section id="games">
-    <h2 class="section-title">Meine Lieblingsgames</h2>
-    <div class="games-grid">
-      <div class="game-card glass">
-        <img src="https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=1000&q=80" alt="Minecraft">
-        <div class="game-card-content">
-          <h3>Minecraft</h3>
-          <p>Bauen, Survival, Redstone und komplett wilde Welten. Eines der besten Games überhaupt.</p>
-        </div>
-      </div>
-
-      <div class="game-card glass">
-        <img src="https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=1000&q=80" alt="Fortnite">
-        <div class="game-card-content">
-          <h3>Fortnite</h3>
-          <p>Action, schnelle Runden, Skins und kranke Momente mit Kollegen im Match.</p>
-        </div>
-      </div>
-
-      <div class="game-card glass">
-        <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1000&q=80" alt="Roblox">
-        <div class="game-card-content">
-          <h3>Roblox</h3>
-          <p>Ultra viele Spielmodi, kreative Ideen und immer wieder was Neues zum Zocken.</p>
-        </div>
-      </div>
-
-      <div class="game-card glass">
-        <img src="https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1000&q=80" alt="Shooter Game">
-        <div class="game-card-content">
-          <h3>Call of Duty</h3>
-          <p>Heftige Shooter-Vibes, schnelle Reaktionen und komplette Konzentration im Fight.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="stats">
-    <h2 class="section-title">Gaming Stats</h2>
-    <div class="stats">
-      <div class="stat glass">
-        <div class="stat-number">100%</div>
-        <p>Ehre</p>
-      </div>
-      <div class="stat glass">
-        <div class="stat-number">999+</div>
-        <p>Gaming Energy</p>
-      </div>
-      <div class="stat glass">
-        <div class="stat-number">24/7</div>
-        <p>Motivation</p>
-      </div>
-      <div class="stat glass">
-        <div class="stat-number">∞</div>
-        <p>Legenden-Status</p>
-      </div>
-    </div>
-  </section>
-
-  <section id="about">
-    <h2 class="section-title">Über mich</h2>
-    <div class="about-box glass">
-      Ich bin <strong>Kimi</strong> und ich feier Gaming, Websites bauen und coole Ideen.
-      Das ist meine eigene Seite und sie wird immer stärker. Später können hier noch
-      Videos, ein echtes Logo, mehr Seiten und sogar kleine Games rein 😎
-    </div>
-  </section>
-
-  <section id="contact">
-    <h2 class="section-title">Kontakt</h2>
-    <div class="contact-wrap">
-      <div class="contact-box glass">
-        <h3>Schreib mir</h3>
-        <p>
-          Hier könnte später dein echter Kontakt stehen.<br><br>
-          Beispiel:<br>
-          Discord: KimiGaming<br>
-          TikTok: @kimigaming<br>
-          YouTube: Kimi Gaming
-        </p>
-      </div>
-
-      <div class="form-box glass">
-        <h3>Nachricht senden</h3>
-        <form onsubmit="sendFakeMessage(event)">
-          <input type="text" placeholder="Dein Name" required>
-          <input type="email" placeholder="Deine E-Mail" required>
-          <textarea placeholder="Deine Nachricht" required></textarea>
-          <button class="btn" type="submit">Absenden</button>
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <div class="music-note">
-    <button class="btn" onclick="toggleMusic()">Musik an / aus</button>
+  <div class="box">
+    <p>du hast nicht abgenommen...</p>
+    <img src="https://i.imgur.com/9XnK4bM.png">
+    <p>jetzt ist es zu spät 😈</p>
+    <button onclick="alert('📞 DU HAST DEN ANRUF VERPASST')">ANRUF ANNEHMEN</button>
   </div>
 
-  <audio id="bgMusic" loop>
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+  <div class="box">
+    <p>brain rot level: 999999999</p>
+    <button onclick="crazy()">NICHT DRÜCKEN</button>
+  </div>
+
+  <audio id="sound">
+    <source src="https://www.myinstants.com/media/sounds/troll.mp3" type="audio/mpeg">
   </audio>
 
   <footer>
-    © 2026 Kimi Gaming Ultra | Erstellt mit maximalem Style 🔥
+    ⚠️ diese seite ist cursed ⚠️
   </footer>
 
   <script>
-    function showPower() {
-      alert("⚡ Kimi Gaming ist jetzt auf Ultra-Modus! 🔥");
-    }
-
-    function sendFakeMessage(event) {
-      event.preventDefault();
-      alert("Nachricht gesendet 😎 (gerade noch Demo ohne echtes Postfach)");
-    }
-
-    function toggleMusic() {
-      const music = document.getElementById("bgMusic");
-      if (music.paused) {
-        music.play();
-      } else {
-        music.pause();
-      }
+    function crazy() {
+      document.body.style.background = "white";
+      document.body.style.color = "black";
+      document.body.innerHTML += "<h1>HAHAHA ES IST ZU SPÄT</h1>";
+      document.getElementById("sound").play();
     }
   </script>
 
