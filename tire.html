@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>TIRE THROW GAME</title>
+
+<style>
+body {
+  background: black;
+  color: white;
+  text-align: center;
+  font-family: Comic Sans MS;
+}
+
+canvas {
+  background: #111;
+  margin-top: 20px;
+  border: 3px solid hotpink;
+}
+
+button {
+  padding: 15px;
+  margin: 10px;
+  font-size: 20px;
+  background: yellow;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🐷 JOHN PORK TIRE GAME 💀</h1>
+<p>STOP im perfekten Moment!</p>
+
+<button onclick="startGame()">▶️ Start</button>
+<button onclick="stopGame()">🛑 STOP</button>
+
+<canvas id="game" width="500" height="400"></canvas>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+let speed = 0;
+let angle = 0;
+let running = false;
+
+let targetX = 400;
+let targetY = 200;
+
+function startGame() {
+  speed = 0;
+  angle = 0;
+  running = true;
+  loop();
+}
+
+function stopGame() {
+  running = false;
+
+  let power = speed;
+  let direction = angle;
+
+  let hit = Math.abs(direction - 45) < 10 && power > 8;
+
+  if (hit) {
+    alert("🎯 PERFECT HIT AUF TUMTUM SAHUR 💀🔥");
+  } else {
+    alert("❌ MISS... du bist trash 😂");
+  }
+}
+
+function loop() {
+  if (!running) return;
+
+  speed += 0.1;
+  angle += 2;
+
+  if (angle > 90) angle = 0;
+
+  draw();
+
+  requestAnimationFrame(loop);
+}
+
+function draw() {
+  ctx.clearRect(0,0,500,400);
+
+  // John Pork
+  ctx.fillStyle = "hotpink";
+  ctx.fillRect(50,200,50,50);
+  ctx.fillText("🐷",60,230);
+
+  // Target
+  ctx.fillStyle = "lime";
+  ctx.fillRect(targetX,targetY,40,40);
+  ctx.fillText("🎯",targetX+5,targetY+25);
+
+  // Speed Bar
+  ctx.fillStyle = "yellow";
+  ctx.fillRect(50,350,speed*20,10);
+
+  // Angle Anzeige
+  ctx.fillText("Angle: " + Math.floor(angle), 50, 50);
+  ctx.fillText("Power: " + Math.floor(speed), 50, 70);
+}
+</script>
+
+</body>
+</html>
