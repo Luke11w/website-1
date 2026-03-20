@@ -16,6 +16,8 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
+    const brainrotImg = new Image();
+brainrotImg.src = "Screenshot 2026-03-20 155545.png";
 
     @keyframes bg {
       0% { background-position: 0% 50%; }
@@ -243,6 +245,16 @@
     let best = Number(localStorage.getItem("porkMoleBest") || 0);
     bestEl.textContent = best;
 
+    function drawBrainrot(x, y) {
+  ctx.drawImage(
+    brainrotImg,
+    x * gridSize,
+    y * gridSize,
+    gridSize,
+    gridSize
+  );
+}
+    
     function randomHole() {
       const index = Math.floor(Math.random() * holes.length);
       const hole = holes[index];
