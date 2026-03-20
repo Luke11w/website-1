@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>John Pork Shop</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: white;
+      background: linear-gradient(180deg, #5b16c9, #2b0052 45%, #120022 100%);
+      min-height: 100vh;
+    }
+
+    .topbar {
+      width: 100%;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 22px;
+      box-sizing: border-box;
+      border-bottom: 2px solid rgba(255,255,255,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      flex-wrap: wrap;
+    }
+
+    .topbar-logo {
+      font-size: 30px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 0 0 12px #ff4bd1;
+    }
+
+    .topbar a {
+      color: white;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    .topbar a:hover {
+      color: yellow;
+      transform: scale(1.05);
+    }
+
+    .hero {
+      max-width: 1100px;
+      margin: 30px auto 10px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 58px;
+      margin: 0 0 12px;
+      text-shadow: 0 0 20px rgba(255,255,255,0.75);
+    }
+
+    .hero p {
+      font-size: 20px;
+      color: #f3eaff;
+      margin: 0;
+    }
+
+    .shop-wrap {
+      max-width: 1200px;
+      margin: 20px auto 50px;
+      padding: 0 20px;
+    }
+
+    .notice {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 20px;
+      padding: 18px 20px;
+      text-align: center;
+      margin-bottom: 24px;
+      box-shadow: 0 0 18px rgba(0,0,0,0.2);
+    }
+
+    .notice strong {
+      color: #ffd84d;
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 22px;
+    }
+
+    .product {
+      background: rgba(0,0,0,0.45);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 12px 26px rgba(0,0,0,0.25);
+      transition: 0.25s;
+    }
+
+    .product:hover {
+      transform: translateY(-6px) scale(1.01);
+    }
+
+    .product-img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      display: block;
+      background: #2a103d;
+    }
+
+    .product-content {
+      padding: 18px;
+    }
+
+    .product h2 {
+      margin: 0 0 8px;
+      font-size: 26px;
+    }
+
+    .price {
+      font-size: 22px;
+      font-weight: bold;
+      color: #ffd84d;
+      margin-bottom: 12px;
+    }
+
+    .desc {
+      color: #f0e6ff;
+      line-height: 1.5;
+      min-height: 72px;
+    }
+
+    .buy-box {
+      margin-top: 16px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .buy-box strong {
+      color: #ff9df1;
+    }
+
+    .tik {
+      display: inline-block;
+      margin-top: 10px;
+      background: #ffd84d;
+      color: #111;
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .tik:hover {
+      background: #ffca1a;
+    }
+
+    .howto {
+      max-width: 1200px;
+      margin: 0 auto 40px;
+      padding: 0 20px;
+    }
+
+    .howto-box {
+      background: rgba(0,0,0,0.45);
+      border-radius: 20px;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .howto h3 {
+      margin-top: 0;
+      font-size: 28px;
+    }
+
+    .howto code {
+      background: rgba(255,255,255,0.1);
+      padding: 2px 7px;
+      border-radius: 8px;
+      color: #ffd84d;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      background: rgba(0,0,0,0.45);
+      color: #d9c8f4;
+    }
+
+    @media (max-width: 700px) {
+      .topbar {
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+      }
+
+      .hero h1 {
+        font-size: 38px;
+      }
+
+      .hero p {
+        font-size: 17px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">🛒 John Pork Shop</div>
+      <a href="index.html">Home</a>
+      <a href="snake.html">Snake</a>
+      <a href="mole.html">Mole Game</a>
+      <a href="tire.html">Tire Game</a>
+      <a href="shop.html">Shop</a>
+    </div>
+  </div>
+
+  <div class="hero">
+    <h1>JOHN PORK SHOP</h1>
+    <p>Brainrot-Produkte, cursed Bilder und komplette Pork-Energie 💀🐷</p>
+  </div>
+
+  <div class="shop-wrap">
+    <div class="notice">
+      <strong>Wichtig:</strong> Wenn du etwas kaufen möchtest, kontaktiere auf TikTok:
+      <strong>@johnporkgame</strong>
+    </div>
+
+    <div class="products">
+
+      <div class="product">
+        <img class="product-img" src="Screenshot 2026-03-20 173804.png" alt="Produkt 1">
+        <div class="product-content">
+          <h2>John Pork Poster</h2>
+          <div class="price">9.90 CHF</div>
+          <div class="desc">
+            Ultra cursed John-Pork-Poster für echte Brainrot-Legenden.
+          </div>
+          <div class="buy-box">
+            <strong>Kaufen?</strong><br>
+            Auf TikTok kontaktieren: <strong>@johnporkgame</strong>
+            <br>
+            <a class="tik" href="#">TikTok: johnporkgame</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="product">
+        <img class="product-img" src="Screenshot 2026-03-20 173621.png" alt="Produkt 2">
+        <div class="product-content">
+          <h2>TumTum Sahur Card</h2>
+          <div class="price">7.90 CHF</div>
+          <div class="desc">
+            Rare TumTum Sahur Karte. Maximale cursed Energie für Sammler.
+          </div>
+          <div class="buy-box">
+            <strong>Kaufen?</strong><br>
+            Auf TikTok kontaktieren: <strong>@johnporkgame</strong>
+            <br>
+            <a class="tik" href="#">TikTok: johnporkgame</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="product">
+        <img class="product-img" src="Screenshot 2026-03-20 155545.png" alt="Produkt 3">
+        <div class="product-content">
+          <h2>Brainrot Pack</h2>
+          <div class="price">12.90 CHF</div>
+          <div class="desc">
+            Ein komplettes Brainrot-Paket mit cursed Bildern und Meme-Energie.
+          </div>
+          <div class="buy-box">
+            <strong>Kaufen?</strong><br>
+            Auf TikTok kontaktieren: <strong>@johnporkgame</strong>
+            <br>
+            <a class="tik" href="#">TikTok: johnporkgame</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="product">
+        <img class="product-img" src="Screenshot 2026-03-20 180931.png" alt="Produkt 4">
+        <div class="product-content">
+          <h2>Secret Pork Drop</h2>
+          <div class="price">14.90 CHF</div>
+          <div class="desc">
+            Mystery-Produkt. Du weißt nicht genau, was kommt. Genau deswegen ist es stark.
+          </div>
+          <div class="buy-box">
+            <strong>Kaufen?</strong><br>
+            Auf TikTok kontaktieren: <strong>@johnporkgame</strong>
+            <br>
+            <a class="tik" href="#">TikTok: johnporkgame</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="howto">
+    <div class="howto-box">
+      <h3>So fügst du neue Produkte ein</h3>
+      <p>
+        Für ein neues Produkt kopierst du einfach einen ganzen <code>&lt;div class="product"&gt; ... &lt;/div&gt;</code>-Block
+        und änderst:
+      </p>
+      <p>
+        <code>src="DEINBILD.png"</code><br>
+        <code>&lt;h2&gt;Produktname&lt;/h2&gt;</code><br>
+        <code>&lt;div class="price"&gt;Preis&lt;/div&gt;</code><br>
+        <code>&lt;div class="desc"&gt;Beschreibung&lt;/div&gt;</code>
+      </p>
+      <p>
+        Das Bild lädst du vorher einfach wie immer in GitHub hoch.
+      </p>
+    </div>
+  </div>
+
+  <footer>
+    Zum Kaufen auf TikTok kontaktieren: <strong>@johnporkgame</strong>
+  </footer>
+
+</body>
+</html>
