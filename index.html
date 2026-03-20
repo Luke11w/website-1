@@ -2,66 +2,77 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>JOHN PORK 📞</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOHN PORK BRAINROT</title>
   <style>
     body {
       margin: 0;
-      font-family: Comic Sans MS;
+      font-family: Comic Sans MS, Arial, sans-serif;
       color: white;
       text-align: center;
       background: linear-gradient(45deg, red, purple, blue, black);
       background-size: 400% 400%;
       animation: bg 5s infinite;
+      overflow-x: hidden;
+      min-height: 100vh;
     }
 
     @keyframes bg {
-      0% {background-position: 0% 50%;}
-      50% {background-position: 100% 50%;}
-      100% {background-position: 0% 50%;}
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
-    @keyframes shake {
-  0% {transform: translate(0,0);}
-  25% {transform: translate(10px,-10px);}
-  50% {transform: translate(-10px,10px);}
-  75% {transform: translate(10px,10px);}
-  100% {transform: translate(-10px,-10px);}
-}
 
     h1 {
       font-size: 60px;
       margin-top: 40px;
       text-shadow: 0 0 20px white;
-      animation: shake 0.3s infinite;
+      animation: titleShake 0.3s infinite;
     }
 
-    @keyframes shake {
-      0% {transform: translate(0,0);}
-      25% {transform: translate(5px,-5px);}
-      50% {transform: translate(-5px,5px);}
-      75% {transform: translate(5px,5px);}
-      100% {transform: translate(-5px,-5px);}
+    @keyframes titleShake {
+      0% { transform: translate(0,0); }
+      25% { transform: translate(5px,-5px); }
+      50% { transform: translate(-5px,5px); }
+      75% { transform: translate(5px,5px); }
+      100% { transform: translate(-5px,-5px); }
+    }
+
+    @keyframes screenShake {
+      0% { transform: translate(0,0); }
+      20% { transform: translate(-10px, 10px); }
+      40% { transform: translate(10px, -10px); }
+      60% { transform: translate(-10px, -10px); }
+      80% { transform: translate(10px, 10px); }
+      100% { transform: translate(0,0); }
+    }
+
+    .shake-screen {
+      animation: screenShake 0.25s 3;
     }
 
     .box {
       margin: 30px auto;
       padding: 20px;
       width: 80%;
-      max-width: 600px;
+      max-width: 700px;
       background: rgba(0,0,0,0.6);
       border-radius: 20px;
       box-shadow: 0 0 30px red;
     }
 
-    img {
+    .main-pork {
       width: 300px;
+      max-width: 80%;
       border-radius: 20px;
       box-shadow: 0 0 25px white;
       animation: spin 5s linear infinite;
+      margin-top: 15px;
     }
 
     @keyframes spin {
-      from {transform: rotate(0deg);}
-      to {transform: rotate(360deg);}
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
     button {
@@ -70,12 +81,43 @@
       background: yellow;
       border: none;
       cursor: pointer;
-      margin-top: 20px;
+      margin: 10px;
       border-radius: 10px;
+      font-weight: bold;
     }
 
     button:hover {
       background: orange;
+      transform: scale(1.05);
+    }
+
+    .chaos-text {
+      position: fixed;
+      color: white;
+      font-size: 22px;
+      font-weight: bold;
+      text-shadow: 0 0 10px black;
+      z-index: 9999;
+      pointer-events: none;
+      animation: fadeOut 2.2s forwards;
+    }
+
+    @keyframes fadeOut {
+      0% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1.4) rotate(12deg);
+      }
+    }
+
+    .flying-pork {
+      position: fixed;
+      width: 100px;
+      z-index: 9998;
+      pointer-events: none;
     }
 
     footer {
@@ -83,6 +125,27 @@
       padding: 20px;
       background: black;
       color: gray;
+      font-size: 18px;
+    }
+
+    .small-text {
+      font-size: 20px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 700px) {
+      h1 {
+        font-size: 38px;
+      }
+
+      .small-text {
+        font-size: 17px;
+      }
+
+      button {
+        width: 90%;
+        max-width: 320px;
+      }
     }
   </style>
 </head>
@@ -91,85 +154,163 @@
   <h1>📞 JOHN PORK IS CALLING 🐷</h1>
 
   <div class="box">
-    <p>du hast nicht abgenommen...</p>
-    <img src="https://i.imgur.com/9XnK4bM.png">
-    <p>jetzt ist es zu spät 😈</p>
+    <p class="small-text">du hast nicht abgenommen...</p>
+    <img
+      class="main-pork"
+      src="https://i.imgur.com/9XnK4bM.png"
+      alt="John Pork"
+    >
+    <p class="small-text">jetzt ist es zu spät 😈</p>
     <button onclick="alert('📞 DU HAST DEN ANRUF VERPASST')">ANRUF ANNEHMEN</button>
   </div>
 
   <div class="box">
-    <p>brain rot level: 999999999</p>
-    <button onclick="crazy()">NICHT DRÜCKEN</button>
+    <p class="small-text">brain rot level: 999999999</p>
+    <button onclick="crazyMode()">NICHT DRÜCKEN</button>
+    <button onclick="spawnChaosNow()">MEHR CHAOS</button>
   </div>
 
-  <audio id="sound">
-    <source src="https://www.myinstants.com/media/sounds/troll.mp3" type="audio/mpeg">
-  </audio>
+  <div class="box">
+    <p class="small-text">
+      willkommen auf der cursed john-pork-brainrot-seite 💀<br>
+      texte spawnen, bilder fliegen, alles wackelt, komplett vorbei
+    </p>
+  </div>
 
   <footer>
     ⚠️ diese seite ist cursed ⚠️
   </footer>
 
   <script>
-    function crazy() {
-      document.body.style.background = "white";
-      document.body.style.color = "black";
-      document.body.innerHTML += "<h1>HAHAHA ES IST ZU SPÄT</h1>";
-      document.getElementById("sound").play();
+    const chaosMessages = [
+      "john pork ruft an 📞",
+      "brain rot aktiviert 🧠",
+      "du bist verloren 😈",
+      "zu spät 💀",
+      "nimm endlich ab 🐷",
+      "john pork ist hinter dir",
+      "maximum chaos",
+      "vine boom incoming"
+    ];
+
+    let audioUnlocked = false;
+
+    function unlockAudio() {
+      audioUnlocked = true;
     }
+
+    document.addEventListener("click", unlockAudio, { once: true });
+
+    function playBoom() {
+      if (!audioUnlocked) return;
+      const sound = new Audio("https://www.myinstants.com/media/sounds/vine-boom.mp3");
+      sound.volume = 0.5;
+      sound.play().catch(() => {});
+    }
+
+    function shakeScreen() {
+      document.body.classList.remove("shake-screen");
+      void document.body.offsetWidth;
+      document.body.classList.add("shake-screen");
+    }
+
+    function createChaosText() {
+      const txt = document.createElement("div");
+      txt.className = "chaos-text";
+      txt.innerText = chaosMessages[Math.floor(Math.random() * chaosMessages.length)];
+      txt.style.left = Math.random() * 80 + "vw";
+      txt.style.top = Math.random() * 80 + "vh";
+      txt.style.fontSize = (18 + Math.random() * 18) + "px";
+      txt.style.color = ["white", "yellow", "lime", "cyan", "red", "pink"][Math.floor(Math.random() * 6)];
+
+      document.body.appendChild(txt);
+      setTimeout(() => txt.remove(), 2200);
+    }
+
+    function createFlyingPork() {
+      const img = document.createElement("img");
+      img.src = "https://i.imgur.com/9XnK4bM.png";
+      img.className = "flying-pork";
+      img.style.left = Math.random() * 85 + "vw";
+      img.style.top = "110vh";
+      img.style.transform = "rotate(" + (Math.random() * 360) + "deg)";
+      img.style.width = (70 + Math.random() * 60) + "px";
+
+      document.body.appendChild(img);
+
+      let pos = 110;
+      const speed = 0.8 + Math.random() * 1.5;
+      const drift = (Math.random() - 0.5) * 0.8;
+      let left = parseFloat(img.style.left);
+
+      const move = setInterval(() => {
+        pos -= speed;
+        left += drift;
+        img.style.top = pos + "vh";
+        img.style.left = left + "vw";
+
+        if (pos < -20) {
+          clearInterval(move);
+          img.remove();
+        }
+      }, 20);
+    }
+
+    function crazyMode() {
+      document.body.style.background = "linear-gradient(90deg, white, red, black, lime)";
+      document.body.style.backgroundSize = "400% 400%";
+      document.body.style.animation = "bg 1s infinite";
+      document.body.style.color = "black";
+
+      const scream = document.createElement("h1");
+      scream.innerText = "HAHAHA ES IST ZU SPÄT";
+      scream.style.color = "red";
+      scream.style.fontSize = "50px";
+      scream.style.textShadow = "0 0 20px black";
+      document.body.appendChild(scream);
+
+      for (let i = 0; i < 8; i++) {
+        createChaosText();
+      }
+
+      for (let i = 0; i < 4; i++) {
+        createFlyingPork();
+      }
+
+      shakeScreen();
+      playBoom();
+    }
+
+    function spawnChaosNow() {
+      for (let i = 0; i < 5; i++) {
+        setTimeout(createChaosText, i * 180);
+      }
+
+      for (let i = 0; i < 2; i++) {
+        setTimeout(createFlyingPork, i * 300);
+      }
+
+      shakeScreen();
+      playBoom();
+    }
+
+    setTimeout(() => {
+      alert("📞 JOHN PORK RUFT DICH AN...");
+    }, 5000);
+
+    setInterval(() => {
+      createChaosText();
+    }, 1200);
+
+    setInterval(() => {
+      createFlyingPork();
+    }, 2500);
+
+    document.body.addEventListener("click", () => {
+      shakeScreen();
+      playBoom();
+    });
   </script>
 
 </body>
 </html>
-setInterval(() => {
-  const txt = document.createElement("div");
-  txt.innerText = ["john pork ruft an", "brain rot aktiviert", "du bist verloren", "zu spät 😈"][Math.floor(Math.random()*4)];
-  
-  txt.style.position = "fixed";
-  txt.style.left = Math.random() * 100 + "vw";
-  txt.style.top = Math.random() * 100 + "vh";
-  txt.style.color = "white";
-  txt.style.fontSize = "20px";
-  txt.style.zIndex = "9999";
-
-  document.body.appendChild(txt);
-
-  setTimeout(() => txt.remove(), 2000);
-}, 800);
-
-setTimeout(() => {
-  alert("📞 JOHN PORK RUFT DICH AN...");
-}, 5000);
-
-document.body.onclick = () => {
-  document.body.style.animation = "shake 0.2s 3";
-};
-
-setInterval(() => {
-  const img = document.createElement("img");
-  img.src = "https://i.imgur.com/9XnK4bM.png";
-  
-  img.style.position = "fixed";
-  img.style.left = Math.random()*100 + "vw";
-  img.style.top = "100vh";
-  img.style.width = "100px";
-  img.style.zIndex = "9999";
-  
-  document.body.appendChild(img);
-
-  let pos = 100;
-  const move = setInterval(() => {
-    pos -= 2;
-    img.style.top = pos + "vh";
-    if (pos < -20) {
-      clearInterval(move);
-      img.remove();
-    }
-  }, 20);
-}, 2000);
-
-document.body.addEventListener("click", () => {
-  const sound = new Audio("https://www.myinstants.com/media/sounds/vine-boom.mp3");
-  sound.play();
-});  
-
