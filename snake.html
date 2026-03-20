@@ -206,7 +206,8 @@
 
     let food = { x: 5, y: 5 };
     let score = 0;
-    let gameRunning = true;
+    let gameRunning = false;
+    let interval = null;
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "ArrowUp") setDirection("up");
@@ -216,6 +217,8 @@
     });
 
     function setDirection(dir) {
+      if (!gameRunning) return;
+
       if (dir === "up" && dy !== 1) {
         dx = 0;
         dy = -1;
@@ -273,14 +276,20 @@
       }
     }
 
-    function resetGame() {
+    function startGame() {
+      if (interval) {
+        clearInterval(interval);
+      }
+
       snake = [{ x: 10, y: 10 }];
       dx = 1;
       dy = 0;
       score = 0;
       document.getElementById("score").innerText = "Score: 0";
       randomFood();
+
       gameRunning = true;
+      interval = setInterval(gameLoop, 110);
     }
 
     function update() {
@@ -293,9 +302,11 @@
 
       if (head.x < 0 || head.y < 0 || head.x >= tileCount || head.y >= tileCount) {
         gameRunning = false;
+        clearInterval(interval);
+        interval = null;
+
         setTimeout(() => {
-          alert("💀 GAME OVER 💀 Score: " + score);
-          resetGame();
+          alert("💀 GAME OVER 💀\nDrücke Start für neue Runde\nScore: " + score);
         }, 50);
         return;
       }
@@ -303,9 +314,11 @@
       for (let i = 0; i < snake.length; i++) {
         if (snake[i].x === head.x && snake[i].y === head.y) {
           gameRunning = false;
+          clearInterval(interval);
+          interval = null;
+
           setTimeout(() => {
-            alert("💀 GAME OVER 💀 Score: " + score);
-            resetGame();
+            alert("💀 GAME OVER 💀\nDrücke Start für neue Runde\nScore: " + score);
           }, 50);
           return;
         }
@@ -340,18 +353,7 @@
 
     randomFood();
     draw();
-    function startGame() {
-  if (!interval) {
-    interval = setInterval(gameLoop, 110);
-  }
-}
-
-function pauseGame() {
-  clearInterval(interval);
-  interval = null;
-}
-  </script>let interval = null;
+  </script>
 
 </body>
 </html>
-
