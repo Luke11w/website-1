@@ -322,7 +322,7 @@
     let score = 0;
     let level = 1;
     let frame = 0;
-    let speed = 3.4;
+    let speed = 2.2;
 
     const gravity = 0.10;
     const flapPower = -5.5;
@@ -473,7 +473,7 @@
           if (score % 5 === 0) {
             level++;
             levelValue.textContent = level;
-            speed = Math.min(7.5, speed + 0.35);
+            speed = Math.min(6, speed + 0.2);
             spawnBurst(canvas.width * 0.5, 80, 18);
           }
         }
