@@ -16,8 +16,6 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
-    const brainrotImg = new Image();
-brainrotImg.src = "Screenshot 2026-03-20 155545.png";
 
     @keyframes bg {
       0% { background-position: 0% 50%; }
@@ -146,14 +144,22 @@ brainrotImg.src = "Screenshot 2026-03-20 155545.png";
       transform: translateX(-50%);
       width: 110px;
       height: 110px;
-      border-radius: 50%;
+      border-radius: 16px;
       background: hotpink;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 46px;
-      transition: bottom 0.18s ease;
+      transition: bottom 0.18s ease, transform 0.15s ease, background 0.15s ease;
       box-shadow: 0 0 22px rgba(255,105,180,0.6);
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .mole img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     .hole.up .mole {
@@ -162,7 +168,7 @@ brainrotImg.src = "Screenshot 2026-03-20 155545.png";
 
     .mole.hit {
       background: lime;
-      transform: translateX(-50%) scale(1.1) rotate(8deg);
+      transform: translateX(-50%) scale(1.08) rotate(8deg);
     }
 
     .tiny {
@@ -187,7 +193,6 @@ brainrotImg.src = "Screenshot 2026-03-20 155545.png";
       .mole {
         width: 90px;
         height: 90px;
-        font-size: 38px;
       }
     }
   </style>
@@ -201,7 +206,7 @@ brainrotImg.src = "Screenshot 2026-03-20 155545.png";
 
   <div class="wrap">
     <h1>🔨 JOHN PORK MOLE GAME 🐷</h1>
-    <p>Klick die Brainrot-Moles so schnell du kannst 💀</p>
+    <p>Klick die Brainrot-Bilder so schnell du kannst 💀</p>
 
     <div class="hud">
       <div class="hud-box">Score: <span id="score">0</span></div>
@@ -212,15 +217,15 @@ brainrotImg.src = "Screenshot 2026-03-20 155545.png";
     <button onclick="startGame()">▶️ Start</button>
 
     <div class="board" id="board">
-      <div class="hole"><div class="mole">Screenshot 2026-03-20 155545.png</div></div>
-      <div class="hole"><div class="mole">Screenshot 2026-03-20 155545.png</div></div>
-      <div class="hole"><div class="mole">Screenshot 2026-03-20 155545.png</div></div>
-      <div class="hole"><div class="mole">Screenshot 2026-03-20 155545.png</div></div>
-      <div class="hole"><div class="mole">Screenshot 2026-03-20 155545.png</div></div>
-      <div class="hole"><div class="mole">Screenshot 2026-03-20 155545.png</div></div>
-      <div class="hole"><div class="mole">Screenshot 2026-03-20 155545.png</div></div>
-      <div class="hole"><div class="mole">Screenshot 2026-03-20 155545.png</div></div>
-      <div class="hole"><div class="mole">Screenshot 2026-03-20 155545.png</div></div>
+      <div class="hole"><div class="mole"><img src="Screenshot 2026-03-20 155545.png" alt="brainrot"></div></div>
+      <div class="hole"><div class="mole"><img src="Screenshot 2026-03-20 155545.png" alt="brainrot"></div></div>
+      <div class="hole"><div class="mole"><img src="Screenshot 2026-03-20 155545.png" alt="brainrot"></div></div>
+      <div class="hole"><div class="mole"><img src="Screenshot 2026-03-20 155545.png" alt="brainrot"></div></div>
+      <div class="hole"><div class="mole"><img src="Screenshot 2026-03-20 155545.png" alt="brainrot"></div></div>
+      <div class="hole"><div class="mole"><img src="Screenshot 2026-03-20 155545.png" alt="brainrot"></div></div>
+      <div class="hole"><div class="mole"><img src="Screenshot 2026-03-20 155545.png" alt="brainrot"></div></div>
+      <div class="hole"><div class="mole"><img src="Screenshot 2026-03-20 155545.png" alt="brainrot"></div></div>
+      <div class="hole"><div class="mole"><img src="Screenshot 2026-03-20 155545.png" alt="brainrot"></div></div>
     </div>
 
     <div class="tiny">
@@ -245,27 +250,12 @@ brainrotImg.src = "Screenshot 2026-03-20 155545.png";
     let best = Number(localStorage.getItem("porkMoleBest") || 0);
     bestEl.textContent = best;
 
-    function drawBrainrot(x, y) {
-  ctx.drawImage(
-    brainrotImg,
-    x * gridSize,
-    y * gridSize,
-    gridSize,
-    gridSize
-  );
-}
-    
     function randomHole() {
       const index = Math.floor(Math.random() * holes.length);
       const hole = holes[index];
       if (hole === lastHole) return randomHole();
       lastHole = hole;
       return hole;
-    }
-
-    function randomEmoji() {
-      const emojis = ["Screenshot 2026-03-20 155545.png"];
-      return emojis[Math.floor(Math.random() * emojis.length)];
     }
 
     function hideAll() {
@@ -279,7 +269,6 @@ brainrotImg.src = "Screenshot 2026-03-20 155545.png";
       hideAll();
       const hole = randomHole();
       const mole = hole.querySelector(".mole");
-      mole.textContent = randomEmoji();
       hole.classList.add("up");
 
       const speed = Math.max(350, 900 - score * 12);
@@ -343,6 +332,7 @@ brainrotImg.src = "Screenshot 2026-03-20 155545.png";
       clearInterval(timerInterval);
       hideAll();
       updateBest();
+
       setTimeout(() => {
         alert("⏰ Runde vorbei! Dein Score: " + score);
       }, 80);
