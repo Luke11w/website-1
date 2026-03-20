@@ -70,6 +70,14 @@
       margin-top: 15px;
     }
 
+    .gallery-img {
+      width: 220px;
+      max-width: 90%;
+      border-radius: 15px;
+      margin: 10px;
+      box-shadow: 0 0 20px white;
+    }
+
     @keyframes spin {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
@@ -118,6 +126,7 @@
       width: 100px;
       z-index: 9998;
       pointer-events: none;
+      border-radius: 12px;
     }
 
     footer {
@@ -154,15 +163,11 @@
   <h1>📞 JOHN PORK IS CALLING 🐷</h1>
 
   <div class="box">
-    <button onclick="showPork()">ZEIG JOHN PORK</button>
-<div id="pork"></div>
-    <img src="https://i.imgur.com/9XnK4bM.png" style="width:200px; margin:10px; border-radius:15px;">
-<img src="https://i.imgur.com/9XnK4bM.png" style="width:200px; margin:10px; border-radius:15px;">
     <p class="small-text">du hast nicht abgenommen...</p>
     <img
       class="main-pork"
-      src="https://i.imgur.com/9XnK4bM.png"
-      alt="John Pork"
+      src="https://picsum.photos/300"
+      alt="Cursed Bild"
     >
     <p class="small-text">jetzt ist es zu spät 😈</p>
     <button onclick="alert('📞 DU HAST DEN ANRUF VERPASST')">ANRUF ANNEHMEN</button>
@@ -175,20 +180,18 @@
   </div>
 
   <div class="box">
+    <h2>💀 cursed bilder 💀</h2>
+    <img class="gallery-img" src="https://picsum.photos/220?random=1" alt="bild 1">
+    <img class="gallery-img" src="https://picsum.photos/220?random=2" alt="bild 2">
+    <img class="gallery-img" src="https://picsum.photos/220?random=3" alt="bild 3">
+  </div>
+
+  <div class="box">
     <p class="small-text">
-      willkommen auf der cursed john-pork-brainrot-seite 💀<br>
-      texte spawnen, bilder fliegen, alles wackelt, komplett vorbei
+      willkommen auf der cursed seite 💀<br>
+      texte spawnen, bilder fliegen, alles wackelt
     </p>
   </div>
-  <div class="box">
-  <h2>💀 cursed bilder 💀</h2>
-
-  <img src="https://i.imgur.com/9XnK4bM.png" style="width:250px; margin:10px; border-radius:15px;">
-  <img src="https://i.imgur.com/9XnK4bM.png" style="width:250px; margin:10px; border-radius:15px;">
-  <img src="https://i.imgur.com/9XnK4bM.png" style="width:250px; margin:10px; border-radius:15px;">
-
-  <p>du bist zu tief drin 💀</p>
-</div>
 
   <footer>
     ⚠️ diese seite ist cursed ⚠️
@@ -201,25 +204,8 @@
       "du bist verloren 😈",
       "zu spät 💀",
       "nimm endlich ab 🐷",
-      "john pork ist hinter dir",
-      "maximum chaos",
-      "vine boom incoming"
+      "maximum chaos"
     ];
-
-    let audioUnlocked = false;
-
-    function unlockAudio() {
-      audioUnlocked = true;
-    }
-
-    document.addEventListener("click", unlockAudio, { once: true });
-
-    function playBoom() {
-      if (!audioUnlocked) return;
-      const sound = new Audio("https://www.myinstants.com/media/sounds/vine-boom.mp3");
-      sound.volume = 0.5;
-      sound.play().catch(() => {});
-    }
 
     function shakeScreen() {
       document.body.classList.remove("shake-screen");
@@ -235,20 +221,18 @@
       txt.style.top = Math.random() * 80 + "vh";
       txt.style.fontSize = (18 + Math.random() * 18) + "px";
       txt.style.color = ["white", "yellow", "lime", "cyan", "red", "pink"][Math.floor(Math.random() * 6)];
-
       document.body.appendChild(txt);
       setTimeout(() => txt.remove(), 2200);
     }
 
     function createFlyingPork() {
       const img = document.createElement("img");
-      img.src = "https://i.imgur.com/9XnK4bM.png";
+      img.src = "https://picsum.photos/100?random=" + Math.floor(Math.random() * 1000);
       img.className = "flying-pork";
       img.style.left = Math.random() * 85 + "vw";
       img.style.top = "110vh";
       img.style.transform = "rotate(" + (Math.random() * 360) + "deg)";
       img.style.width = (70 + Math.random() * 60) + "px";
-
       document.body.appendChild(img);
 
       let pos = 110;
@@ -282,16 +266,10 @@
       scream.style.textShadow = "0 0 20px black";
       document.body.appendChild(scream);
 
-      for (let i = 0; i < 8; i++) {
-        createChaosText();
-      }
-
-      for (let i = 0; i < 4; i++) {
-        createFlyingPork();
-      }
+      for (let i = 0; i < 8; i++) createChaosText();
+      for (let i = 0; i < 4; i++) createFlyingPork();
 
       shakeScreen();
-      playBoom();
     }
 
     function spawnChaosNow() {
@@ -304,43 +282,17 @@
       }
 
       shakeScreen();
-      playBoom();
     }
 
     setTimeout(() => {
       alert("📞 JOHN PORK RUFT DICH AN...");
     }, 5000);
 
-    setInterval(() => {
-      createChaosText();
-    }, 1200);
+    setInterval(createChaosText, 1200);
+    setInterval(createFlyingPork, 2500);
 
-    setInterval(() => {
-      createFlyingPork();
-    }, 2500);
-
-    document.body.addEventListener("click", () => {
-      shakeScreen();
-      playBoom();
-    });
+    document.body.addEventListener("click", shakeScreen);
   </script>
-  setInterval(() => {
-  const img = document.createElement("img");
-  img.src = "https://i.imgur.com/9XnK4bM.png";
 
-  img.style.position = "fixed";
-  img.style.left = Math.random()*100 + "vw";
-  img.style.top = Math.random()*100 + "vh";
-  img.style.width = "120px";
-  img.style.zIndex = "9999";
-
-  document.body.appendChild(img);
-
-  setTimeout(() => img.remove(), 2000);
-}, 1500);
-function showPork() {
-  document.getElementById("pork").innerHTML = 
-    "<img src='https://i.imgur.com/9XnK4bM.png' style='width:300px; border-radius:20px;'>";
-}
 </body>
 </html>
