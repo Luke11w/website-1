@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOHN PORK GAMES - SNAKE</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Comic Sans MS, Arial, sans-serif;
+      color: white;
+      text-align: center;
+      background: linear-gradient(45deg, black, purple, red, blue);
+      background-size: 400% 400%;
+      animation: bg 6s infinite;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    @keyframes bg {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .topbar {
+      width: 100%;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 22px;
+      box-sizing: border-box;
+      border-bottom: 2px solid rgba(255,255,255,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      flex-wrap: wrap;
+    }
+
+    .topbar-logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 0 0 10px red;
+    }
+
+    .topbar a {
+      color: white;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    .topbar a:hover {
+      color: yellow;
+      transform: scale(1.05);
+    }
+
+    .wrap {
+      width: 90%;
+      max-width: 760px;
+      margin: 30px auto;
+      background: rgba(0,0,0,0.65);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 0 30px red;
+    }
+
+    h1 {
+      font-size: 42px;
+      margin-bottom: 10px;
+      text-shadow: 0 0 15px white;
+    }
+
+    p {
+      font-size: 18px;
+    }
+
+    canvas {
+      background: #111;
+      border: 4px solid hotpink;
+      border-radius: 16px;
+      margin-top: 15px;
+      max-width: 100%;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 14px 22px;
+      background: yellow;
+      color: black;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: bold;
+      transition: 0.2s;
+      box-shadow: 0 0 14px orange;
+    }
+
+    .btn:hover {
+      background: orange;
+      transform: scale(1.05);
+    }
+
+    #score {
+      font-size: 24px;
+      font-weight: bold;
+      color: lime;
+      margin: 10px 0;
+    }
+
+    .controls {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(3, 70px);
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .control-btn {
+      padding: 14px;
+      font-size: 24px;
+      border: none;
+      border-radius: 12px;
+      background: yellow;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .control-btn:hover {
+      background: orange;
+    }
+
+    .empty {
+      visibility: hidden;
+    }
+
+    @media (max-width: 700px) {
+      .topbar {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      .controls {
+        grid-template-columns: repeat(3, 60px);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">🐷 John Pork Games</div>
+      <a href="index.html">Home</a>
+      <a href="snake.html">Mehr</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <h1>🐍 JOHN PORK SNAKE 🐷</h1>
+    <p>Steuerung: Pfeiltasten oder Buttons unten</p>
+    <p>John Pork frisst Brainrot und wird immer länger 💀</p>
+    <div id="score">Score: 0</div>
+
+    <canvas id="game" width="400" height="400"></canvas>
+    <br>
+    <a class="btn" href="index.html">⬅ Zurück zur Hauptseite</a>
+
+    <div class="controls">
+      <div class="empty"></div>
+      <button class="control-btn" onclick="setDirection('up')">⬆️</button>
+      <div class="empty"></div>
+
+      <button class="control-btn" onclick="setDirection('left')">⬅️</button>
+      <button class="control-btn" onclick="setDirection('down')">⬇️</button>
+      <button class="control-btn" onclick="setDirection('right')">➡️</button>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    const gridSize = 20;
+    const tileCount = canvas.width / gridSize;
+
+    let snake = [{ x: 10, y: 10 }];
+    let dx = 1;
+    let dy = 0;
+
+    let food = { x: 5, y: 5 };
+    let score = 0;
+    let gameRunning = true;
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowUp") setDirection("up");
+      if (e.key === "ArrowDown") setDirection("down");
+      if (e.key === "ArrowLeft") setDirection("left");
+      if (e.key === "ArrowRight") setDirection("right");
+    });
+
+    function setDirection(dir) {
+      if (dir === "up" && dy !== 1) {
+        dx = 0;
+        dy = -1;
+      } else if (dir === "down" && dy !== -1) {
+        dx = 0;
+        dy = 1;
+      } else if (dir === "left" && dx !== 1) {
+        dx = -1;
+        dy = 0;
+      } else if (dir === "right" && dx !== -1) {
+        dx = 1;
+        dy = 0;
+      }
+    }
+
+    function randomFood() {
+      food = {
+        x: Math.floor(Math.random() * tileCount),
+        y: Math.floor(Math.random() * tileCount)
+      };
+
+      for (let part of snake) {
+        if (part.x === food.x && part.y === food.y) {
+          randomFood();
+          return;
+        }
+      }
+    }
+
+    function drawBrainrot(x, y) {
+      ctx.fillStyle = "lime";
+      ctx.beginPath();
+      ctx.arc(
+        x * gridSize + gridSize / 2,
+        y * gridSize + gridSize / 2,
+        8,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+
+      ctx.font = "12px Arial";
+      ctx.fillText("🧠", x * gridSize + 2, y * gridSize + 14);
+    }
+
+    function drawJohnPork(x, y, head = false) {
+      ctx.fillStyle = head ? "hotpink" : "#ffb6c1";
+      ctx.fillRect(x * gridSize, y * gridSize, gridSize, gridSize);
+
+      if (head) {
+        ctx.fillStyle = "black";
+        ctx.fillRect(x * gridSize + 4, y * gridSize + 5, 3, 3);
+        ctx.fillRect(x * gridSize + 13, y * gridSize + 5, 3, 3);
+        ctx.fillRect(x * gridSize + 7, y * gridSize + 12, 6, 3);
+      }
+    }
+
+    function resetGame() {
+      snake = [{ x: 10, y: 10 }];
+      dx = 1;
+      dy = 0;
+      score = 0;
+      document.getElementById("score").innerText = "Score: 0";
+      randomFood();
+      gameRunning = true;
+    }
+
+    function update() {
+      if (!gameRunning) return;
+
+      const head = {
+        x: snake[0].x + dx,
+        y: snake[0].y + dy
+      };
+
+      if (head.x < 0 || head.y < 0 || head.x >= tileCount || head.y >= tileCount) {
+        gameRunning = false;
+        setTimeout(() => {
+          alert("💀 GAME OVER 💀 Score: " + score);
+          resetGame();
+        }, 50);
+        return;
+      }
+
+      for (let i = 0; i < snake.length; i++) {
+        if (snake[i].x === head.x && snake[i].y === head.y) {
+          gameRunning = false;
+          setTimeout(() => {
+            alert("💀 GAME OVER 💀 Score: " + score);
+            resetGame();
+          }, 50);
+          return;
+        }
+      }
+
+      snake.unshift(head);
+
+      if (head.x === food.x && head.y === food.y) {
+        score++;
+        document.getElementById("score").innerText = "Score: " + score;
+        randomFood();
+      } else {
+        snake.pop();
+      }
+    }
+
+    function draw() {
+      ctx.fillStyle = "#111";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      drawBrainrot(food.x, food.y);
+
+      for (let i = 0; i < snake.length; i++) {
+        drawJohnPork(snake[i].x, snake[i].y, i === 0);
+      }
+    }
+
+    function gameLoop() {
+      update();
+      draw();
+    }
+
+    randomFood();
+    draw();
+    setInterval(gameLoop, 110);
+  </script>
+
+</body>
+</html>
