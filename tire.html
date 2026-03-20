@@ -1,113 +1,526 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<title>TIRE THROW GAME</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>John Pork Tire Throw</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #87ceeb 0%, #bfe7ff 45%, #7fc96a 45%, #5a9a48 100%);
+      color: white;
+      text-align: center;
+      min-height: 100vh;
+    }
 
-<style>
-body {
-  background: black;
-  color: white;
-  text-align: center;
-  font-family: Comic Sans MS;
-}
+    .wrap {
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 20px;
+    }
 
-canvas {
-  background: #111;
-  margin-top: 20px;
-  border: 3px solid hotpink;
-}
+    h1 {
+      margin-bottom: 8px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
 
-button {
-  padding: 15px;
-  margin: 10px;
-  font-size: 20px;
-  background: yellow;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-}
-</style>
+    p {
+      margin-top: 0;
+      color: #f3f3f3;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.45);
+    }
+
+    .hud {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 14px 0 18px;
+    }
+
+    .card {
+      background: rgba(0,0,0,0.45);
+      border-radius: 14px;
+      padding: 12px 16px;
+      min-width: 140px;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.2);
+    }
+
+    .big {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .controls {
+      margin-bottom: 16px;
+    }
+
+    button {
+      padding: 14px 22px;
+      margin: 6px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background: #ffd84d;
+      color: #111;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 960px;
+      height: auto;
+      background: transparent;
+      border-radius: 18px;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.18);
+    }
+
+    .hint {
+      margin-top: 12px;
+      color: #fff;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.45);
+    }
+  </style>
 </head>
-
 <body>
+  <div class="wrap">
+    <h1>🛞 John Pork Tire Throw</h1>
+    <p>Drück <b>STOP</b> bei guter Power und gutem Winkel, um TumTum Sahur zu treffen.</p>
 
-<h1>🐷 JOHN PORK TIRE GAME 💀</h1>
-<p>STOP im perfekten Moment!</p>
+    <div class="hud">
+      <div class="card">
+        <div>Power</div>
+        <div class="big" id="powerValue">0%</div>
+      </div>
+      <div class="card">
+        <div>Winkel</div>
+        <div class="big" id="angleValue">0°</div>
+      </div>
+      <div class="card">
+        <div>Runden-Sieg</div>
+        <div class="big" id="resultValue">-</div>
+      </div>
+    </div>
 
-<button onclick="startGame()">▶️ Start</button>
-<button onclick="stopGame()">🛑 STOP</button>
+    <div class="controls">
+      <button id="startBtn" onclick="startAim()">▶️ Start</button>
+      <button id="stopBtn" onclick="stopAim()" disabled>🛑 STOP</button>
+      <button onclick="resetRound()">🔄 Reset</button>
+    </div>
 
-<canvas id="game" width="500" height="400"></canvas>
+    <canvas id="game" width="960" height="540"></canvas>
 
-<script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+    <div class="hint">
+      Ideal ist ungefähr hohe Power und ein mittlerer Wurfwinkel. Der Reifen fliegt nach dem Stoppen wirklich los.
+    </div>
+  </div>
 
-let speed = 0;
-let angle = 0;
-let running = false;
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
 
-let targetX = 400;
-let targetY = 200;
+    const powerValue = document.getElementById("powerValue");
+    const angleValue = document.getElementById("angleValue");
+    const resultValue = document.getElementById("resultValue");
+    const startBtn = document.getElementById("startBtn");
+    const stopBtn = document.getElementById("stopBtn");
 
-function startGame() {
-  speed = 0;
-  angle = 0;
-  running = true;
-  loop();
-}
+    let phase = "aim"; // aim, flying, done
+    let aiming = false;
+    let aimAnimation = null;
+    let flightAnimation = null;
 
-function stopGame() {
-  running = false;
+    let power = 0;
+    let powerDir = 1;
+    let angle = 15;
+    let angleDir = 1;
 
-  let power = speed;
-  let direction = angle;
+    let tire = {
+      x: 180,
+      y: 380,
+      vx: 0,
+      vy: 0,
+      rotation: 0,
+      spinning: 0,
+      flying: false
+    };
 
-  let hit = Math.abs(direction - 45) < 10 && power > 8;
+    const launchPoint = { x: 180, y: 380 };
+    const target = { x: 790, y: 355, w: 70, h: 110 };
 
-  if (hit) {
-    alert("🎯 PERFECT HIT AUF TUMTUM SAHUR 💀🔥");
-  } else {
-    alert("❌ MISS... du bist trash 😂");
-  }
-}
+    function clamp(v, min, max) {
+      return Math.max(min, Math.min(max, v));
+    }
 
-function loop() {
-  if (!running) return;
+    function updateHud() {
+      powerValue.textContent = Math.round(power) + "%";
+      angleValue.textContent = Math.round(angle) + "°";
+    }
 
-  speed += 0.1;
-  angle += 2;
+    function startAim() {
+      if (aiming || phase === "flying") return;
 
-  if (angle > 90) angle = 0;
+      phase = "aim";
+      aiming = true;
+      resultValue.textContent = "-";
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
 
-  draw();
+      animateAim();
+    }
 
-  requestAnimationFrame(loop);
-}
+    function stopAim() {
+      if (!aiming) return;
 
-function draw() {
-  ctx.clearRect(0,0,500,400);
+      aiming = false;
+      cancelAnimationFrame(aimAnimation);
 
-  // John Pork
-  ctx.fillStyle = "hotpink";
-  ctx.fillRect(50,200,50,50);
-  ctx.fillText("🐷",60,230);
+      const speed = 8 + (power / 100) * 12;
+      const rad = (angle * Math.PI) / 180;
 
-  // Target
-  ctx.fillStyle = "lime";
-  ctx.fillRect(targetX,targetY,40,40);
-  ctx.fillText("🎯",targetX+5,targetY+25);
+      tire.x = launchPoint.x;
+      tire.y = launchPoint.y;
+      tire.vx = Math.cos(rad) * speed;
+      tire.vy = -Math.sin(rad) * speed * 1.15;
+      tire.rotation = 0;
+      tire.spinning = 0.25 + power / 250;
+      tire.flying = true;
 
-  // Speed Bar
-  ctx.fillStyle = "yellow";
-  ctx.fillRect(50,350,speed*20,10);
+      phase = "flying";
+      stopBtn.disabled = true;
 
-  // Angle Anzeige
-  ctx.fillText("Angle: " + Math.floor(angle), 50, 50);
-  ctx.fillText("Power: " + Math.floor(speed), 50, 70);
-}
-</script>
+      animateFlight();
+    }
 
+    function resetRound() {
+      cancelAnimationFrame(aimAnimation);
+      cancelAnimationFrame(flightAnimation);
+
+      phase = "aim";
+      aiming = false;
+      power = 0;
+      powerDir = 1;
+      angle = 15;
+      angleDir = 1;
+
+      tire = {
+        x: launchPoint.x,
+        y: launchPoint.y,
+        vx: 0,
+        vy: 0,
+        rotation: 0,
+        spinning: 0,
+        flying: false
+      };
+
+      resultValue.textContent = "-";
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+
+      updateHud();
+      drawScene();
+    }
+
+    function animateAim() {
+      if (!aiming) return;
+
+      power += powerDir * 1.8;
+      if (power >= 100) {
+        power = 100;
+        powerDir = -1;
+      }
+      if (power <= 0) {
+        power = 0;
+        powerDir = 1;
+      }
+
+      angle += angleDir * 0.9;
+      if (angle >= 75) {
+        angle = 75;
+        angleDir = -1;
+      }
+      if (angle <= 10) {
+        angle = 10;
+        angleDir = 1;
+      }
+
+      updateHud();
+      drawScene();
+      aimAnimation = requestAnimationFrame(animateAim);
+    }
+
+    function animateFlight() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawBackground();
+      drawGround();
+      drawLauncher();
+      drawTarget();
+      drawMeters();
+
+      tire.x += tire.vx;
+      tire.y += tire.vy;
+      tire.vy += 0.28;
+      tire.rotation += tire.spinning;
+
+      drawTire(tire.x, tire.y, tire.rotation);
+
+      const hit =
+        tire.x > target.x &&
+        tire.x < target.x + target.w &&
+        tire.y > target.y &&
+        tire.y < target.y + target.h;
+
+      const out =
+        tire.x > canvas.width + 40 ||
+        tire.y > canvas.height + 40 ||
+        tire.y < -60;
+
+      if (hit) {
+        tire.flying = false;
+        phase = "done";
+        resultValue.textContent = "TREFFER";
+        startBtn.disabled = false;
+        drawExplosion(target.x + target.w / 2, target.y + target.h / 2);
+        return;
+      }
+
+      if (out) {
+        tire.flying = false;
+        phase = "done";
+        resultValue.textContent = "MISS";
+        startBtn.disabled = false;
+        drawScene();
+        return;
+      }
+
+      flightAnimation = requestAnimationFrame(animateFlight);
+    }
+
+    function drawScene() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawBackground();
+      drawGround();
+      drawLauncher();
+      drawTarget();
+      drawMeters();
+
+      if (!tire.flying) {
+        drawTire(launchPoint.x, launchPoint.y, 0);
+      }
+    }
+
+    function drawBackground() {
+      // sky already via page bg, add clouds
+      ctx.fillStyle = "rgba(255,255,255,0.75)";
+      drawCloud(150, 90, 1.0);
+      drawCloud(320, 120, 0.7);
+      drawCloud(740, 100, 0.9);
+    }
+
+    function drawCloud(x, y, s) {
+      ctx.beginPath();
+      ctx.arc(x, y, 22 * s, 0, Math.PI * 2);
+      ctx.arc(x + 22 * s, y - 10 * s, 18 * s, 0, Math.PI * 2);
+      ctx.arc(x + 48 * s, y, 24 * s, 0, Math.PI * 2);
+      ctx.arc(x + 24 * s, y + 8 * s, 20 * s, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawGround() {
+      ctx.fillStyle = "#6a4a2a";
+      ctx.fillRect(0, 410, canvas.width, 130);
+
+      ctx.fillStyle = "#777";
+      ctx.fillRect(0, 395, canvas.width, 20);
+
+      // road stripe
+      ctx.fillStyle = "#ddd";
+      for (let i = 0; i < canvas.width; i += 90) {
+        ctx.fillRect(i + 20, 401, 45, 8);
+      }
+    }
+
+    function drawLauncher() {
+      // motorcycle-ish launcher
+      ctx.fillStyle = "#1a1a1a";
+      ctx.fillRect(60, 360, 120, 22);
+      ctx.fillRect(105, 330, 50, 30);
+
+      // wheels
+      drawWheel(85, 390, 24);
+      drawWheel(165, 390, 24);
+
+      // John Pork body
+      ctx.fillStyle = "#ffb6c1";
+      ctx.beginPath();
+      ctx.arc(115, 295, 28, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#222";
+      ctx.fillRect(95, 322, 40, 42);
+
+      // ears
+      ctx.fillStyle = "#ff9db3";
+      ctx.beginPath();
+      ctx.arc(101, 270, 10, 0, Math.PI * 2);
+      ctx.arc(129, 270, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      // face
+      ctx.fillStyle = "#111";
+      ctx.fillRect(106, 290, 4, 4);
+      ctx.fillRect(120, 290, 4, 4);
+      ctx.fillRect(110, 304, 12, 7);
+
+      // launcher arm
+      const rad = (angle * Math.PI) / 180;
+      const armX = launchPoint.x;
+      const armY = launchPoint.y;
+      const armLen = 70;
+
+      ctx.strokeStyle = "#222";
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.moveTo(armX, armY);
+      ctx.lineTo(
+        armX + Math.cos(rad) * armLen,
+        armY - Math.sin(rad) * armLen
+      );
+      ctx.stroke();
+
+      // label
+      ctx.fillStyle = "#fff";
+      ctx.font = "18px Arial";
+      ctx.fillText("John Pork", 70, 250);
+    }
+
+    function drawWheel(x, y, r) {
+      ctx.fillStyle = "#111";
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = "#999";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(x, y, r - 6, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    function drawTire(x, y, rot) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rot);
+
+      ctx.fillStyle = "#111";
+      ctx.beginPath();
+      ctx.arc(0, 0, 24, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = "#666";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(0, 0, 17, 0, Math.PI * 2);
+      ctx.stroke();
+
+      for (let i = 0; i < 8; i++) {
+        ctx.rotate(Math.PI / 4);
+        ctx.strokeStyle = "#888";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, -15);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawTarget() {
+      // enemy
+      ctx.fillStyle = "#c7ff52";
+      ctx.fillRect(target.x, target.y, target.w, target.h);
+
+      ctx.fillStyle = "#111";
+      ctx.fillRect(target.x + 14, target.y + 20, 10, 10);
+      ctx.fillRect(target.x + 46, target.y + 20, 10, 10);
+      ctx.fillRect(target.x + 18, target.y + 60, 34, 10);
+
+      ctx.fillStyle = "#fff";
+      ctx.font = "18px Arial";
+      ctx.fillText("TumTum Sahur", target.x - 22, target.y - 12);
+    }
+
+    function drawMeters() {
+      drawMeter(60, 455, 260, 18, power / 100, "#ffd84d", "POWER");
+      drawMeter(360, 455, 260, 18, angle / 90, "#7be0ff", "WINKEL");
+
+      // sweet spots
+      ctx.strokeStyle = "lime";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(60 + 260 * 0.72, 455, 260 * 0.12, 18);
+
+      ctx.strokeRect(360 + 260 * 0.42, 455, 260 * 0.14, 18);
+    }
+
+    function drawMeter(x, y, w, h, ratio, color, label) {
+      ctx.fillStyle = "rgba(0,0,0,0.45)";
+      ctx.fillRect(x, y, w, h);
+
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, w * ratio, h);
+
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, w, h);
+
+      ctx.fillStyle = "#fff";
+      ctx.font = "15px Arial";
+      ctx.fillText(label, x, y - 8);
+
+      // marker
+      const mx = x + w * ratio;
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.moveTo(mx, y - 6);
+      ctx.lineTo(mx - 6, y - 16);
+      ctx.lineTo(mx + 6, y - 16);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawExplosion(x, y) {
+      drawScene();
+
+      ctx.fillStyle = "rgba(255, 230, 80, 0.95)";
+      for (let i = 0; i < 14; i++) {
+        const a = (Math.PI * 2 * i) / 14;
+        const px = x + Math.cos(a) * 30;
+        const py = y + Math.sin(a) * 30;
+        ctx.beginPath();
+        ctx.arc(px, py, 12, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = "#fff";
+      ctx.font = "bold 34px Arial";
+      ctx.fillText("TREFFER!", x - 75, y - 55);
+    }
+
+    updateHud();
+    drawScene();
+  </script>
 </body>
 </html>
