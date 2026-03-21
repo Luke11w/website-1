@@ -79,11 +79,33 @@
       box-shadow: 0 0 12px orange;
     }
 
+    .hero {
+      width: 90%;
+      max-width: 1100px;
+      margin: 30px auto 20px auto;
+      padding: 30px 20px;
+      background: rgba(0,0,0,0.45);
+      border-radius: 28px;
+      box-shadow: 0 0 40px rgba(255, 0, 0, 0.55);
+      border: 2px solid rgba(255,255,255,0.1);
+    }
+
     h1 {
       font-size: 56px;
-      margin-top: 30px;
+      margin-top: 10px;
+      margin-bottom: 10px;
       text-shadow: 0 0 20px white;
       animation: shake 0.3s infinite;
+    }
+
+    .hero-sub {
+      font-size: 24px;
+      margin-bottom: 18px;
+      text-shadow: 0 0 10px black;
+    }
+
+    .hero-buttons {
+      margin-top: 18px;
     }
 
     @keyframes shake {
@@ -111,10 +133,12 @@
       box-shadow: 0 0 25px white;
       margin: 15px 0;
       transition: 0.3s;
+      cursor: pointer;
     }
 
     .main-pork:hover {
       transform: scale(1.05) rotate(2deg);
+      box-shadow: 0 0 35px yellow;
     }
 
     .gallery {
@@ -131,10 +155,11 @@
       border-radius: 16px;
       box-shadow: 0 0 18px white;
       transition: 0.25s;
+      cursor: pointer;
     }
 
     .gallery-img:hover {
-      transform: scale(1.08);
+      transform: scale(1.08) rotate(1deg);
       box-shadow: 0 0 24px yellow;
     }
 
@@ -150,6 +175,8 @@
       border-radius: 12px;
       box-shadow: 0 0 15px orange;
       transition: 0.25s;
+      border: none;
+      cursor: pointer;
     }
 
     .btn:hover {
@@ -157,9 +184,62 @@
       transform: scale(1.07);
     }
 
+    .btn-red {
+      background: #ff4d4d;
+      color: white;
+      box-shadow: 0 0 15px red;
+    }
+
+    .btn-red:hover {
+      background: #ff1f1f;
+    }
+
     .small-text {
       font-size: 20px;
       line-height: 1.6;
+    }
+
+    .game-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .shop-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    .shop-card {
+      width: 220px;
+      max-width: 90%;
+      background: rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 0 18px rgba(255,255,255,0.15);
+      transition: 0.25s;
+    }
+
+    .shop-card:hover {
+      transform: scale(1.06) rotate(-1deg);
+      box-shadow: 0 0 24px yellow;
+    }
+
+    .shop-card h3 {
+      margin-top: 0;
+      font-size: 24px;
+    }
+
+    .price {
+      font-size: 22px;
+      font-weight: bold;
+      color: yellow;
+      text-shadow: 0 0 10px orange;
     }
 
     .chaos-text {
@@ -182,6 +262,50 @@
         opacity: 0;
         transform: scale(1.4) rotate(12deg);
       }
+    }
+
+    .call-popup,
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 20000;
+      padding: 20px;
+    }
+
+    .call-popup.active,
+    .lightbox.active {
+      display: flex;
+    }
+
+    .popup-box {
+      background: linear-gradient(135deg, #220000, #111, #330033);
+      border: 2px solid yellow;
+      border-radius: 24px;
+      padding: 28px 22px;
+      max-width: 460px;
+      width: 100%;
+      box-shadow: 0 0 40px red;
+    }
+
+    .popup-box h2 {
+      margin-top: 0;
+      font-size: 34px;
+      text-shadow: 0 0 12px red;
+    }
+
+    .popup-buttons {
+      margin-top: 20px;
+    }
+
+    .lightbox img {
+      max-width: 95vw;
+      max-height: 85vh;
+      border-radius: 20px;
+      box-shadow: 0 0 30px white;
     }
 
     footer {
@@ -212,12 +336,20 @@
         font-size: 38px;
       }
 
+      .hero-sub {
+        font-size: 18px;
+      }
+
       .gallery-img {
         width: 140px;
       }
 
       .small-text {
         font-size: 17px;
+      }
+
+      .popup-box h2 {
+        font-size: 26px;
       }
     }
   </style>
@@ -238,7 +370,15 @@
     </div>
   </div>
 
-  <h1>📞 JOHN PORK IS CALLING 🐷</h1>
+  <div class="hero">
+    <h1>📞 JOHN PORK IS CALLING 🐷</h1>
+    <p class="hero-sub">die krankeste brainrot-seite im ganzen pork-universum</p>
+    <button class="btn btn-red" id="openCallBtn">📞 Anruf annehmen</button>
+    <div class="hero-buttons">
+      <a class="btn" href="snake.html">🐍 JOHN PORK GAMES</a>
+      <a class="btn" href="#gallery">📸 DIREKT ZUR GALERIE</a>
+    </div>
+  </div>
 
   <div class="box">
     <p class="small-text">du hast nicht abgenommen...</p>
@@ -246,61 +386,95 @@
     <p class="small-text">brain rot level: 6767676767 💀</p>
     <a class="btn" href="snake.html">🐍 JOHN PORK GAMES</a>
   </div>
-  <a class="btn" href="snake.html">🐍 JOHN PORK GAMES</a>
-  <a class="btn" href="mole.html">🔨 John Pork Mole Game</a>
-  <a class="btn" href="tire.html">🛞 Tire Game</a>
-  <a class="btn" href="memory.html">🧠 Skibidi Memory</a>
-  <a class="btn" href="flappy.html">🐷 John Pork Flappy</a>
-  <a class="btn" href="blockblast.html">💥 John Pork Blast</a>
+
+  <div class="box">
+    <h2>🎮 PORK GAMES ZONE 🎮</h2>
+    <div class="game-grid">
+      <a class="btn" href="snake.html">🐍 JOHN PORK GAMES</a>
+      <a class="btn" href="mole.html">🔨 John Pork Mole Game</a>
+      <a class="btn" href="tire.html">🛞 Tire Game</a>
+      <a class="btn" href="memory.html">🧠 Skibidi Memory</a>
+      <a class="btn" href="flappy.html">🐷 John Pork Flappy</a>
+      <a class="btn" href="blockblast.html">💥 John Pork Blast</a>
+    </div>
+  </div>
   
   <div class="box" id="gallery">
     <h2>🐷 JOHN PORK GALLERY 💀</h2>
     <div class="gallery">
-  <img class="gallery-img" src="Screenshot 2026-03-20 125829.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 125836.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 125847.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 125859.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 125904.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 125914.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 125922.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 125927.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 125933.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 125938.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 125953.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 125957.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 125829.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 125836.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 125847.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 125859.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 125904.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 125914.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 125922.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 125927.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 125933.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 125938.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 125953.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 125957.png" alt="">
 
-  <img class="gallery-img" src="Screenshot 2026-03-20 130001.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 130006.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 130010.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 130014 - Kopie.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 130017.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 130020 - Kopie.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 130024.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 130028.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 130001.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 130006.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 130010.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 130014 - Kopie.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 130017.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 130020 - Kopie.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 130024.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 130028.png" alt="">
 
-  <img class="gallery-img" src="Screenshot 2026-03-20 155545.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 173621.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 173804.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 155545.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 173621.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 173804.png" alt="">
 
-  <img class="gallery-img" src="Screenshot 2026-03-20 180931.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 180939.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 180947.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 180958.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 181008.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 181017.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 181055.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-20 181111.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 180931.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 180939.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 180947.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 180958.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 181008.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 181017.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 181055.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 181111.png" alt="">
 
-  <img class="gallery-img" src="Screenshot 2026-03-20 223855.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-20 223855.png" alt="">
 
-  <img class="gallery-img" src="Screenshot 2026-03-21 105458.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-21 105508.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-21 105543.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-21 105554.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-21 105625.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-21 105635.png" alt="">
-  <img class="gallery-img" src="Screenshot 2026-03-21 105651.png" alt="">
-</div>
+      <img class="gallery-img" src="Screenshot 2026-03-21 105458.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-21 105508.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-21 105543.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-21 105554.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-21 105625.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-21 105635.png" alt="">
+      <img class="gallery-img" src="Screenshot 2026-03-21 105651.png" alt="">
+    </div>
+  </div>
+
+  <div class="box">
+    <h2>🛒 PORK SHOP PREVIEW 🛒</h2>
+    <p class="small-text">legendäre produkte für maximalen brainrot drip</p>
+
+    <div class="shop-grid">
+      <div class="shop-card">
+        <h3>🧦 Pork Socken</h3>
+        <p>mit maximaler aura und 100% cursed energie</p>
+        <div class="price">CHF 12.90</div>
+        <a class="btn" href="shop.html">Zum Shop</a>
+      </div>
+
+      <div class="shop-card">
+        <h3>📞 Pork Phone</h3>
+        <p>damit du endlich abnehmen kannst wenn er anruft</p>
+        <div class="price">CHF 66.60</div>
+        <a class="btn" href="shop.html">Zum Shop</a>
+      </div>
+
+      <div class="shop-card">
+        <h3>🐷 Pork Cap</h3>
+        <p>brainrot drip für echte john-pork-bosse</p>
+        <div class="price">CHF 24.90</div>
+        <a class="btn" href="shop.html">Zum Shop</a>
+      </div>
+    </div>
   </div>
 
   <div class="box">
@@ -308,13 +482,34 @@
     <p class="small-text">
       willkommen auf der ultimativen john-pork-brainrot-seite.<br>
       oben findest du mehr und pork games.<br>
-      dort kommst du direkt zum snake game.
+      dort kommst du direkt zum snake game.<br>
+      jetzt kannst du auch bilder anklicken und groß anschauen.<br>
+      john pork ist überall.
     </p>
   </div>
 
   <footer>
     ⚠️ diese seite ist cursed ⚠️
   </footer>
+
+  <div class="call-popup" id="callPopup">
+    <div class="popup-box">
+      <h2>📞 JOHN PORK RUFT AN</h2>
+      <p class="small-text">du hast angenommen... jetzt gibt es kein zurück mehr 💀</p>
+      <div class="popup-buttons">
+        <button class="btn" id="acceptBtn">✅ ANNEHMEN</button>
+        <button class="btn btn-red" id="closeCallBtn">❌ WEGDRÜCKEN</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="lightbox" id="lightbox">
+    <img id="lightboxImg" src="" alt="">
+  </div>
+
+  <audio id="ringSound">
+    <source src="https://www.soundjay.com/phone/phone-ring-1.mp3" type="audio/mpeg">
+  </audio>
 
   <script>
     const chaosMessages = [
@@ -339,6 +534,61 @@
     }
 
     setInterval(createChaosText, 1800);
+
+    const callPopup = document.getElementById("callPopup");
+    const openCallBtn = document.getElementById("openCallBtn");
+    const closeCallBtn = document.getElementById("closeCallBtn");
+    const acceptBtn = document.getElementById("acceptBtn");
+    const ringSound = document.getElementById("ringSound");
+
+    openCallBtn.addEventListener("click", () => {
+      callPopup.classList.add("active");
+      ringSound.currentTime = 0;
+      ringSound.play().catch(() => {});
+    });
+
+    closeCallBtn.addEventListener("click", () => {
+      callPopup.classList.remove("active");
+      ringSound.pause();
+      ringSound.currentTime = 0;
+    });
+
+    acceptBtn.addEventListener("click", () => {
+      ringSound.pause();
+      ringSound.currentTime = 0;
+      alert("📞 John Pork: warum hast du so spät angenommen? 💀");
+      callPopup.classList.remove("active");
+    });
+
+    callPopup.addEventListener("click", (event) => {
+      if (event.target === callPopup) {
+        callPopup.classList.remove("active");
+        ringSound.pause();
+        ringSound.currentTime = 0;
+      }
+    });
+
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = document.getElementById("lightboxImg");
+    const galleryImages = document.querySelectorAll(".gallery-img");
+    const mainPork = document.querySelector(".main-pork");
+
+    galleryImages.forEach((img) => {
+      img.addEventListener("click", () => {
+        lightboxImg.src = img.src;
+        lightbox.classList.add("active");
+      });
+    });
+
+    mainPork.addEventListener("click", () => {
+      lightboxImg.src = mainPork.src;
+      lightbox.classList.add("active");
+    });
+
+    lightbox.addEventListener("click", () => {
+      lightbox.classList.remove("active");
+      lightboxImg.src = "";
+    });
   </script>
 
 </body>
