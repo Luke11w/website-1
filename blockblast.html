@@ -226,14 +226,16 @@
       filter: grayscale(1);
     }
 
-    .mini-grid {
-      display: grid;
-      gap: 6px;
-      justify-content: center;
-      align-content: center;
-      width: 100%;
-      height: 100%;
-    }
+ .mini-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 34px);
+  grid-template-rows: repeat(4, 34px);
+  gap: 6px;
+  justify-content: center;
+  align-content: center;
+  width: 100%;
+  height: 100%;
+}
 
     .mini-cell {
       width: 34px;
@@ -569,24 +571,26 @@
         pieceEl.className = "piece";
         if (piece.used) pieceEl.classList.add("used");
 
-        const rows = piece.shape.length;
-        const cols = piece.shape[0].length;
+       const rows = piece.shape.length;
+const cols = piece.shape[0].length;
 
-        const miniGrid = document.createElement("div");
-        miniGrid.className = "mini-grid";
-        miniGrid.style.gridTemplateColumns = `repeat(${cols}, 34px)`;
+const miniGrid = document.createElement("div");
+miniGrid.className = "mini-grid";
 
-        for (let r = 0; r < rows; r++) {
-          for (let c = 0; c < cols; c++) {
-            const mini = document.createElement("div");
-            mini.className = "mini-cell";
-            if (piece.shape[r][c]) {
-              mini.classList.add("fill");
-              mini.innerHTML = `<img src="${piece.image}" alt="">`;
-            }
-            miniGrid.appendChild(mini);
-          }
-        }
+// festes 4x4 Raster
+for (let gridR = 0; gridR < 4; gridR++) {
+  for (let gridC = 0; gridC < 4; gridC++) {
+    const mini = document.createElement("div");
+    mini.className = "mini-cell";
+
+    if (gridR < rows && gridC < cols && piece.shape[gridR][gridC]) {
+      mini.classList.add("fill");
+      mini.innerHTML = `<img src="${piece.image}" alt="">`;
+    }
+
+    miniGrid.appendChild(mini);
+  }
+}
 
         pieceEl.appendChild(miniGrid);
 
