@@ -77,6 +77,59 @@
       padding: 10px 16px;
       border-radius: 10px;
       box-shadow: 0 0 12px orange;
+      border: none;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 115%;
+      min-width: 240px;
+      background: rgba(20, 0, 50, 0.97);
+      border: 2px solid yellow;
+      border-radius: 16px;
+      box-shadow: 0 0 20px orange;
+      overflow: hidden;
+      z-index: 10000;
+    }
+
+    .dropdown-content a {
+      display: block;
+      padding: 14px 16px;
+      color: white;
+      text-decoration: none;
+      font-size: 17px;
+      font-weight: bold;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      transition: 0.2s;
+    }
+
+    .dropdown-content a:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-content a:hover {
+      background: yellow;
+      color: black;
+      transform: none;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
     }
 
     .hero {
@@ -177,6 +230,7 @@
       transition: 0.25s;
       border: none;
       cursor: pointer;
+      font-family: inherit;
     }
 
     .btn:hover {
@@ -351,6 +405,13 @@
       .popup-box h2 {
         font-size: 26px;
       }
+
+      .dropdown-content {
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%);
+        min-width: 220px;
+      }
     }
   </style>
 </head>
@@ -366,77 +427,18 @@
     </div>
 
     <div class="topbar-right">
-  <div class="dropdown">
-    <button class="topbar-btn dropdown-btn" id="gamesDropdownBtn">Pork Games ▾</button>
-
-    <div class="dropdown-content" id="gamesDropdown">
-      <a href="snake.html">🐍 Snake Game</a>
-      <a href="mole.html">🔨 Mole Game</a>
-      <a href="tire.html">🛞 Tire Game</a>
-      <a href="memory.html">🧠 Skibidi Memory</a>
-      <a href="flappy.html">🐷 John Pork Flappy</a>
-      <a href="blockblast.html">💥 John Pork Blast</a>
+      <div class="dropdown">
+        <button class="topbar-btn dropdown-btn" id="gamesDropdownBtn">Pork Games ▾</button>
+        <div class="dropdown-content" id="gamesDropdown">
+          <a href="snake.html">🐍 Snake Game</a>
+          <a href="mole.html">🔨 John Pork Mole Game</a>
+          <a href="tire.html">🛞 Tire Game</a>
+          <a href="memory.html">🧠 Skibidi Memory</a>
+          <a href="flappy.html">🐷 John Pork Flappy</a>
+          <a href="blockblast.html">💥 John Pork Blast</a>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-    .topbar-btn {
-  background: yellow;
-  color: black !important;
-  padding: 10px 16px;
-  border-radius: 10px;
-  box-shadow: 0 0 12px orange;
-}
-    .dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-btn {
-  border: none;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.dropdown-content {
-  display: none;
-  position: absolute;
-  right: 0;
-  top: 115%;
-  min-width: 240px;
-  background: rgba(20, 0, 50, 0.95);
-  border: 2px solid yellow;
-  border-radius: 16px;
-  box-shadow: 0 0 20px orange;
-  overflow: hidden;
-  z-index: 10000;
-}
-
-.dropdown-content a {
-  display: block;
-  padding: 14px 16px;
-  color: white;
-  text-decoration: none;
-  font-size: 17px;
-  font-weight: bold;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  transition: 0.2s;
-}
-
-.dropdown-content a:last-child {
-  border-bottom: none;
-}
-
-.dropdown-content a:hover {
-  background: yellow;
-  color: black;
-  transform: none;
-}
-
-.dropdown:hover .dropdown-content {
-  display: block;
-}
-    
   </div>
 
   <div class="hero">
@@ -467,7 +469,7 @@
       <a class="btn" href="blockblast.html">💥 John Pork Blast</a>
     </div>
   </div>
-  
+
   <div class="box" id="gallery">
     <h2>🐷 JOHN PORK GALLERY 💀</h2>
     <div class="gallery">
@@ -551,8 +553,8 @@
     <p class="small-text">
       willkommen auf der ultimativen john-pork-brainrot-seite.<br>
       oben findest du mehr und pork games.<br>
-      dort kommst du direkt zum snake game.<br>
-      jetzt kannst du auch bilder anklicken und groß anschauen.<br>
+      dort kannst du jetzt direkt alle games auswählen.<br>
+      du kannst bilder anklicken und groß anschauen.<br>
       john pork ist überall.
     </p>
   </div>
@@ -658,102 +660,25 @@
       lightbox.classList.remove("active");
       lightboxImg.src = "";
     });
-  <script>
-  const chaosMessages = [
-    "john pork ruft an 📞",
-    "brain rot aktiviert 🧠",
-    "du bist verloren 😈",
-    "zu spät 💀",
-    "maximum chaos",
-    "pork detected 🐷"
-  ];
 
-  function createChaosText() {
-    const txt = document.createElement("div");
-    txt.className = "chaos-text";
-    txt.innerText = chaosMessages[Math.floor(Math.random() * chaosMessages.length)];
-    txt.style.left = Math.random() * 80 + "vw";
-    txt.style.top = Math.random() * 80 + "vh";
-    txt.style.fontSize = (18 + Math.random() * 18) + "px";
-    txt.style.color = ["white", "yellow", "lime", "cyan", "red", "pink"][Math.floor(Math.random() * 6)];
-    document.body.appendChild(txt);
-    setTimeout(() => txt.remove(), 2200);
-  }
+    const gamesDropdownBtn = document.getElementById("gamesDropdownBtn");
+    const gamesDropdown = document.getElementById("gamesDropdown");
 
-  setInterval(createChaosText, 1800);
-
-  const callPopup = document.getElementById("callPopup");
-  const openCallBtn = document.getElementById("openCallBtn");
-  const closeCallBtn = document.getElementById("closeCallBtn");
-  const acceptBtn = document.getElementById("acceptBtn");
-  const ringSound = document.getElementById("ringSound");
-
-  openCallBtn.addEventListener("click", () => {
-    callPopup.classList.add("active");
-    ringSound.currentTime = 0;
-    ringSound.play().catch(() => {});
-  });
-
-  closeCallBtn.addEventListener("click", () => {
-    callPopup.classList.remove("active");
-    ringSound.pause();
-    ringSound.currentTime = 0;
-  });
-
-  acceptBtn.addEventListener("click", () => {
-    ringSound.pause();
-    ringSound.currentTime = 0;
-    alert("📞 John Pork: warum hast du so spät angenommen? 💀");
-    callPopup.classList.remove("active");
-  });
-
-  callPopup.addEventListener("click", (event) => {
-    if (event.target === callPopup) {
-      callPopup.classList.remove("active");
-      ringSound.pause();
-      ringSound.currentTime = 0;
-    }
-  });
-
-  const lightbox = document.getElementById("lightbox");
-  const lightboxImg = document.getElementById("lightboxImg");
-  const galleryImages = document.querySelectorAll(".gallery-img");
-  const mainPork = document.querySelector(".main-pork");
-
-  galleryImages.forEach((img) => {
-    img.addEventListener("click", () => {
-      lightboxImg.src = img.src;
-      lightbox.classList.add("active");
+    gamesDropdownBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (gamesDropdown.style.display === "block") {
+        gamesDropdown.style.display = "none";
+      } else {
+        gamesDropdown.style.display = "block";
+      }
     });
-  });
 
-  mainPork.addEventListener("click", () => {
-    lightboxImg.src = mainPork.src;
-    lightbox.classList.add("active");
-  });
-
-  lightbox.addEventListener("click", () => {
-    lightbox.classList.remove("active");
-    lightboxImg.src = "";
-  });
-
-  const gamesDropdownBtn = document.getElementById("gamesDropdownBtn");
-  const gamesDropdown = document.getElementById("gamesDropdown");
-
-  gamesDropdownBtn.addEventListener("click", () => {
-    if (gamesDropdown.style.display === "block") {
-      gamesDropdown.style.display = "none";
-    } else {
-      gamesDropdown.style.display = "block";
-    }
-  });
-
-  document.addEventListener("click", (event) => {
-    if (!event.target.closest(".dropdown")) {
-      gamesDropdown.style.display = "none";
-    }
-  });
-</script>
+    document.addEventListener("click", (event) => {
+      if (!event.target.closest(".dropdown")) {
+        gamesDropdown.style.display = "none";
+      }
+    });
+  </script>
 
 </body>
 </html>
