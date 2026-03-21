@@ -26,15 +26,15 @@
 
     .floating-pork {
       position: fixed;
-      width: 90px;
-      height: 90px;
+      width: 84px;
+      height: 84px;
       object-fit: cover;
-      border-radius: 18px;
-      opacity: 0.16;
+      border-radius: 16px;
+      opacity: 0.12;
       z-index: 0;
       pointer-events: none;
       animation: floatPork linear infinite;
-      box-shadow: 0 0 18px rgba(255,255,255,0.25);
+      box-shadow: 0 0 18px rgba(255,255,255,0.2);
     }
 
     @keyframes floatPork {
@@ -45,7 +45,7 @@
     .app {
       position: relative;
       z-index: 2;
-      max-width: 980px;
+      max-width: 1100px;
       margin: 0 auto;
       padding: 18px 14px 36px;
     }
@@ -119,7 +119,7 @@
 
     .game-layout {
       display: grid;
-      grid-template-columns: 1fr 320px;
+      grid-template-columns: 1fr 340px;
       gap: 18px;
       align-items: start;
     }
@@ -135,7 +135,7 @@
 
     .board {
       width: 100%;
-      max-width: 520px;
+      max-width: 600px;
       aspect-ratio: 1;
       display: grid;
       grid-template-columns: repeat(8, 1fr);
@@ -145,6 +145,8 @@
       padding: 10px;
       border-radius: 20px;
       touch-action: none;
+      user-select: none;
+      position: relative;
     }
 
     .cell {
@@ -157,7 +159,7 @@
 
     .cell.block {
       box-shadow: 0 0 10px rgba(255,255,255,0.25), 0 0 18px rgba(255,0,200,0.2);
-      animation: popIn 0.18s ease;
+      animation: popIn 0.15s ease;
     }
 
     .cell img {
@@ -165,21 +167,32 @@
       height: 100%;
       object-fit: cover;
       display: block;
+      pointer-events: none;
     }
 
     .cell.preview-valid {
-      outline: 3px solid rgba(0,255,136,0.9);
-      background: rgba(0,255,136,0.2);
+      outline: 3px solid rgba(0,255,136,0.95);
+      background: rgba(0,255,136,0.18);
     }
 
     .cell.preview-invalid {
-      outline: 3px solid rgba(255,70,70,0.9);
-      background: rgba(255,70,70,0.2);
+      outline: 3px solid rgba(255,70,70,0.95);
+      background: rgba(255,70,70,0.18);
+    }
+
+    .cell.clear-flash {
+      animation: clearFlash 0.25s ease 2;
     }
 
     @keyframes popIn {
       from { transform: scale(0.72); opacity: 0.5; }
       to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes clearFlash {
+      0% { filter: brightness(1); transform: scale(1); }
+      50% { filter: brightness(1.7); transform: scale(1.08); }
+      100% { filter: brightness(1); transform: scale(1); }
     }
 
     .pieces-title {
@@ -201,7 +214,7 @@
       cursor: grab;
       transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
       width: 100%;
-      height: 140px;
+      height: 150px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -221,33 +234,33 @@
     }
 
     .piece.used {
-      opacity: 0.25;
+      opacity: 0.22;
       pointer-events: none;
       filter: grayscale(1);
     }
 
- .mini-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 34px);
-  grid-template-rows: repeat(4, 34px);
-  gap: 6px;
-  justify-content: center;
-  align-content: center;
-  width: 100%;
-  height: 100%;
-}
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 32px);
+      grid-template-rows: repeat(5, 32px);
+      gap: 6px;
+      justify-content: center;
+      align-content: center;
+      width: 100%;
+      height: 100%;
+    }
 
     .mini-cell {
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       border-radius: 8px;
-      background: rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.04);
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.04);
     }
 
     .mini-cell.fill {
-      box-shadow: 0 0 10px rgba(255,255,255,0.25);
+      box-shadow: 0 0 10px rgba(255,255,255,0.18);
     }
 
     .mini-cell img {
@@ -255,6 +268,7 @@
       height: 100%;
       object-fit: cover;
       display: block;
+      pointer-events: none;
     }
 
     .drag-ghost {
@@ -336,10 +350,6 @@
       .game-layout {
         grid-template-columns: 1fr;
       }
-
-      .board {
-        max-width: 100%;
-      }
     }
   </style>
 </head>
@@ -384,8 +394,8 @@
         <div id="pieces" class="pieces"></div>
         <div class="tips">
           Zieh ein Teil aufs Spielfeld.<br>
-          Während du ziehst, siehst du genau, wo es landen würde.<br>
-          Grün = passt, Rot = passt nicht.
+          Grün = passt, Rot = passt nicht.<br>
+          Die Vorschau zeigt exakt die Zielposition.
         </div>
       </div>
     </div>
@@ -412,7 +422,7 @@
     const particlesEl = document.getElementById("particles");
     const overlay = document.getElementById("gameOverOverlay");
     const gameOverText = document.getElementById("gameOverText");
-    const bestKey = "johnPorkBlastBest";
+    const bestKey = "johnPorkBlastBestV2";
 
     const imagePool = [
       "Screenshot 2026-03-20 125829.png",
@@ -447,6 +457,7 @@
       "Screenshot 2026-03-20 223855.png"
     ];
 
+    // Formen mit 5x5 Logik für saubere Anzeige und exaktere Platzierung
     const SHAPES = [
       [[1]],
       [[1,1]],
@@ -471,7 +482,9 @@
       [[1,1,1],[1,1,1]],
       [[1,1,1],[1,0,1]],
       [[1,1,1],[0,1,1]],
-      [[1,1,1],[1,1,0]]
+      [[1,1,1],[1,1,0]],
+      [[1,1,1,1,1]],
+      [[1],[1],[1],[1],[1]]
     ];
 
     let board = [];
@@ -495,10 +508,6 @@
       }
     }
 
-    function cloneShape(shape) {
-      return shape.map(row => [...row]);
-    }
-
     function createEmptyBoard() {
       return Array.from({ length: boardSize }, () =>
         Array.from({ length: boardSize }, () => null)
@@ -507,6 +516,10 @@
 
     function randomImage() {
       return imagePool[Math.floor(Math.random() * imagePool.length)];
+    }
+
+    function cloneShape(shape) {
+      return shape.map(row => [...row]);
     }
 
     function createPiece() {
@@ -571,29 +584,28 @@
         pieceEl.className = "piece";
         if (piece.used) pieceEl.classList.add("used");
 
-       const rows = piece.shape.length;
-const cols = piece.shape[0].length;
+        const miniGrid = document.createElement("div");
+        miniGrid.className = "mini-grid";
 
-const miniGrid = document.createElement("div");
-miniGrid.className = "mini-grid";
+        for (let gridR = 0; gridR < 5; gridR++) {
+          for (let gridC = 0; gridC < 5; gridC++) {
+            const mini = document.createElement("div");
+            mini.className = "mini-cell";
 
-// festes 4x4 Raster
-for (let gridR = 0; gridR < 4; gridR++) {
-  for (let gridC = 0; gridC < 4; gridC++) {
-    const mini = document.createElement("div");
-    mini.className = "mini-cell";
+            if (
+              gridR < piece.shape.length &&
+              gridC < piece.shape[0].length &&
+              piece.shape[gridR][gridC]
+            ) {
+              mini.classList.add("fill");
+              mini.innerHTML = `<img src="${piece.image}" alt="">`;
+            }
 
-    if (gridR < rows && gridC < cols && piece.shape[gridR][gridC]) {
-      mini.classList.add("fill");
-      mini.innerHTML = `<img src="${piece.image}" alt="">`;
-    }
-
-    miniGrid.appendChild(mini);
-  }
-}
+            miniGrid.appendChild(mini);
+          }
+        }
 
         pieceEl.appendChild(miniGrid);
-
         pieceEl.addEventListener("pointerdown", (e) => startDrag(e, index, pieceEl));
         piecesEl.appendChild(pieceEl);
       });
@@ -603,7 +615,6 @@ for (let gridR = 0; gridR < 4; gridR++) {
       for (let r = 0; r < piece.shape.length; r++) {
         for (let c = 0; c < piece.shape[0].length; c++) {
           if (!piece.shape[r][c]) continue;
-
           const br = startRow + r;
           const bc = startCol + c;
 
@@ -633,11 +644,10 @@ for (let gridR = 0; gridR < 4; gridR++) {
           if (br < 0 || br >= boardSize || bc < 0 || bc >= boardSize) continue;
 
           const cell = boardEl.querySelector(`[data-r="${br}"][data-c="${bc}"]`);
-          if (cell) {
-            cell.classList.add(valid ? "preview-valid" : "preview-invalid");
-          }
+          if (cell) cell.classList.add(valid ? "preview-valid" : "preview-invalid");
         }
       }
+
       return valid;
     }
 
@@ -691,30 +701,36 @@ for (let gridR = 0; gridR < 4; gridR++) {
         if (full) colsToClear.push(c);
       }
 
-      const uniqueCells = new Set();
+      const keys = new Set();
 
       rowsToClear.forEach(r => {
-        for (let c = 0; c < boardSize; c++) uniqueCells.add(`${r},${c}`);
+        for (let c = 0; c < boardSize; c++) keys.add(`${r},${c}`);
       });
 
       colsToClear.forEach(c => {
-        for (let r = 0; r < boardSize; r++) uniqueCells.add(`${r},${c}`);
+        for (let r = 0; r < boardSize; r++) keys.add(`${r},${c}`);
       });
 
-      if (uniqueCells.size === 0) return 0;
+      if (keys.size === 0) return 0;
 
-      uniqueCells.forEach(key => {
+      keys.forEach(key => {
         const [r, c] = key.split(",").map(Number);
-        board[r][c] = null;
-
         const cell = boardEl.querySelector(`[data-r="${r}"][data-c="${c}"]`);
         if (cell) {
+          cell.classList.add("clear-flash");
           const rect = cell.getBoundingClientRect();
           spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, 10);
         }
       });
 
-      setTimeout(() => renderBoard(), 30);
+      setTimeout(() => {
+        keys.forEach(key => {
+          const [r, c] = key.split(",").map(Number);
+          board[r][c] = null;
+        });
+        renderBoard();
+      }, 120);
+
       return rowsToClear.length + colsToClear.length;
     }
 
@@ -759,20 +775,23 @@ for (let gridR = 0; gridR < 4; gridR++) {
       const ghost = document.createElement("div");
       ghost.className = "drag-ghost";
 
-      const rows = piece.shape.length;
-      const cols = piece.shape[0].length;
       const miniGrid = document.createElement("div");
       miniGrid.className = "mini-grid";
-      miniGrid.style.gridTemplateColumns = `repeat(${cols}, 34px)`;
 
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
+      for (let gridR = 0; gridR < 5; gridR++) {
+        for (let gridC = 0; gridC < 5; gridC++) {
           const mini = document.createElement("div");
           mini.className = "mini-cell";
-          if (piece.shape[r][c]) {
+
+          if (
+            gridR < piece.shape.length &&
+            gridC < piece.shape[0].length &&
+            piece.shape[gridR][gridC]
+          ) {
             mini.classList.add("fill");
             mini.innerHTML = `<img src="${piece.image}" alt="">`;
           }
+
           miniGrid.appendChild(mini);
         }
       }
@@ -789,10 +808,14 @@ for (let gridR = 0; gridR < 4; gridR++) {
       pieceEl.setPointerCapture?.(e.pointerId);
 
       const ghost = makeGhost(piece);
+
       dragState = {
         pieceIndex,
         piece,
-        ghost
+        ghost,
+        valid: false,
+        row: null,
+        col: null
       };
 
       pieceEl.classList.add("selected");
