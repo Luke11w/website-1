@@ -366,8 +366,77 @@
     </div>
 
     <div class="topbar-right">
-      <a class="topbar-btn" href="snake.html">Pork Games</a>
+  <div class="dropdown">
+    <button class="topbar-btn dropdown-btn" id="gamesDropdownBtn">Pork Games ▾</button>
+
+    <div class="dropdown-content" id="gamesDropdown">
+      <a href="snake.html">🐍 Snake Game</a>
+      <a href="mole.html">🔨 Mole Game</a>
+      <a href="tire.html">🛞 Tire Game</a>
+      <a href="memory.html">🧠 Skibidi Memory</a>
+      <a href="flappy.html">🐷 John Pork Flappy</a>
+      <a href="blockblast.html">💥 John Pork Blast</a>
     </div>
+  </div>
+</div>
+    .topbar-btn {
+  background: yellow;
+  color: black !important;
+  padding: 10px 16px;
+  border-radius: 10px;
+  box-shadow: 0 0 12px orange;
+}
+    .dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-btn {
+  border: none;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 115%;
+  min-width: 240px;
+  background: rgba(20, 0, 50, 0.95);
+  border: 2px solid yellow;
+  border-radius: 16px;
+  box-shadow: 0 0 20px orange;
+  overflow: hidden;
+  z-index: 10000;
+}
+
+.dropdown-content a {
+  display: block;
+  padding: 14px 16px;
+  color: white;
+  text-decoration: none;
+  font-size: 17px;
+  font-weight: bold;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  transition: 0.2s;
+}
+
+.dropdown-content a:last-child {
+  border-bottom: none;
+}
+
+.dropdown-content a:hover {
+  background: yellow;
+  color: black;
+  transform: none;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+    
   </div>
 
   <div class="hero">
