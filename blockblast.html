@@ -38,12 +38,8 @@
     }
 
     @keyframes floatPork {
-      from {
-        transform: translateY(110vh) rotate(0deg);
-      }
-      to {
-        transform: translateY(-140px) rotate(360deg);
-      }
+      from { transform: translateY(110vh) rotate(0deg); }
+      to { transform: translateY(-140px) rotate(360deg); }
     }
 
     .app {
@@ -148,6 +144,7 @@
       background: rgba(255,255,255,0.05);
       padding: 10px;
       border-radius: 20px;
+      touch-action: none;
     }
 
     .cell {
@@ -163,26 +160,26 @@
       animation: popIn 0.18s ease;
     }
 
-    .cell.preview-valid {
-      outline: 3px solid rgba(0,255,136,0.8);
-      background: rgba(0,255,136,0.18);
-    }
-
-    .cell.preview-invalid {
-      outline: 3px solid rgba(255,70,70,0.8);
-      background: rgba(255,70,70,0.18);
-    }
-
-    @keyframes popIn {
-      from { transform: scale(0.72); opacity: 0.5; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
     .cell img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
+    }
+
+    .cell.preview-valid {
+      outline: 3px solid rgba(0,255,136,0.9);
+      background: rgba(0,255,136,0.2);
+    }
+
+    .cell.preview-invalid {
+      outline: 3px solid rgba(255,70,70,0.9);
+      background: rgba(255,70,70,0.2);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.72); opacity: 0.5; }
+      to { transform: scale(1); opacity: 1; }
     }
 
     .pieces-title {
@@ -197,19 +194,22 @@
       gap: 14px;
     }
 
-.piece {
-  background: rgba(255,255,255,0.07);
-  border: 2px solid transparent;
-  border-radius: 18px;
-  padding: 12px;
-  cursor: pointer;
-  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
-  width: 100%;
-  height: 140px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    .piece {
+      background: rgba(255,255,255,0.07);
+      border: 2px solid transparent;
+      border-radius: 18px;
+      cursor: grab;
+      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+      width: 100%;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+      padding: 0;
+    }
 
     .piece:hover {
       transform: translateY(-3px);
@@ -226,14 +226,13 @@
       filter: grayscale(1);
     }
 
-  .mini-grid {
-  display: grid;
-  gap: 6px;
-  justify-content: center;
-  align-content: center;
-  width: 100%;
-  height: 100%;
-}
+    .mini-grid {
+      display: grid;
+      gap: 6px;
+      justify-content: center;
+      align-content: center;
+      width: 100%;
+      height: 100%;
     }
 
     .mini-cell {
@@ -254,6 +253,15 @@
       height: 100%;
       object-fit: cover;
       display: block;
+    }
+
+    .drag-ghost {
+      position: fixed;
+      pointer-events: none;
+      z-index: 1000;
+      transform: translate(-50%, -50%);
+      opacity: 0.95;
+      filter: drop-shadow(0 0 16px rgba(255,255,255,0.45));
     }
 
     .tips {
@@ -373,10 +381,9 @@
         <div class="pieces-title">Formen</div>
         <div id="pieces" class="pieces"></div>
         <div class="tips">
-          1. Unten eine Form anklicken.<br>
-          2. Dann auf das Feld klicken, wo du sie platzieren willst.<br>
-          3. Volle Reihen und Spalten werden gelöscht.<br>
-          4. Wenn keine Form mehr passt = Game Over 💀
+          Zieh ein Teil aufs Spielfeld.<br>
+          Während du ziehst, siehst du genau, wo es landen würde.<br>
+          Grün = passt, Rot = passt nicht.
         </div>
       </div>
     </div>
@@ -467,9 +474,9 @@
 
     let board = [];
     let currentPieces = [];
-    let selectedPieceIndex = null;
     let score = 0;
     let combo = 0;
+    let dragState = null;
 
     function getBest() {
       return Number(localStorage.getItem(bestKey) || 0);
@@ -486,12 +493,8 @@
       }
     }
 
-    function shuffle(arr) {
-      return [...arr].sort(() => Math.random() - 0.5);
-    }
-
-    function randomImage() {
-      return imagePool[Math.floor(Math.random() * imagePool.length)];
+    function cloneShape(shape) {
+      return shape.map(row => [...row]);
     }
 
     function createEmptyBoard() {
@@ -500,8 +503,8 @@
       );
     }
 
-    function cloneShape(shape) {
-      return shape.map(row => [...row]);
+    function randomImage() {
+      return imagePool[Math.floor(Math.random() * imagePool.length)];
     }
 
     function createPiece() {
@@ -512,10 +515,15 @@
       };
     }
 
+    function updateHud() {
+      scoreValue.textContent = score;
+      comboValue.textContent = combo;
+      updateBest();
+    }
+
     function refillPiecesIfNeeded() {
       if (currentPieces.every(p => p.used)) {
         currentPieces = [createPiece(), createPiece(), createPiece()];
-        selectedPieceIndex = null;
         renderPieces();
       }
     }
@@ -523,19 +531,13 @@
     function resetGame() {
       board = createEmptyBoard();
       currentPieces = [createPiece(), createPiece(), createPiece()];
-      selectedPieceIndex = null;
       score = 0;
       combo = 0;
+      endDrag();
       updateHud();
       renderBoard();
       renderPieces();
       closeOverlay();
-    }
-
-    function updateHud() {
-      scoreValue.textContent = score;
-      comboValue.textContent = combo;
-      updateBest();
     }
 
     function renderBoard() {
@@ -554,10 +556,6 @@
             cell.innerHTML = `<img src="${value}" alt="">`;
           }
 
-          cell.addEventListener("mouseenter", () => previewPlacement(r, c));
-          cell.addEventListener("mouseleave", clearPreview);
-          cell.addEventListener("click", () => tryPlaceSelectedPiece(r, c));
-
           boardEl.appendChild(cell);
         }
       }
@@ -570,7 +568,6 @@
         const pieceEl = document.createElement("div");
         pieceEl.className = "piece";
         if (piece.used) pieceEl.classList.add("used");
-        if (selectedPieceIndex === index) pieceEl.classList.add("selected");
 
         const rows = piece.shape.length;
         const cols = piece.shape[0].length;
@@ -583,7 +580,6 @@
           for (let c = 0; c < cols; c++) {
             const mini = document.createElement("div");
             mini.className = "mini-cell";
-
             if (piece.shape[r][c]) {
               mini.classList.add("fill");
               mini.innerHTML = `<img src="${piece.image}" alt="">`;
@@ -594,13 +590,7 @@
 
         pieceEl.appendChild(miniGrid);
 
-        pieceEl.addEventListener("click", () => {
-          if (piece.used) return;
-          selectedPieceIndex = selectedPieceIndex === index ? null : index;
-          renderPieces();
-          clearPreview();
-        });
-
+        pieceEl.addEventListener("pointerdown", (e) => startDrag(e, index, pieceEl));
         piecesEl.appendChild(pieceEl);
       });
     }
@@ -620,13 +610,14 @@
       return true;
     }
 
-    function previewPlacement(startRow, startCol) {
+    function clearPreview() {
+      boardEl.querySelectorAll(".preview-valid, .preview-invalid").forEach(cell => {
+        cell.classList.remove("preview-valid", "preview-invalid");
+      });
+    }
+
+    function showPreview(piece, startRow, startCol) {
       clearPreview();
-      if (selectedPieceIndex === null) return;
-
-      const piece = currentPieces[selectedPieceIndex];
-      if (!piece || piece.used) return;
-
       const valid = canPlace(piece, startRow, startCol);
 
       for (let r = 0; r < piece.shape.length; r++) {
@@ -643,26 +634,15 @@
           }
         }
       }
+      return valid;
     }
 
-    function clearPreview() {
-      document.querySelectorAll(".preview-valid, .preview-invalid").forEach(el => {
-        el.classList.remove("preview-valid", "preview-invalid");
-      });
-    }
-
-    function tryPlaceSelectedPiece(startRow, startCol) {
-      if (selectedPieceIndex === null) return;
-      const piece = currentPieces[selectedPieceIndex];
-      if (!piece || piece.used) return;
-      if (!canPlace(piece, startRow, startCol)) return;
-
+    function placePiece(piece, startRow, startCol) {
       let placedBlocks = 0;
 
       for (let r = 0; r < piece.shape.length; r++) {
         for (let c = 0; c < piece.shape[0].length; c++) {
           if (!piece.shape[r][c]) continue;
-
           const br = startRow + r;
           const bc = startCol + c;
           board[br][bc] = piece.image;
@@ -671,9 +651,7 @@
       }
 
       score += placedBlocks * 5;
-
       piece.used = true;
-      selectedPieceIndex = null;
 
       const cleared = clearLines();
       if (cleared > 0) {
@@ -771,6 +749,112 @@
 
     function closeOverlay() {
       overlay.classList.remove("show");
+    }
+
+    function makeGhost(piece) {
+      const ghost = document.createElement("div");
+      ghost.className = "drag-ghost";
+
+      const rows = piece.shape.length;
+      const cols = piece.shape[0].length;
+      const miniGrid = document.createElement("div");
+      miniGrid.className = "mini-grid";
+      miniGrid.style.gridTemplateColumns = `repeat(${cols}, 34px)`;
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const mini = document.createElement("div");
+          mini.className = "mini-cell";
+          if (piece.shape[r][c]) {
+            mini.classList.add("fill");
+            mini.innerHTML = `<img src="${piece.image}" alt="">`;
+          }
+          miniGrid.appendChild(mini);
+        }
+      }
+
+      ghost.appendChild(miniGrid);
+      document.body.appendChild(ghost);
+      return ghost;
+    }
+
+    function startDrag(e, pieceIndex, pieceEl) {
+      const piece = currentPieces[pieceIndex];
+      if (!piece || piece.used) return;
+
+      pieceEl.setPointerCapture?.(e.pointerId);
+
+      const ghost = makeGhost(piece);
+      dragState = {
+        pieceIndex,
+        piece,
+        ghost
+      };
+
+      pieceEl.classList.add("selected");
+      moveGhost(e.clientX, e.clientY);
+      updateDragTarget(e.clientX, e.clientY);
+
+      window.addEventListener("pointermove", onPointerMove);
+      window.addEventListener("pointerup", onPointerUp);
+    }
+
+    function moveGhost(x, y) {
+      if (!dragState) return;
+      dragState.ghost.style.left = x + "px";
+      dragState.ghost.style.top = y + "px";
+    }
+
+    function getBoardCellFromPoint(x, y) {
+      const element = document.elementFromPoint(x, y);
+      if (!element) return null;
+      const cell = element.closest(".cell");
+      if (!cell || !boardEl.contains(cell)) return null;
+      return {
+        row: Number(cell.dataset.r),
+        col: Number(cell.dataset.c)
+      };
+    }
+
+    function updateDragTarget(x, y) {
+      if (!dragState) return;
+      clearPreview();
+
+      const hit = getBoardCellFromPoint(x, y);
+      if (!hit) {
+        dragState.valid = false;
+        dragState.row = null;
+        dragState.col = null;
+        return;
+      }
+
+      dragState.row = hit.row;
+      dragState.col = hit.col;
+      dragState.valid = showPreview(dragState.piece, hit.row, hit.col);
+    }
+
+    function onPointerMove(e) {
+      moveGhost(e.clientX, e.clientY);
+      updateDragTarget(e.clientX, e.clientY);
+    }
+
+    function onPointerUp() {
+      if (!dragState) return;
+
+      if (dragState.valid && dragState.row !== null && dragState.col !== null) {
+        placePiece(dragState.piece, dragState.row, dragState.col);
+      }
+
+      endDrag();
+    }
+
+    function endDrag() {
+      clearPreview();
+      if (dragState?.ghost) dragState.ghost.remove();
+      document.querySelectorAll(".piece.selected").forEach(p => p.classList.remove("selected"));
+      dragState = null;
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
     }
 
     resetGame();
