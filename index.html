@@ -658,7 +658,102 @@
       lightbox.classList.remove("active");
       lightboxImg.src = "";
     });
-  </script>
+  <script>
+  const chaosMessages = [
+    "john pork ruft an 📞",
+    "brain rot aktiviert 🧠",
+    "du bist verloren 😈",
+    "zu spät 💀",
+    "maximum chaos",
+    "pork detected 🐷"
+  ];
+
+  function createChaosText() {
+    const txt = document.createElement("div");
+    txt.className = "chaos-text";
+    txt.innerText = chaosMessages[Math.floor(Math.random() * chaosMessages.length)];
+    txt.style.left = Math.random() * 80 + "vw";
+    txt.style.top = Math.random() * 80 + "vh";
+    txt.style.fontSize = (18 + Math.random() * 18) + "px";
+    txt.style.color = ["white", "yellow", "lime", "cyan", "red", "pink"][Math.floor(Math.random() * 6)];
+    document.body.appendChild(txt);
+    setTimeout(() => txt.remove(), 2200);
+  }
+
+  setInterval(createChaosText, 1800);
+
+  const callPopup = document.getElementById("callPopup");
+  const openCallBtn = document.getElementById("openCallBtn");
+  const closeCallBtn = document.getElementById("closeCallBtn");
+  const acceptBtn = document.getElementById("acceptBtn");
+  const ringSound = document.getElementById("ringSound");
+
+  openCallBtn.addEventListener("click", () => {
+    callPopup.classList.add("active");
+    ringSound.currentTime = 0;
+    ringSound.play().catch(() => {});
+  });
+
+  closeCallBtn.addEventListener("click", () => {
+    callPopup.classList.remove("active");
+    ringSound.pause();
+    ringSound.currentTime = 0;
+  });
+
+  acceptBtn.addEventListener("click", () => {
+    ringSound.pause();
+    ringSound.currentTime = 0;
+    alert("📞 John Pork: warum hast du so spät angenommen? 💀");
+    callPopup.classList.remove("active");
+  });
+
+  callPopup.addEventListener("click", (event) => {
+    if (event.target === callPopup) {
+      callPopup.classList.remove("active");
+      ringSound.pause();
+      ringSound.currentTime = 0;
+    }
+  });
+
+  const lightbox = document.getElementById("lightbox");
+  const lightboxImg = document.getElementById("lightboxImg");
+  const galleryImages = document.querySelectorAll(".gallery-img");
+  const mainPork = document.querySelector(".main-pork");
+
+  galleryImages.forEach((img) => {
+    img.addEventListener("click", () => {
+      lightboxImg.src = img.src;
+      lightbox.classList.add("active");
+    });
+  });
+
+  mainPork.addEventListener("click", () => {
+    lightboxImg.src = mainPork.src;
+    lightbox.classList.add("active");
+  });
+
+  lightbox.addEventListener("click", () => {
+    lightbox.classList.remove("active");
+    lightboxImg.src = "";
+  });
+
+  const gamesDropdownBtn = document.getElementById("gamesDropdownBtn");
+  const gamesDropdown = document.getElementById("gamesDropdown");
+
+  gamesDropdownBtn.addEventListener("click", () => {
+    if (gamesDropdown.style.display === "block") {
+      gamesDropdown.style.display = "none";
+    } else {
+      gamesDropdown.style.display = "block";
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".dropdown")) {
+      gamesDropdown.style.display = "none";
+    }
+  });
+</script>
 
 </body>
 </html>
