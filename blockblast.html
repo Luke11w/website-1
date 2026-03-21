@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>John Pork Blast</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: white;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background: linear-gradient(135deg, #2a0047, #49006e, #001f5f, #000);
+      background-size: 400% 400%;
+      animation: bgMove 10s ease infinite;
+    }
+
+    @keyframes bgMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .floating-pork {
+      position: fixed;
+      width: 90px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 18px;
+      opacity: 0.16;
+      z-index: 0;
+      pointer-events: none;
+      animation: floatPork linear infinite;
+      box-shadow: 0 0 18px rgba(255,255,255,0.25);
+    }
+
+    @keyframes floatPork {
+      from {
+        transform: translateY(110vh) rotate(0deg);
+      }
+      to {
+        transform: translateY(-140px) rotate(360deg);
+      }
+    }
+
+    .app {
+      position: relative;
+      z-index: 2;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 18px 14px 36px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .title {
+      font-size: 38px;
+      font-weight: bold;
+      text-shadow: 0 0 10px #fff, 0 0 20px #ff00c8, 0 0 30px #00d9ff;
+    }
+
+    .top-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background: linear-gradient(90deg, #ffe600, #ffb300);
+      color: #111;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 16px;
+      font-weight: bold;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.22);
+      transition: transform 0.16s ease;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+    }
+
+    .hud {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .box {
+      background: rgba(0,0,0,0.38);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      padding: 12px 16px;
+      min-width: 140px;
+      box-shadow: 0 0 16px rgba(0,0,0,0.24);
+    }
+
+    .label {
+      font-size: 13px;
+      opacity: 0.85;
+    }
+
+    .value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #ffe766;
+    }
+
+    .game-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .board-wrap, .side-wrap {
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(8px);
+      border-radius: 24px;
+      padding: 16px;
+      box-shadow: 0 14px 34px rgba(0,0,0,0.28);
+    }
+
+    .board {
+      width: 100%;
+      max-width: 520px;
+      aspect-ratio: 1;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.05);
+      padding: 10px;
+      border-radius: 20px;
+    }
+
+    .cell {
+      position: relative;
+      background: rgba(255,255,255,0.07);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .cell.block {
+      box-shadow: 0 0 10px rgba(255,255,255,0.25), 0 0 18px rgba(255,0,200,0.2);
+      animation: popIn 0.18s ease;
+    }
+
+    .cell.preview-valid {
+      outline: 3px solid rgba(0,255,136,0.8);
+      background: rgba(0,255,136,0.18);
+    }
+
+    .cell.preview-invalid {
+      outline: 3px solid rgba(255,70,70,0.8);
+      background: rgba(255,70,70,0.18);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.72); opacity: 0.5; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .cell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .pieces-title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      text-shadow: 0 0 12px rgba(255,255,255,0.4);
+    }
+
+    .pieces {
+      display: grid;
+      gap: 14px;
+    }
+
+    .piece {
+      background: rgba(255,255,255,0.07);
+      border: 2px solid transparent;
+      border-radius: 18px;
+      padding: 12px;
+      cursor: pointer;
+      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .piece:hover {
+      transform: translateY(-3px);
+    }
+
+    .piece.selected {
+      border-color: #ffe600;
+      box-shadow: 0 0 16px rgba(255,230,0,0.5);
+    }
+
+    .piece.used {
+      opacity: 0.25;
+      pointer-events: none;
+      filter: grayscale(1);
+    }
+
+    .mini-grid {
+      display: grid;
+      gap: 6px;
+      justify-content: center;
+      align-content: center;
+    }
+
+    .mini-cell {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .mini-cell.fill {
+      box-shadow: 0 0 10px rgba(255,255,255,0.25);
+    }
+
+    .mini-cell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .tips {
+      margin-top: 16px;
+      line-height: 1.5;
+      color: #eee;
+      font-size: 15px;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      padding: 20px;
+    }
+
+    .overlay.show {
+      display: flex;
+    }
+
+    .overlay-box {
+      width: min(92%, 520px);
+      background: linear-gradient(135deg, rgba(255,0,170,0.2), rgba(0,180,255,0.22), rgba(0,255,140,0.16));
+      border: 1px solid rgba(255,255,255,0.18);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      padding: 28px 22px;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(255,255,255,0.12);
+    }
+
+    .overlay-box h2 {
+      margin-top: 0;
+      font-size: 34px;
+      text-shadow: 0 0 10px #fff, 0 0 18px #00d9ff;
+    }
+
+    .particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 12;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      animation: burst 0.9s ease-out forwards;
+    }
+
+    @keyframes burst {
+      0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--dx), var(--dy)) scale(0.2);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .game-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .board {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <img class="floating-pork" src="Screenshot 2026-03-20 173804.png" style="left:5%;animation-duration:17s;animation-delay:0s;">
+  <img class="floating-pork" src="Screenshot 2026-03-20 173621.png" style="left:22%;animation-duration:20s;animation-delay:2s;">
+  <img class="floating-pork" src="Screenshot 2026-03-20 155545.png" style="left:40%;animation-duration:18s;animation-delay:5s;">
+  <img class="floating-pork" src="Screenshot 2026-03-20 180931.png" style="left:60%;animation-duration:22s;animation-delay:1s;">
+  <img class="floating-pork" src="Screenshot 2026-03-20 181111.png" style="left:80%;animation-duration:19s;animation-delay:4s;">
+
+  <div class="app">
+    <div class="topbar">
+      <div class="title">💥 John Pork Blast 💥</div>
+      <div class="top-controls">
+        <button class="btn" onclick="resetGame()">🔄 Neustart</button>
+        <a class="btn" href="index.html">🏠 Home</a>
+      </div>
+    </div>
+
+    <div class="hud">
+      <div class="box">
+        <div class="label">Score</div>
+        <div class="value" id="scoreValue">0</div>
+      </div>
+      <div class="box">
+        <div class="label">Best Score</div>
+        <div class="value" id="bestValue">0</div>
+      </div>
+      <div class="box">
+        <div class="label">Combo</div>
+        <div class="value" id="comboValue">0</div>
+      </div>
+    </div>
+
+    <div class="game-layout">
+      <div class="board-wrap">
+        <div id="board" class="board"></div>
+      </div>
+
+      <div class="side-wrap">
+        <div class="pieces-title">Formen</div>
+        <div id="pieces" class="pieces"></div>
+        <div class="tips">
+          1. Unten eine Form anklicken.<br>
+          2. Dann auf das Feld klicken, wo du sie platzieren willst.<br>
+          3. Volle Reihen und Spalten werden gelöscht.<br>
+          4. Wenn keine Form mehr passt = Game Over 💀
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="particles" id="particles"></div>
+
+  <div class="overlay" id="gameOverOverlay">
+    <div class="overlay-box">
+      <h2>💀 Game Over</h2>
+      <p id="gameOverText">Keine Form passt mehr.</p>
+      <button class="btn" onclick="closeOverlay(); resetGame();">🔄 Nochmal spielen</button>
+      <a class="btn" href="index.html">🏠 Home</a>
+    </div>
+  </div>
+
+  <script>
+    const boardSize = 8;
+    const boardEl = document.getElementById("board");
+    const piecesEl = document.getElementById("pieces");
+    const scoreValue = document.getElementById("scoreValue");
+    const comboValue = document.getElementById("comboValue");
+    const bestValue = document.getElementById("bestValue");
+    const particlesEl = document.getElementById("particles");
+    const overlay = document.getElementById("gameOverOverlay");
+    const gameOverText = document.getElementById("gameOverText");
+    const bestKey = "johnPorkBlastBest";
+
+    const imagePool = [
+      "Screenshot 2026-03-20 125829.png",
+      "Screenshot 2026-03-20 125836.png",
+      "Screenshot 2026-03-20 125847.png",
+      "Screenshot 2026-03-20 125859.png",
+      "Screenshot 2026-03-20 125904.png",
+      "Screenshot 2026-03-20 125914.png",
+      "Screenshot 2026-03-20 125922.png",
+      "Screenshot 2026-03-20 125927.png",
+      "Screenshot 2026-03-20 125933.png",
+      "Screenshot 2026-03-20 125938.png",
+      "Screenshot 2026-03-20 125953.png",
+      "Screenshot 2026-03-20 125957.png",
+      "Screenshot 2026-03-20 130001.png",
+      "Screenshot 2026-03-20 130006.png",
+      "Screenshot 2026-03-20 130010.png",
+      "Screenshot 2026-03-20 130017.png",
+      "Screenshot 2026-03-20 130024.png",
+      "Screenshot 2026-03-20 130028.png",
+      "Screenshot 2026-03-20 155545.png",
+      "Screenshot 2026-03-20 173621.png",
+      "Screenshot 2026-03-20 173804.png",
+      "Screenshot 2026-03-20 180931.png",
+      "Screenshot 2026-03-20 180939.png",
+      "Screenshot 2026-03-20 180947.png",
+      "Screenshot 2026-03-20 180958.png",
+      "Screenshot 2026-03-20 181008.png",
+      "Screenshot 2026-03-20 181017.png",
+      "Screenshot 2026-03-20 181055.png",
+      "Screenshot 2026-03-20 181111.png",
+      "Screenshot 2026-03-20 223855.png"
+    ];
+
+    const SHAPES = [
+      [[1]],
+      [[1,1]],
+      [[1],[1]],
+      [[1,1,1]],
+      [[1],[1],[1]],
+      [[1,1,1,1]],
+      [[1],[1],[1],[1]],
+      [[1,1],[1,1]],
+      [[1,0],[1,1]],
+      [[0,1],[1,1]],
+      [[1,1],[1,0]],
+      [[1,1],[0,1]],
+      [[1,1,1],[0,1,0]],
+      [[0,1,0],[1,1,1]],
+      [[1,0],[1,0],[1,1]],
+      [[0,1],[0,1],[1,1]],
+      [[1,1,1],[1,0,0]],
+      [[1,1,1],[0,0,1]],
+      [[1,1,0],[0,1,1]],
+      [[0,1,1],[1,1,0]],
+      [[1,1,1],[1,1,1]],
+      [[1,1,1],[1,0,1]],
+      [[1,1,1],[0,1,1]],
+      [[1,1,1],[1,1,0]]
+    ];
+
+    let board = [];
+    let currentPieces = [];
+    let selectedPieceIndex = null;
+    let score = 0;
+    let combo = 0;
+
+    function getBest() {
+      return Number(localStorage.getItem(bestKey) || 0);
+    }
+
+    function updateBest() {
+      bestValue.textContent = getBest();
+    }
+
+    function saveBestIfNeeded() {
+      if (score > getBest()) {
+        localStorage.setItem(bestKey, score);
+        updateBest();
+      }
+    }
+
+    function shuffle(arr) {
+      return [...arr].sort(() => Math.random() - 0.5);
+    }
+
+    function randomImage() {
+      return imagePool[Math.floor(Math.random() * imagePool.length)];
+    }
+
+    function createEmptyBoard() {
+      return Array.from({ length: boardSize }, () =>
+        Array.from({ length: boardSize }, () => null)
+      );
+    }
+
+    function cloneShape(shape) {
+      return shape.map(row => [...row]);
+    }
+
+    function createPiece() {
+      return {
+        shape: cloneShape(SHAPES[Math.floor(Math.random() * SHAPES.length)]),
+        image: randomImage(),
+        used: false
+      };
+    }
+
+    function refillPiecesIfNeeded() {
+      if (currentPieces.every(p => p.used)) {
+        currentPieces = [createPiece(), createPiece(), createPiece()];
+        selectedPieceIndex = null;
+        renderPieces();
+      }
+    }
+
+    function resetGame() {
+      board = createEmptyBoard();
+      currentPieces = [createPiece(), createPiece(), createPiece()];
+      selectedPieceIndex = null;
+      score = 0;
+      combo = 0;
+      updateHud();
+      renderBoard();
+      renderPieces();
+      closeOverlay();
+    }
+
+    function updateHud() {
+      scoreValue.textContent = score;
+      comboValue.textContent = combo;
+      updateBest();
+    }
+
+    function renderBoard() {
+      boardEl.innerHTML = "";
+
+      for (let r = 0; r < boardSize; r++) {
+        for (let c = 0; c < boardSize; c++) {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          cell.dataset.r = r;
+          cell.dataset.c = c;
+
+          const value = board[r][c];
+          if (value) {
+            cell.classList.add("block");
+            cell.innerHTML = `<img src="${value}" alt="">`;
+          }
+
+          cell.addEventListener("mouseenter", () => previewPlacement(r, c));
+          cell.addEventListener("mouseleave", clearPreview);
+          cell.addEventListener("click", () => tryPlaceSelectedPiece(r, c));
+
+          boardEl.appendChild(cell);
+        }
+      }
+    }
+
+    function renderPieces() {
+      piecesEl.innerHTML = "";
+
+      currentPieces.forEach((piece, index) => {
+        const pieceEl = document.createElement("div");
+        pieceEl.className = "piece";
+        if (piece.used) pieceEl.classList.add("used");
+        if (selectedPieceIndex === index) pieceEl.classList.add("selected");
+
+        const rows = piece.shape.length;
+        const cols = piece.shape[0].length;
+
+        const miniGrid = document.createElement("div");
+        miniGrid.className = "mini-grid";
+        miniGrid.style.gridTemplateColumns = `repeat(${cols}, 34px)`;
+
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const mini = document.createElement("div");
+            mini.className = "mini-cell";
+
+            if (piece.shape[r][c]) {
+              mini.classList.add("fill");
+              mini.innerHTML = `<img src="${piece.image}" alt="">`;
+            }
+            miniGrid.appendChild(mini);
+          }
+        }
+
+        pieceEl.appendChild(miniGrid);
+
+        pieceEl.addEventListener("click", () => {
+          if (piece.used) return;
+          selectedPieceIndex = selectedPieceIndex === index ? null : index;
+          renderPieces();
+          clearPreview();
+        });
+
+        piecesEl.appendChild(pieceEl);
+      });
+    }
+
+    function canPlace(piece, startRow, startCol) {
+      for (let r = 0; r < piece.shape.length; r++) {
+        for (let c = 0; c < piece.shape[0].length; c++) {
+          if (!piece.shape[r][c]) continue;
+
+          const br = startRow + r;
+          const bc = startCol + c;
+
+          if (br < 0 || br >= boardSize || bc < 0 || bc >= boardSize) return false;
+          if (board[br][bc] !== null) return false;
+        }
+      }
+      return true;
+    }
+
+    function previewPlacement(startRow, startCol) {
+      clearPreview();
+      if (selectedPieceIndex === null) return;
+
+      const piece = currentPieces[selectedPieceIndex];
+      if (!piece || piece.used) return;
+
+      const valid = canPlace(piece, startRow, startCol);
+
+      for (let r = 0; r < piece.shape.length; r++) {
+        for (let c = 0; c < piece.shape[0].length; c++) {
+          if (!piece.shape[r][c]) continue;
+
+          const br = startRow + r;
+          const bc = startCol + c;
+          if (br < 0 || br >= boardSize || bc < 0 || bc >= boardSize) continue;
+
+          const cell = boardEl.querySelector(`[data-r="${br}"][data-c="${bc}"]`);
+          if (cell) {
+            cell.classList.add(valid ? "preview-valid" : "preview-invalid");
+          }
+        }
+      }
+    }
+
+    function clearPreview() {
+      document.querySelectorAll(".preview-valid, .preview-invalid").forEach(el => {
+        el.classList.remove("preview-valid", "preview-invalid");
+      });
+    }
+
+    function tryPlaceSelectedPiece(startRow, startCol) {
+      if (selectedPieceIndex === null) return;
+      const piece = currentPieces[selectedPieceIndex];
+      if (!piece || piece.used) return;
+      if (!canPlace(piece, startRow, startCol)) return;
+
+      let placedBlocks = 0;
+
+      for (let r = 0; r < piece.shape.length; r++) {
+        for (let c = 0; c < piece.shape[0].length; c++) {
+          if (!piece.shape[r][c]) continue;
+
+          const br = startRow + r;
+          const bc = startCol + c;
+          board[br][bc] = piece.image;
+          placedBlocks++;
+        }
+      }
+
+      score += placedBlocks * 5;
+
+      piece.used = true;
+      selectedPieceIndex = null;
+
+      const cleared = clearLines();
+      if (cleared > 0) {
+        combo++;
+        score += cleared * 100 + combo * 20;
+      } else {
+        combo = 0;
+      }
+
+      updateHud();
+      renderBoard();
+      renderPieces();
+      refillPiecesIfNeeded();
+      checkGameOver();
+    }
+
+    function clearLines() {
+      const rowsToClear = [];
+      const colsToClear = [];
+
+      for (let r = 0; r < boardSize; r++) {
+        if (board[r].every(cell => cell !== null)) rowsToClear.push(r);
+      }
+
+      for (let c = 0; c < boardSize; c++) {
+        let full = true;
+        for (let r = 0; r < boardSize; r++) {
+          if (board[r][c] === null) {
+            full = false;
+            break;
+          }
+        }
+        if (full) colsToClear.push(c);
+      }
+
+      const uniqueCells = new Set();
+
+      rowsToClear.forEach(r => {
+        for (let c = 0; c < boardSize; c++) uniqueCells.add(`${r},${c}`);
+      });
+
+      colsToClear.forEach(c => {
+        for (let r = 0; r < boardSize; r++) uniqueCells.add(`${r},${c}`);
+      });
+
+      if (uniqueCells.size === 0) return 0;
+
+      uniqueCells.forEach(key => {
+        const [r, c] = key.split(",").map(Number);
+        board[r][c] = null;
+
+        const cell = boardEl.querySelector(`[data-r="${r}"][data-c="${c}"]`);
+        if (cell) {
+          const rect = cell.getBoundingClientRect();
+          spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, 10);
+        }
+      });
+
+      setTimeout(() => renderBoard(), 30);
+      return rowsToClear.length + colsToClear.length;
+    }
+
+    function spawnParticles(x, y, count = 14) {
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement("div");
+        p.className = "particle";
+        p.style.left = x + "px";
+        p.style.top = y + "px";
+        p.style.background = ["#ff00c8", "#00d9ff", "#00ff88", "#ffe600", "#ffffff"][Math.floor(Math.random() * 5)];
+        p.style.setProperty("--dx", (Math.random() * 220 - 110) + "px");
+        p.style.setProperty("--dy", (Math.random() * 220 - 110) + "px");
+        particlesEl.appendChild(p);
+        setTimeout(() => p.remove(), 900);
+      }
+    }
+
+    function anyPlacementPossible(piece) {
+      if (piece.used) return false;
+      for (let r = 0; r < boardSize; r++) {
+        for (let c = 0; c < boardSize; c++) {
+          if (canPlace(piece, r, c)) return true;
+        }
+      }
+      return false;
+    }
+
+    function checkGameOver() {
+      const hasMove = currentPieces.some(piece => anyPlacementPossible(piece));
+      if (!hasMove) {
+        saveBestIfNeeded();
+        gameOverText.innerHTML = `Dein Score: <b>${score}</b><br>Best Score: <b>${getBest()}</b>`;
+        overlay.classList.add("show");
+      }
+    }
+
+    function closeOverlay() {
+      overlay.classList.remove("show");
+    }
+
+    resetGame();
+  </script>
+</body>
+</html>
