@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>John Pork Tetris</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Comic Sans MS, Arial, sans-serif;
+      background: linear-gradient(135deg, #1a001f, #39004d, #001133, #000000);
+      background-size: 400% 400%;
+      animation: bgMove 10s ease infinite;
+      color: white;
+      min-height: 100vh;
+      overflow-x: hidden;
+      text-align: center;
+    }
+
+    @keyframes bgMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .page {
+      width: 95%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 12px 40px;
+    }
+
+    h1 {
+      margin: 10px 0 5px;
+      font-size: clamp(32px, 7vw, 70px);
+      text-shadow: 0 0 10px #fff, 0 0 20px red, 0 0 30px yellow;
+      animation: titleShake 0.25s infinite alternate;
+    }
+
+    @keyframes titleShake {
+      from { transform: translateX(-2px) rotate(-0.5deg); }
+      to { transform: translateX(2px) rotate(0.5deg); }
+    }
+
+    .subtitle {
+      font-size: 20px;
+      color: #ffe44d;
+      margin-bottom: 18px;
+      text-shadow: 0 0 8px black;
+    }
+
+    .game-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 22px;
+      justify-content: center;
+      align-items: flex-start;
+      margin-top: 20px;
+    }
+
+    .left-panel,
+    .right-panel {
+      width: 260px;
+      max-width: 100%;
+      background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,255,255,0.15);
+      border-radius: 24px;
+      box-shadow: 0 0 30px rgba(255,255,255,0.08);
+      padding: 18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .center-panel {
+      background: rgba(0,0,0,0.35);
+      border: 3px solid yellow;
+      border-radius: 28px;
+      box-shadow: 0 0 35px rgba(255, 255, 0, 0.25);
+      padding: 16px;
+      position: relative;
+    }
+
+    #gameCanvas {
+      display: block;
+      width: min(90vw, 360px);
+      height: auto;
+      background: rgba(0,0,0,0.8);
+      border-radius: 18px;
+      border: 3px solid white;
+      box-shadow: 0 0 25px rgba(255,255,255,0.15);
+    }
+
+    #nextCanvas {
+      width: 120px;
+      height: 120px;
+      background: rgba(0,0,0,0.65);
+      border: 2px solid white;
+      border-radius: 16px;
+      display: block;
+      margin: 10px auto 0;
+    }
+
+    .panel-title {
+      font-size: 24px;
+      margin: 0 0 12px;
+      color: #ffe44d;
+      text-shadow: 0 0 10px red;
+    }
+
+    .stat {
+      font-size: 20px;
+      margin: 12px 0;
+      padding: 10px 12px;
+      background: rgba(0,0,0,0.35);
+      border-radius: 14px;
+      box-shadow: inset 0 0 12px rgba(255,255,255,0.06);
+    }
+
+    .big-number {
+      display: block;
+      font-size: 28px;
+      font-weight: bold;
+      color: #fff;
+      margin-top: 6px;
+      text-shadow: 0 0 10px #00ffcc;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 16px;
+      padding: 14px 18px;
+      margin: 8px 6px;
+      font-size: 18px;
+      font-weight: bold;
+      font-family: inherit;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 0 16px rgba(255,255,255,0.2);
+    }
+
+    .btn:hover {
+      transform: scale(1.06);
+    }
+
+    .start-btn {
+      background: linear-gradient(135deg, #00ff88, #ffe600);
+      color: black;
+    }
+
+    .restart-btn {
+      background: linear-gradient(135deg, #ff4d4d, #ff9900);
+      color: white;
+    }
+
+    .home-btn {
+      display: inline-block;
+      text-decoration: none;
+      background: linear-gradient(135deg, #00d9ff, #8a2eff);
+      color: white;
+    }
+
+    .controls-info {
+      text-align: left;
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    .controls-info b {
+      color: #ffe44d;
+    }
+
+    .flash {
+      animation: screenFlash 0.35s ease;
+    }
+
+    @keyframes screenFlash {
+      0% { box-shadow: 0 0 10px white, 0 0 25px yellow; }
+      50% { box-shadow: 0 0 25px white, 0 0 50px red, 0 0 70px yellow; }
+      100% { box-shadow: 0 0 10px white, 0 0 25px yellow; }
+    }
+
+    .shake {
+      animation: gameShake 0.25s;
+    }
+
+    @keyframes gameShake {
+      0% { transform: translate(0, 0); }
+      20% { transform: translate(-5px, 2px); }
+      40% { transform: translate(5px, -2px); }
+      60% { transform: translate(-4px, -2px); }
+      80% { transform: translate(4px, 2px); }
+      100% { transform: translate(0, 0); }
+    }
+
+    .line-boom {
+      position: absolute;
+      left: 50%;
+      top: 20px;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 0, 0.15);
+      border: 2px solid yellow;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 16px;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 0 20px yellow;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .line-boom.show {
+      animation: boomText 0.9s ease;
+    }
+
+    @keyframes boomText {
+      0% { opacity: 0; transform: translateX(-50%) scale(0.7); }
+      30% { opacity: 1; transform: translateX(-50%) scale(1.15); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-20px) scale(1); }
+    }
+
+    .game-over {
+      margin-top: 12px;
+      font-size: 26px;
+      font-weight: bold;
+      color: #ff6666;
+      text-shadow: 0 0 10px red;
+      min-height: 36px;
+    }
+
+    .preview-imgs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .preview-imgs img {
+      width: 100%;
+      border-radius: 10px;
+      border: 2px solid rgba(255,255,255,0.2);
+      box-shadow: 0 0 14px rgba(255,255,255,0.1);
+    }
+
+    @media (max-width: 900px) {
+      .game-wrap {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .left-panel,
+      .right-panel {
+        width: min(95%, 500px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h1>🧱 JOHN PORK TETRIS 🐷</h1>
+    <div class="subtitle">die blöcke sind cursed screenshots 💀</div>
+
+    <div class="game-wrap">
+      <div class="left-panel">
+        <h2 class="panel-title">🎮 Steuerung</h2>
+        <div class="controls-info">
+          <div><b>⬅ / ➡</b> bewegen</div>
+          <div><b>⬇</b> schneller runter</div>
+          <div><b>⬆</b> drehen</div>
+          <div><b>Leertaste</b> sofort droppen</div>
+          <div><b>P</b> Pause</div>
+        </div>
+
+        <div class="stat">
+          Score
+          <span class="big-number" id="score">0</span>
+        </div>
+
+        <div class="stat">
+          Level
+          <span class="big-number" id="level">1</span>
+        </div>
+
+        <div class="stat">
+          Lines
+          <span class="big-number" id="lines">0</span>
+        </div>
+
+        <button class="btn start-btn" id="startBtn">▶ START</button>
+        <button class="btn restart-btn" id="restartBtn">🔁 RESTART</button>
+        <br>
+        <a class="btn home-btn" href="index.html">⬅ Home</a>
+
+        <div class="game-over" id="gameOverText"></div>
+      </div>
+
+      <div class="center-panel" id="centerPanel">
+        <div class="line-boom" id="lineBoom">JOHN PORK COMBO!</div>
+        <canvas id="gameCanvas" width="300" height="600"></canvas>
+      </div>
+
+      <div class="right-panel">
+        <h2 class="panel-title">🔮 Next Block</h2>
+        <canvas id="nextCanvas" width="120" height="120"></canvas>
+
+        <h2 class="panel-title" style="margin-top:20px;">📸 Pork Textures</h2>
+        <div class="preview-imgs">
+          <img src="Screenshot 2026-03-20 125829.png" alt="">
+          <img src="Screenshot 2026-03-20 125836.png" alt="">
+          <img src="Screenshot 2026-03-20 125847.png" alt="">
+          <img src="Screenshot 2026-03-20 125859.png" alt="">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const nextCanvas = document.getElementById("nextCanvas");
+    const nextCtx = nextCanvas.getContext("2d");
+
+    const scoreEl = document.getElementById("score");
+    const levelEl = document.getElementById("level");
+    const linesEl = document.getElementById("lines");
+    const startBtn = document.getElementById("startBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const gameOverText = document.getElementById("gameOverText");
+    const centerPanel = document.getElementById("centerPanel");
+    const lineBoom = document.getElementById("lineBoom");
+
+    const COLS = 10;
+    const ROWS = 20;
+    const BLOCK_SIZE = 30;
+
+    let board = [];
+    let currentPiece = null;
+    let nextPiece = null;
+    let score = 0;
+    let level = 1;
+    let lines = 0;
+    let dropCounter = 0;
+    let dropInterval = 800;
+    let lastTime = 0;
+    let gameRunning = false;
+    let paused = false;
+    let animationId = null;
+
+    const screenshotFiles = [
+      "Screenshot 2026-03-20 125829.png",
+      "Screenshot 2026-03-20 125836.png",
+      "Screenshot 2026-03-20 125847.png",
+      "Screenshot 2026-03-20 125859.png",
+      "Screenshot 2026-03-20 125904.png",
+      "Screenshot 2026-03-20 125914.png",
+      "Screenshot 2026-03-20 125922.png"
+    ];
+
+    const pieceShapes = [
+      [[1,1,1,1]],
+
+      [[1,1],
+       [1,1]],
+
+      [[0,1,0],
+       [1,1,1]],
+
+      [[0,1,1],
+       [1,1,0]],
+
+      [[1,1,0],
+       [0,1,1]],
+
+      [[1,0,0],
+       [1,1,1]],
+
+      [[0,0,1],
+       [1,1,1]]
+    ];
+
+    const loadedImages = [];
+    const imagePatterns = [];
+
+    function loadImages() {
+      return Promise.all(
+        screenshotFiles.map((src) => {
+          return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = () => resolve(null);
+            img.src = src;
+          });
+        })
+      );
+    }
+
+    function createPatterns() {
+      imagePatterns.length = 0;
+
+      loadedImages.forEach((img, index) => {
+        if (img) {
+          const tempCanvas = document.createElement("canvas");
+          tempCanvas.width = BLOCK_SIZE;
+          tempCanvas.height = BLOCK_SIZE;
+          const tempCtx = tempCanvas.getContext("2d");
+
+          tempCtx.drawImage(img, 0, 0, BLOCK_SIZE, BLOCK_SIZE);
+
+          tempCtx.fillStyle = "rgba(255,255,255,0.08)";
+          tempCtx.fillRect(0, 0, BLOCK_SIZE, BLOCK_SIZE);
+
+          const pattern = ctx.createPattern(tempCanvas, "no-repeat");
+          imagePatterns[index] = pattern;
+        } else {
+          imagePatterns[index] = null;
+        }
+      });
+    }
+
+    function resetBoard() {
+      board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+    }
+
+    function getRandomPatternIndex() {
+      return Math.floor(Math.random() * screenshotFiles.length);
+    }
+
+    function createPiece() {
+      const shape = JSON.parse(JSON.stringify(pieceShapes[Math.floor(Math.random() * pieceShapes.length)]));
+      return {
+        shape,
+        x: Math.floor(COLS / 2) - Math.ceil(shape[0].length / 2),
+        y: 0,
+        patternIndex: getRandomPatternIndex()
+      };
+    }
+
+    function drawCell(x, y, patternIndex, alpha = 1) {
+      const px = x * BLOCK_SIZE;
+      const py = y * BLOCK_SIZE;
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+
+      if (imagePatterns[patternIndex]) {
+        ctx.fillStyle = imagePatterns[patternIndex];
+        ctx.fillRect(px, py, BLOCK_SIZE, BLOCK_SIZE);
+      } else {
+        ctx.fillStyle = "#ff00cc";
+        ctx.fillRect(px, py, BLOCK_SIZE, BLOCK_SIZE);
+      }
+
+      ctx.strokeStyle = "rgba(255,255,255,0.7)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(px + 1, py + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
+
+      ctx.fillStyle = "rgba(255,255,255,0.15)";
+      ctx.fillRect(px + 2, py + 2, BLOCK_SIZE - 10, 6);
+
+      ctx.restore();
+    }
+
+    function drawBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "rgba(0,0,0,0.85)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+          const cell = board[y][x];
+          if (cell) {
+            drawCell(x, y, cell);
+          }
+
+          ctx.strokeStyle = "rgba(255,255,255,0.06)";
+          ctx.lineWidth = 1;
+          ctx.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+        }
+      }
+
+      if (currentPiece) {
+        drawPiece(currentPiece);
+      }
+    }
+
+    function drawPiece(piece) {
+      for (let y = 0; y < piece.shape.length; y++) {
+        for (let x = 0; x < piece.shape[y].length; x++) {
+          if (piece.shape[y][x]) {
+            drawCell(piece.x + x, piece.y + y, piece.patternIndex);
+          }
+        }
+      }
+    }
+
+    function drawNextPiece() {
+      nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
+
+      nextCtx.fillStyle = "rgba(0,0,0,0.8)";
+      nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+
+      if (!nextPiece) return;
+
+      const shape = nextPiece.shape;
+      const cellSize = 24;
+      const offsetX = (nextCanvas.width - shape[0].length * cellSize) / 2;
+      const offsetY = (nextCanvas.height - shape.length * cellSize) / 2;
+
+      for (let y = 0; y < shape.length; y++) {
+        for (let x = 0; x < shape[y].length; x++) {
+          if (shape[y][x]) {
+            const px = offsetX + x * cellSize;
+            const py = offsetY + y * cellSize;
+
+            if (loadedImages[nextPiece.patternIndex]) {
+              nextCtx.drawImage(loadedImages[nextPiece.patternIndex], px, py, cellSize, cellSize);
+              nextCtx.fillStyle = "rgba(255,255,255,0.08)";
+              nextCtx.fillRect(px, py, cellSize, cellSize);
+            } else {
+              nextCtx.fillStyle = "#ff00cc";
+              nextCtx.fillRect(px, py, cellSize, cellSize);
+            }
+
+            nextCtx.strokeStyle = "white";
+            nextCtx.lineWidth = 2;
+            nextCtx.strokeRect(px + 1, py + 1, cellSize - 2, cellSize - 2);
+          }
+        }
+      }
+    }
+
+    function collide(piece, boardToCheck = board) {
+      for (let y = 0; y < piece.shape.length; y++) {
+        for (let x = 0; x < piece.shape[y].length; x++) {
+          if (!piece.shape[y][x]) continue;
+
+          const newX = piece.x + x;
+          const newY = piece.y + y;
+
+          if (newX < 0 || newX >= COLS || newY >= ROWS) {
+            return true;
+          }
+
+          if (newY >= 0 && boardToCheck[newY][newX]) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function mergePiece() {
+      currentPiece.shape.forEach((row, y) => {
+        row.forEach((value, x) => {
+          if (value) {
+            const boardY = currentPiece.y + y;
+            const boardX = currentPiece.x + x;
+
+            if (boardY >= 0) {
+              board[boardY][boardX] = currentPiece.patternIndex;
+            }
+          }
+        });
+      });
+    }
+
+    function rotateMatrix(matrix) {
+      const rows = matrix.length;
+      const cols = matrix[0].length;
+      const rotated = Array.from({ length: cols }, () => Array(rows).fill(0));
+
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          rotated[x][rows - 1 - y] = matrix[y][x];
+        }
+      }
+
+      return rotated;
+    }
+
+    function rotatePiece() {
+      if (!currentPiece || !gameRunning || paused) return;
+
+      const oldShape = currentPiece.shape;
+      const rotated = rotateMatrix(oldShape);
+      currentPiece.shape = rotated;
+
+      if (collide(currentPiece)) {
+        currentPiece.x += 1;
+        if (collide(currentPiece)) {
+          currentPiece.x -= 2;
+          if (collide(currentPiece)) {
+            currentPiece.x += 1;
+            currentPiece.shape = oldShape;
+          }
+        }
+      }
+    }
+
+    function movePiece(dir) {
+      if (!currentPiece || !gameRunning || paused) return;
+      currentPiece.x += dir;
+      if (collide(currentPiece)) {
+        currentPiece.x -= dir;
+      }
+    }
+
+    function dropPiece() {
+      if (!currentPiece || !gameRunning || paused) return;
+
+      currentPiece.y++;
+      if (collide(currentPiece)) {
+        currentPiece.y--;
+        mergePiece();
+        clearLines();
+        spawnNextPiece();
+      }
+      dropCounter = 0;
+    }
+
+    function hardDrop() {
+      if (!currentPiece || !gameRunning || paused) return;
+
+      while (!collide(currentPiece)) {
+        currentPiece.y++;
+      }
+      currentPiece.y--;
+      mergePiece();
+      centerPanel.classList.add("shake");
+      setTimeout(() => centerPanel.classList.remove("shake"), 200);
+      clearLines();
+      spawnNextPiece();
+      dropCounter = 0;
+    }
+
+    function clearLines() {
+      let cleared = 0;
+
+      outer:
+      for (let y = ROWS - 1; y >= 0; y--) {
+        for (let x = 0; x < COLS; x++) {
+          if (!board[y][x]) {
+            continue outer;
+          }
+        }
+
+        const row = board.splice(y, 1)[0];
+        board.unshift(Array(COLS).fill(0));
+        y++;
+        cleared++;
+      }
+
+      if (cleared > 0) {
+        lines += cleared;
+        score += [0, 100, 300, 500, 800][cleared] * level;
+        level = Math.floor(lines / 10) + 1;
+        dropInterval = Math.max(120, 800 - (level - 1) * 60);
+
+        updateUI();
+        lineEffect(cleared);
+      }
+    }
+
+    function lineEffect(count) {
+      centerPanel.classList.add("flash");
+      centerPanel.classList.add("shake");
+      lineBoom.textContent = count === 4 ? "TETRIS PORK BLAST!!!" : "JOHN PORK COMBO x" + count;
+      lineBoom.classList.remove("show");
+      void lineBoom.offsetWidth;
+      lineBoom.classList.add("show");
+
+      setTimeout(() => {
+        centerPanel.classList.remove("flash");
+        centerPanel.classList.remove("shake");
+      }, 350);
+    }
+
+    function spawnNextPiece() {
+      currentPiece = nextPiece || createPiece();
+      nextPiece = createPiece();
+      drawNextPiece();
+
+      currentPiece.x = Math.floor(COLS / 2) - Math.ceil(currentPiece.shape[0].length / 2);
+      currentPiece.y = 0;
+
+      if (collide(currentPiece)) {
+        endGame();
+      }
+    }
+
+    function updateUI() {
+      scoreEl.textContent = score;
+      levelEl.textContent = level;
+      linesEl.textContent = lines;
+    }
+
+    function update(time = 0) {
+      if (!gameRunning) return;
+
+      const delta = time - lastTime;
+      lastTime = time;
+
+      if (!paused) {
+        dropCounter += delta;
+        if (dropCounter > dropInterval) {
+          dropPiece();
+        }
+
+        drawBoard();
+      } else {
+        drawPausedOverlay();
+      }
+
+      animationId = requestAnimationFrame(update);
+    }
+
+    function drawPausedOverlay() {
+      drawBoard();
+      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "white";
+      ctx.font = "bold 34px Comic Sans MS";
+      ctx.textAlign = "center";
+      ctx.fillText("PAUSE", canvas.width / 2, canvas.height / 2);
+    }
+
+    function startGame() {
+      resetBoard();
+      score = 0;
+      level = 1;
+      lines = 0;
+      dropInterval = 800;
+      dropCounter = 0;
+      lastTime = 0;
+      paused = false;
+      gameRunning = true;
+      gameOverText.textContent = "";
+      updateUI();
+
+      currentPiece = createPiece();
+      nextPiece = createPiece();
+      drawNextPiece();
+
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+      update();
+    }
+
+    function endGame() {
+      gameRunning = false;
+      gameOverText.textContent = "💀 GAME OVER";
+      drawBoard();
+      ctx.fillStyle = "rgba(0,0,0,0.65)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#ff6666";
+      ctx.font = "bold 34px Comic Sans MS";
+      ctx.textAlign = "center";
+      ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 10);
+      ctx.fillStyle = "white";
+      ctx.font = "bold 20px Comic Sans MS";
+      ctx.fillText("John Pork hat verloren 😭", canvas.width / 2, canvas.height / 2 + 30);
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (!gameRunning) return;
+
+      if (e.key === "ArrowLeft") {
+        movePiece(-1);
+      } else if (e.key === "ArrowRight") {
+        movePiece(1);
+      } else if (e.key === "ArrowDown") {
+        dropPiece();
+      } else if (e.key === "ArrowUp") {
+        rotatePiece();
+      } else if (e.code === "Space") {
+        e.preventDefault();
+        hardDrop();
+      } else if (e.key.toLowerCase() === "p") {
+        paused = !paused;
+      }
+    });
+
+    startBtn.addEventListener("click", startGame);
+    restartBtn.addEventListener("click", startGame);
+
+    function drawStartScreen() {
+      ctx.fillStyle = "rgba(0,0,0,0.85)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "white";
+      ctx.font = "bold 30px Comic Sans MS";
+      ctx.textAlign = "center";
+      ctx.fillText("JOHN PORK", canvas.width / 2, 220);
+
+      ctx.fillStyle = "#ffe600";
+      ctx.font = "bold 34px Comic Sans MS";
+      ctx.fillText("TETRIS", canvas.width / 2, 265);
+
+      ctx.fillStyle = "#ff7b7b";
+      ctx.font = "bold 18px Comic Sans MS";
+      ctx.fillText("drück auf START", canvas.width / 2, 320);
+
+      ctx.fillStyle = "rgba(255,255,255,0.08)";
+      ctx.fillRect(40, 360, 220, 120);
+      ctx.strokeStyle = "yellow";
+      ctx.strokeRect(40, 360, 220, 120);
+
+      ctx.fillStyle = "white";
+      ctx.font = "16px Comic Sans MS";
+      ctx.fillText("die blöcke benutzen", canvas.width / 2, 405);
+      ctx.fillText("deine screenshot bilder 💀", canvas.width / 2, 435);
+    }
+
+    async function init() {
+      const images = await loadImages();
+      loadedImages.push(...images);
+      createPatterns();
+      resetBoard();
+      updateUI();
+      drawNextPiece();
+      drawStartScreen();
+    }
+
+    init();
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>John Pork Tetris</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Comic Sans MS, Arial, sans-serif;
+      background: linear-gradient(135deg, #1a001f, #39004d, #001133, #000000);
+      background-size: 400% 400%;
+      animation: bgMove 10s ease infinite;
+      color: white;
+      min-height: 100vh;
+      overflow-x: hidden;
+      text-align: center;
+    }
+
+    @keyframes bgMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .page {
+      width: 95%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 12px 40px;
+    }
+
+    h1 {
+      margin: 10px 0 5px;
+      font-size: clamp(32px, 7vw, 70px);
+      text-shadow: 0 0 10px #fff, 0 0 20px red, 0 0 30px yellow;
+      animation: titleShake 0.25s infinite alternate;
+    }
+
+    @keyframes titleShake {
+      from { transform: translateX(-2px) rotate(-0.5deg); }
+      to { transform: translateX(2px) rotate(0.5deg); }
+    }
+
+    .subtitle {
+      font-size: 20px;
+      color: #ffe44d;
+      margin-bottom: 18px;
+      text-shadow: 0 0 8px black;
+    }
+
+    .game-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 22px;
+      justify-content: center;
+      align-items: flex-start;
+      margin-top: 20px;
+    }
+
+    .left-panel,
+    .right-panel {
+      width: 260px;
+      max-width: 100%;
+      background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,255,255,0.15);
+      border-radius: 24px;
+      box-shadow: 0 0 30px rgba(255,255,255,0.08);
+      padding: 18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .center-panel {
+      background: rgba(0,0,0,0.35);
+      border: 3px solid yellow;
+      border-radius: 28px;
+      box-shadow: 0 0 35px rgba(255, 255, 0, 0.25);
+      padding: 16px;
+      position: relative;
+    }
+
+    #gameCanvas {
+      display: block;
+      width: min(90vw, 360px);
+      height: auto;
+      background: rgba(0,0,0,0.8);
+      border-radius: 18px;
+      border: 3px solid white;
+      box-shadow: 0 0 25px rgba(255,255,255,0.15);
+    }
+
+    #nextCanvas {
+      width: 120px;
+      height: 120px;
+      background: rgba(0,0,0,0.65);
+      border: 2px solid white;
+      border-radius: 16px;
+      display: block;
+      margin: 10px auto 0;
+    }
+
+    .panel-title {
+      font-size: 24px;
+      margin: 0 0 12px;
+      color: #ffe44d;
+      text-shadow: 0 0 10px red;
+    }
+
+    .stat {
+      font-size: 20px;
+      margin: 12px 0;
+      padding: 10px 12px;
+      background: rgba(0,0,0,0.35);
+      border-radius: 14px;
+      box-shadow: inset 0 0 12px rgba(255,255,255,0.06);
+    }
+
+    .big-number {
+      display: block;
+      font-size: 28px;
+      font-weight: bold;
+      color: #fff;
+      margin-top: 6px;
+      text-shadow: 0 0 10px #00ffcc;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 16px;
+      padding: 14px 18px;
+      margin: 8px 6px;
+      font-size: 18px;
+      font-weight: bold;
+      font-family: inherit;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 0 16px rgba(255,255,255,0.2);
+    }
+
+    .btn:hover {
+      transform: scale(1.06);
+    }
+
+    .start-btn {
+      background: linear-gradient(135deg, #00ff88, #ffe600);
+      color: black;
+    }
+
+    .restart-btn {
+      background: linear-gradient(135deg, #ff4d4d, #ff9900);
+      color: white;
+    }
+
+    .home-btn {
+      display: inline-block;
+      text-decoration: none;
+      background: linear-gradient(135deg, #00d9ff, #8a2eff);
+      color: white;
+    }
+
+    .controls-info {
+      text-align: left;
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    .controls-info b {
+      color: #ffe44d;
+    }
+
+    .flash {
+      animation: screenFlash 0.35s ease;
+    }
+
+    @keyframes screenFlash {
+      0% { box-shadow: 0 0 10px white, 0 0 25px yellow; }
+      50% { box-shadow: 0 0 25px white, 0 0 50px red, 0 0 70px yellow; }
+      100% { box-shadow: 0 0 10px white, 0 0 25px yellow; }
+    }
+
+    .shake {
+      animation: gameShake 0.25s;
+    }
+
+    @keyframes gameShake {
+      0% { transform: translate(0, 0); }
+      20% { transform: translate(-5px, 2px); }
+      40% { transform: translate(5px, -2px); }
+      60% { transform: translate(-4px, -2px); }
+      80% { transform: translate(4px, 2px); }
+      100% { transform: translate(0, 0); }
+    }
+
+    .line-boom {
+      position: absolute;
+      left: 50%;
+      top: 20px;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 0, 0.15);
+      border: 2px solid yellow;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 16px;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 0 20px yellow;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .line-boom.show {
+      animation: boomText 0.9s ease;
+    }
+
+    @keyframes boomText {
+      0% { opacity: 0; transform: translateX(-50%) scale(0.7); }
+      30% { opacity: 1; transform: translateX(-50%) scale(1.15); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-20px) scale(1); }
+    }
+
+    .game-over {
+      margin-top: 12px;
+      font-size: 26px;
+      font-weight: bold;
+      color: #ff6666;
+      text-shadow: 0 0 10px red;
+      min-height: 36px;
+    }
+
+    .preview-imgs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .preview-imgs img {
+      width: 100%;
+      border-radius: 10px;
+      border: 2px solid rgba(255,255,255,0.2);
+      box-shadow: 0 0 14px rgba(255,255,255,0.1);
+    }
+
+    @media (max-width: 900px) {
+      .game-wrap {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .left-panel,
+      .right-panel {
+        width: min(95%, 500px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h1>🧱 JOHN PORK TETRIS 🐷</h1>
+    <div class="subtitle">die blöcke sind cursed screenshots 💀</div>
+
+    <div class="game-wrap">
+      <div class="left-panel">
+        <h2 class="panel-title">🎮 Steuerung</h2>
+        <div class="controls-info">
+          <div><b>⬅ / ➡</b> bewegen</div>
+          <div><b>⬇</b> schneller runter</div>
+          <div><b>⬆</b> drehen</div>
+          <div><b>Leertaste</b> sofort droppen</div>
+          <div><b>P</b> Pause</div>
+        </div>
+
+        <div class="stat">
+          Score
+          <span class="big-number" id="score">0</span>
+        </div>
+
+        <div class="stat">
+          Level
+          <span class="big-number" id="level">1</span>
+        </div>
+
+        <div class="stat">
+          Lines
+          <span class="big-number" id="lines">0</span>
+        </div>
+
+        <button class="btn start-btn" id="startBtn">▶ START</button>
+        <button class="btn restart-btn" id="restartBtn">🔁 RESTART</button>
+        <br>
+        <a class="btn home-btn" href="index.html">⬅ Home</a>
+
+        <div class="game-over" id="gameOverText"></div>
+      </div>
+
+      <div class="center-panel" id="centerPanel">
+        <div class="line-boom" id="lineBoom">JOHN PORK COMBO!</div>
+        <canvas id="gameCanvas" width="300" height="600"></canvas>
+      </div>
+
+      <div class="right-panel">
+        <h2 class="panel-title">🔮 Next Block</h2>
+        <canvas id="nextCanvas" width="120" height="120"></canvas>
+
+        <h2 class="panel-title" style="margin-top:20px;">📸 Pork Textures</h2>
+        <div class="preview-imgs">
+          <img src="Screenshot 2026-03-20 125829.png" alt="">
+          <img src="Screenshot 2026-03-20 125836.png" alt="">
+          <img src="Screenshot 2026-03-20 125847.png" alt="">
+          <img src="Screenshot 2026-03-20 125859.png" alt="">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const nextCanvas = document.getElementById("nextCanvas");
+    const nextCtx = nextCanvas.getContext("2d");
+
+    const scoreEl = document.getElementById("score");
+    const levelEl = document.getElementById("level");
+    const linesEl = document.getElementById("lines");
+    const startBtn = document.getElementById("startBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const gameOverText = document.getElementById("gameOverText");
+    const centerPanel = document.getElementById("centerPanel");
+    const lineBoom = document.getElementById("lineBoom");
+
+    const COLS = 10;
+    const ROWS = 20;
+    const BLOCK_SIZE = 30;
+
+    let board = [];
+    let currentPiece = null;
+    let nextPiece = null;
+    let score = 0;
+    let level = 1;
+    let lines = 0;
+    let dropCounter = 0;
+    let dropInterval = 800;
+    let lastTime = 0;
+    let gameRunning = false;
+    let paused = false;
+    let animationId = null;
+
+    const screenshotFiles = [
+      "Screenshot 2026-03-20 125829.png",
+      "Screenshot 2026-03-20 125836.png",
+      "Screenshot 2026-03-20 125847.png",
+      "Screenshot 2026-03-20 125859.png",
+      "Screenshot 2026-03-20 125904.png",
+      "Screenshot 2026-03-20 125914.png",
+      "Screenshot 2026-03-20 125922.png"
+    ];
+
+    const pieceShapes = [
+      [[1,1,1,1]],
+
+      [[1,1],
+       [1,1]],
+
+      [[0,1,0],
+       [1,1,1]],
+
+      [[0,1,1],
+       [1,1,0]],
+
+      [[1,1,0],
+       [0,1,1]],
+
+      [[1,0,0],
+       [1,1,1]],
+
+      [[0,0,1],
+       [1,1,1]]
+    ];
+
+    const loadedImages = [];
+    const imagePatterns = [];
+
+    function loadImages() {
+      return Promise.all(
+        screenshotFiles.map((src) => {
+          return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = () => resolve(null);
+            img.src = src;
+          });
+        })
+      );
+    }
+
+    function createPatterns() {
+      imagePatterns.length = 0;
+
+      loadedImages.forEach((img, index) => {
+        if (img) {
+          const tempCanvas = document.createElement("canvas");
+          tempCanvas.width = BLOCK_SIZE;
+          tempCanvas.height = BLOCK_SIZE;
+          const tempCtx = tempCanvas.getContext("2d");
+
+          tempCtx.drawImage(img, 0, 0, BLOCK_SIZE, BLOCK_SIZE);
+
+          tempCtx.fillStyle = "rgba(255,255,255,0.08)";
+          tempCtx.fillRect(0, 0, BLOCK_SIZE, BLOCK_SIZE);
+
+          const pattern = ctx.createPattern(tempCanvas, "no-repeat");
+          imagePatterns[index] = pattern;
+        } else {
+          imagePatterns[index] = null;
+        }
+      });
+    }
+
+    function resetBoard() {
+      board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+    }
+
+    function getRandomPatternIndex() {
+      return Math.floor(Math.random() * screenshotFiles.length);
+    }
+
+    function createPiece() {
+      const shape = JSON.parse(JSON.stringify(pieceShapes[Math.floor(Math.random() * pieceShapes.length)]));
+      return {
+        shape,
+        x: Math.floor(COLS / 2) - Math.ceil(shape[0].length / 2),
+        y: 0,
+        patternIndex: getRandomPatternIndex()
+      };
+    }
+
+    function drawCell(x, y, patternIndex, alpha = 1) {
+      const px = x * BLOCK_SIZE;
+      const py = y * BLOCK_SIZE;
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+
+      if (imagePatterns[patternIndex]) {
+        ctx.fillStyle = imagePatterns[patternIndex];
+        ctx.fillRect(px, py, BLOCK_SIZE, BLOCK_SIZE);
+      } else {
+        ctx.fillStyle = "#ff00cc";
+        ctx.fillRect(px, py, BLOCK_SIZE, BLOCK_SIZE);
+      }
+
+      ctx.strokeStyle = "rgba(255,255,255,0.7)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(px + 1, py + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
+
+      ctx.fillStyle = "rgba(255,255,255,0.15)";
+      ctx.fillRect(px + 2, py + 2, BLOCK_SIZE - 10, 6);
+
+      ctx.restore();
+    }
+
+    function drawBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "rgba(0,0,0,0.85)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+          const cell = board[y][x];
+          if (cell) {
+            drawCell(x, y, cell);
+          }
+
+          ctx.strokeStyle = "rgba(255,255,255,0.06)";
+          ctx.lineWidth = 1;
+          ctx.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+        }
+      }
+
+      if (currentPiece) {
+        drawPiece(currentPiece);
+      }
+    }
+
+    function drawPiece(piece) {
+      for (let y = 0; y < piece.shape.length; y++) {
+        for (let x = 0; x < piece.shape[y].length; x++) {
+          if (piece.shape[y][x]) {
+            drawCell(piece.x + x, piece.y + y, piece.patternIndex);
+          }
+        }
+      }
+    }
+
+    function drawNextPiece() {
+      nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
+
+      nextCtx.fillStyle = "rgba(0,0,0,0.8)";
+      nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+
+      if (!nextPiece) return;
+
+      const shape = nextPiece.shape;
+      const cellSize = 24;
+      const offsetX = (nextCanvas.width - shape[0].length * cellSize) / 2;
+      const offsetY = (nextCanvas.height - shape.length * cellSize) / 2;
+
+      for (let y = 0; y < shape.length; y++) {
+        for (let x = 0; x < shape[y].length; x++) {
+          if (shape[y][x]) {
+            const px = offsetX + x * cellSize;
+            const py = offsetY + y * cellSize;
+
+            if (loadedImages[nextPiece.patternIndex]) {
+              nextCtx.drawImage(loadedImages[nextPiece.patternIndex], px, py, cellSize, cellSize);
+              nextCtx.fillStyle = "rgba(255,255,255,0.08)";
+              nextCtx.fillRect(px, py, cellSize, cellSize);
+            } else {
+              nextCtx.fillStyle = "#ff00cc";
+              nextCtx.fillRect(px, py, cellSize, cellSize);
+            }
+
+            nextCtx.strokeStyle = "white";
+            nextCtx.lineWidth = 2;
+            nextCtx.strokeRect(px + 1, py + 1, cellSize - 2, cellSize - 2);
+          }
+        }
+      }
+    }
+
+    function collide(piece, boardToCheck = board) {
+      for (let y = 0; y < piece.shape.length; y++) {
+        for (let x = 0; x < piece.shape[y].length; x++) {
+          if (!piece.shape[y][x]) continue;
+
+          const newX = piece.x + x;
+          const newY = piece.y + y;
+
+          if (newX < 0 || newX >= COLS || newY >= ROWS) {
+            return true;
+          }
+
+          if (newY >= 0 && boardToCheck[newY][newX]) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function mergePiece() {
+      currentPiece.shape.forEach((row, y) => {
+        row.forEach((value, x) => {
+          if (value) {
+            const boardY = currentPiece.y + y;
+            const boardX = currentPiece.x + x;
+
+            if (boardY >= 0) {
+              board[boardY][boardX] = currentPiece.patternIndex;
+            }
+          }
+        });
+      });
+    }
+
+    function rotateMatrix(matrix) {
+      const rows = matrix.length;
+      const cols = matrix[0].length;
+      const rotated = Array.from({ length: cols }, () => Array(rows).fill(0));
+
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          rotated[x][rows - 1 - y] = matrix[y][x];
+        }
+      }
+
+      return rotated;
+    }
+
+    function rotatePiece() {
+      if (!currentPiece || !gameRunning || paused) return;
+
+      const oldShape = currentPiece.shape;
+      const rotated = rotateMatrix(oldShape);
+      currentPiece.shape = rotated;
+
+      if (collide(currentPiece)) {
+        currentPiece.x += 1;
+        if (collide(currentPiece)) {
+          currentPiece.x -= 2;
+          if (collide(currentPiece)) {
+            currentPiece.x += 1;
+            currentPiece.shape = oldShape;
+          }
+        }
+      }
+    }
+
+    function movePiece(dir) {
+      if (!currentPiece || !gameRunning || paused) return;
+      currentPiece.x += dir;
+      if (collide(currentPiece)) {
+        currentPiece.x -= dir;
+      }
+    }
+
+    function dropPiece() {
+      if (!currentPiece || !gameRunning || paused) return;
+
+      currentPiece.y++;
+      if (collide(currentPiece)) {
+        currentPiece.y--;
+        mergePiece();
+        clearLines();
+        spawnNextPiece();
+      }
+      dropCounter = 0;
+    }
+
+    function hardDrop() {
+      if (!currentPiece || !gameRunning || paused) return;
+
+      while (!collide(currentPiece)) {
+        currentPiece.y++;
+      }
+      currentPiece.y--;
+      mergePiece();
+      centerPanel.classList.add("shake");
+      setTimeout(() => centerPanel.classList.remove("shake"), 200);
+      clearLines();
+      spawnNextPiece();
+      dropCounter = 0;
+    }
+
+    function clearLines() {
+      let cleared = 0;
+
+      outer:
+      for (let y = ROWS - 1; y >= 0; y--) {
+        for (let x = 0; x < COLS; x++) {
+          if (!board[y][x]) {
+            continue outer;
+          }
+        }
+
+        const row = board.splice(y, 1)[0];
+        board.unshift(Array(COLS).fill(0));
+        y++;
+        cleared++;
+      }
+
+      if (cleared > 0) {
+        lines += cleared;
+        score += [0, 100, 300, 500, 800][cleared] * level;
+        level = Math.floor(lines / 10) + 1;
+        dropInterval = Math.max(120, 800 - (level - 1) * 60);
+
+        updateUI();
+        lineEffect(cleared);
+      }
+    }
+
+    function lineEffect(count) {
+      centerPanel.classList.add("flash");
+      centerPanel.classList.add("shake");
+      lineBoom.textContent = count === 4 ? "TETRIS PORK BLAST!!!" : "JOHN PORK COMBO x" + count;
+      lineBoom.classList.remove("show");
+      void lineBoom.offsetWidth;
+      lineBoom.classList.add("show");
+
+      setTimeout(() => {
+        centerPanel.classList.remove("flash");
+        centerPanel.classList.remove("shake");
+      }, 350);
+    }
+
+    function spawnNextPiece() {
+      currentPiece = nextPiece || createPiece();
+      nextPiece = createPiece();
+      drawNextPiece();
+
+      currentPiece.x = Math.floor(COLS / 2) - Math.ceil(currentPiece.shape[0].length / 2);
+      currentPiece.y = 0;
+
+      if (collide(currentPiece)) {
+        endGame();
+      }
+    }
+
+    function updateUI() {
+      scoreEl.textContent = score;
+      levelEl.textContent = level;
+      linesEl.textContent = lines;
+    }
+
+    function update(time = 0) {
+      if (!gameRunning) return;
+
+      const delta = time - lastTime;
+      lastTime = time;
+
+      if (!paused) {
+        dropCounter += delta;
+        if (dropCounter > dropInterval) {
+          dropPiece();
+        }
+
+        drawBoard();
+      } else {
+        drawPausedOverlay();
+      }
+
+      animationId = requestAnimationFrame(update);
+    }
+
+    function drawPausedOverlay() {
+      drawBoard();
+      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "white";
+      ctx.font = "bold 34px Comic Sans MS";
+      ctx.textAlign = "center";
+      ctx.fillText("PAUSE", canvas.width / 2, canvas.height / 2);
+    }
+
+    function startGame() {
+      resetBoard();
+      score = 0;
+      level = 1;
+      lines = 0;
+      dropInterval = 800;
+      dropCounter = 0;
+      lastTime = 0;
+      paused = false;
+      gameRunning = true;
+      gameOverText.textContent = "";
+      updateUI();
+
+      currentPiece = createPiece();
+      nextPiece = createPiece();
+      drawNextPiece();
+
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+      update();
+    }
+
+    function endGame() {
+      gameRunning = false;
+      gameOverText.textContent = "💀 GAME OVER";
+      drawBoard();
+      ctx.fillStyle = "rgba(0,0,0,0.65)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#ff6666";
+      ctx.font = "bold 34px Comic Sans MS";
+      ctx.textAlign = "center";
+      ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 10);
+      ctx.fillStyle = "white";
+      ctx.font = "bold 20px Comic Sans MS";
+      ctx.fillText("John Pork hat verloren 😭", canvas.width / 2, canvas.height / 2 + 30);
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (!gameRunning) return;
+
+      if (e.key === "ArrowLeft") {
+        movePiece(-1);
+      } else if (e.key === "ArrowRight") {
+        movePiece(1);
+      } else if (e.key === "ArrowDown") {
+        dropPiece();
+      } else if (e.key === "ArrowUp") {
+        rotatePiece();
+      } else if (e.code === "Space") {
+        e.preventDefault();
+        hardDrop();
+      } else if (e.key.toLowerCase() === "p") {
+        paused = !paused;
+      }
+    });
+
+    startBtn.addEventListener("click", startGame);
+    restartBtn.addEventListener("click", startGame);
+
+    function drawStartScreen() {
+      ctx.fillStyle = "rgba(0,0,0,0.85)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "white";
+      ctx.font = "bold 30px Comic Sans MS";
+      ctx.textAlign = "center";
+      ctx.fillText("JOHN PORK", canvas.width / 2, 220);
+
+      ctx.fillStyle = "#ffe600";
+      ctx.font = "bold 34px Comic Sans MS";
+      ctx.fillText("TETRIS", canvas.width / 2, 265);
+
+      ctx.fillStyle = "#ff7b7b";
+      ctx.font = "bold 18px Comic Sans MS";
+      ctx.fillText("drück auf START", canvas.width / 2, 320);
+
+      ctx.fillStyle = "rgba(255,255,255,0.08)";
+      ctx.fillRect(40, 360, 220, 120);
+      ctx.strokeStyle = "yellow";
+      ctx.strokeRect(40, 360, 220, 120);
+
+      ctx.fillStyle = "white";
+      ctx.font = "16px Comic Sans MS";
+      ctx.fillText("die blöcke benutzen", canvas.width / 2, 405);
+      ctx.fillText("deine screenshot bilder 💀", canvas.width / 2, 435);
+    }
+
+    async function init() {
+      const images = await loadImages();
+      loadedImages.push(...images);
+      createPatterns();
+      resetBoard();
+      updateUI();
+      drawNextPiece();
+      drawStartScreen();
+    }
+
+    init();
+  </script>
+</body>
+</html>
