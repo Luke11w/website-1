@@ -12,23 +12,25 @@
     body {
       margin: 0;
       font-family: Comic Sans MS, Arial, sans-serif;
-      background: radial-gradient(circle at top, #32006b, #120024, #050008);
+      background:
+        radial-gradient(circle at top, #5a0099 0%, #250044 35%, #0a0014 70%, #000 100%);
       color: white;
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       overflow-x: hidden;
+      padding: 20px;
     }
 
     .phone-screen {
-      width: 95%;
-      max-width: 430px;
-      min-height: 90vh;
+      width: 100%;
+      max-width: 440px;
+      min-height: 92vh;
       background: linear-gradient(180deg, #180033, #0c0018);
       border: 4px solid #ffea00;
-      border-radius: 30px;
-      box-shadow: 0 0 40px rgba(255, 234, 0, 0.35);
+      border-radius: 34px;
+      box-shadow: 0 0 45px rgba(255, 234, 0, 0.35);
       overflow: hidden;
       position: relative;
     }
@@ -53,7 +55,7 @@
     }
 
     .call-area {
-      padding: 20px 16px 120px 16px;
+      padding: 20px 16px 140px 16px;
     }
 
     .john-box {
@@ -62,8 +64,8 @@
     }
 
     .john-img {
-      width: 140px;
-      height: 140px;
+      width: 160px;
+      height: 160px;
       object-fit: cover;
       border-radius: 50%;
       border: 4px solid #fff;
@@ -73,7 +75,7 @@
 
     .john-name {
       margin-top: 12px;
-      font-size: 28px;
+      font-size: 30px;
       font-weight: bold;
       text-shadow: 0 0 15px #ff4d4d;
     }
@@ -84,21 +86,61 @@
       margin-top: 6px;
     }
 
+    .meter-wrap {
+      margin-top: 14px;
+      padding: 0 12px;
+    }
+
+    .meter-label {
+      font-size: 14px;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .meter {
+      width: 100%;
+      height: 16px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.1);
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,0.12);
+    }
+
+    .meter-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, lime, yellow, orange, red);
+      transition: width 0.35s ease;
+    }
+
     .chat-box {
       margin-top: 20px;
       display: flex;
       flex-direction: column;
       gap: 12px;
+      max-height: 360px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .chat-box::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .chat-box::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
     }
 
     .bubble {
-      max-width: 85%;
+      max-width: 86%;
       padding: 14px 16px;
       border-radius: 18px;
       font-size: 18px;
       line-height: 1.4;
       box-shadow: 0 0 18px rgba(255,255,255,0.12);
       animation: popIn 0.25s ease;
+      word-break: break-word;
     }
 
     .john {
@@ -112,6 +154,14 @@
       background: #ffea00;
       color: black;
       font-weight: bold;
+    }
+
+    .system {
+      align-self: center;
+      background: rgba(255, 77, 77, 0.18);
+      border: 1px solid rgba(255,255,255,0.15);
+      font-size: 15px;
+      color: #ffd7d7;
     }
 
     @keyframes popIn {
@@ -131,7 +181,7 @@
       right: 0;
       bottom: 0;
       padding: 16px;
-      background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.7));
+      background: linear-gradient(to top, rgba(0,0,0,0.96), rgba(0,0,0,0.75));
       border-top: 2px solid rgba(255,255,255,0.08);
     }
 
@@ -209,8 +259,13 @@
 
     @keyframes ringPulse {
       0% { transform: scale(1); }
-      50% { transform: scale(1.03); }
+      50% { transform: scale(1.02); }
       100% { transform: scale(1); }
+    }
+
+    .rage-mode {
+      box-shadow: 0 0 60px rgba(255, 0, 0, 0.8);
+      border-color: #ff3b3b;
     }
 
     @media (max-width: 500px) {
@@ -230,11 +285,16 @@
         font-size: 18px;
         padding: 14px 8px;
       }
+
+      .john-img {
+        width: 140px;
+        height: 140px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="phone-screen ring">
+  <div class="phone-screen ring" id="phoneScreen">
     <div class="topbar">
       <h1>📞 JOHN PORK CALL MODE</h1>
       <div class="status" id="statusText">eingehender anruf...</div>
@@ -242,10 +302,17 @@
 
     <div class="call-area">
       <div class="john-box">
-        <img class="john-img" src="Screenshot 2026-03-20 125829.png" alt="John Pork">
+        <img class="john-img" src="john-pork-call.png" alt="John Pork">
         <div class="john-name">John Pork</div>
-        <div class="john-sub">nimmt keine Ausreden an</div>
+        <div class="john-sub">hat Fragen. sehr viele Fragen.</div>
         <a class="home-link" href="index.html">⬅ zurück zur Startseite</a>
+
+        <div class="meter-wrap">
+          <div class="meter-label">John Pork Wut-Level</div>
+          <div class="meter">
+            <div class="meter-fill" id="rageFill"></div>
+          </div>
+        </div>
       </div>
 
       <div class="chat-box" id="chatBox">
@@ -253,7 +320,7 @@
       </div>
 
       <div class="end-screen hidden" id="endScreen">
-        <h2>💀 Gespräch beendet</h2>
+        <h2 id="endTitle">💀 Gespräch beendet</h2>
         <p id="endText">John Pork hat aufgelegt.</p>
         <a class="home-link" href="johnpork-call.html">🔁 Nochmal spielen</a>
       </div>
@@ -276,53 +343,106 @@
     const statusText = document.getElementById("statusText");
     const controls = document.getElementById("controls");
     const endScreen = document.getElementById("endScreen");
+    const endTitle = document.getElementById("endTitle");
     const endText = document.getElementById("endText");
-    const phoneScreen = document.querySelector(".phone-screen");
+    const phoneScreen = document.getElementById("phoneScreen");
+    const rageFill = document.getElementById("rageFill");
 
     let step = 0;
+    let rage = 0;
+    let loyalty = 0;
+    let brainrot = 0;
 
     const questions = [
       {
-        john: "Du hast endlich abgenommen. Bist du wirklich bereit für dieses Gespräch?",
-        yesReply: "JA",
-        noReply: "NEIN",
+        john: "Du hast endlich abgenommen. Hast du absichtlich 73 Anrufe ignoriert?",
+        yesText: "JA, vielleicht",
+        noText: "NEIN, natürlich nicht",
+        yesEffects: { rage: 2, brainrot: 1 },
+        noEffects: { loyalty: 1 },
         yesNext: 1,
         noNext: 1
       },
       {
-        john: "Hast du meine 73 verpassten Anrufe ignoriert?",
-        yesReply: "JA",
-        noReply: "NEIN",
+        john: "Hast du mich schon mal in deinem Kopf 'John Park' genannt?",
+        yesText: "JA, aus Versehen",
+        noText: "NEIN, niemals",
+        yesEffects: { rage: 3 },
+        noEffects: { loyalty: 2 },
         yesNext: 2,
         noNext: 2
       },
       {
-        john: "Hast du heute schon genug Brainrot konsumiert?",
-        yesReply: "JA",
-        noReply: "NEIN",
+        john: "Bist du bereit, dem Pork-Imperium beizutreten?",
+        yesText: "JA, ich bin bereit",
+        noText: "NEIN, eher nicht",
+        yesEffects: { loyalty: 2, brainrot: 2 },
+        noEffects: { rage: 2 },
         yesNext: 3,
         noNext: 3
       },
       {
-        john: "Willst du in das geheime Pork-Universum eintreten?",
-        yesReply: "JA",
-        noReply: "NEIN",
+        john: "Würdest du nachts um 3 Uhr ein cursed Pork-Game spielen?",
+        yesText: "JA, sofort",
+        noText: "NEIN, ich schlafe",
+        yesEffects: { brainrot: 2, loyalty: 1 },
+        noEffects: { rage: 1 },
         yesNext: 4,
         noNext: 4
       },
       {
-        john: "Würdest du für John Pork ein cursed Mole Game um 3 Uhr nachts spielen?",
-        yesReply: "JA",
-        noReply: "NEIN",
+        john: "Wenn ich sage 'komm ins Pork-Universum', kommst du dann?",
+        yesText: "JA",
+        noText: "NEIN",
+        yesEffects: { loyalty: 2 },
+        noEffects: { rage: 2, brainrot: 1 },
         yesNext: 5,
         noNext: 5
       },
       {
-        john: "Letzte Frage... bist du selbst vielleicht ein bisschen John Pork geworden?",
-        yesReply: "JA",
-        noReply: "NEIN",
-        yesNext: "end_yes",
-        noNext: "end_no"
+        john: "Hast du meine Pork Games schon gespielt?",
+        yesText: "JA, mehrere",
+        noText: "NEIN, noch nicht",
+        yesEffects: { loyalty: 2 },
+        noEffects: { rage: 1 },
+        yesNext: 6,
+        noNext: 6
+      },
+      {
+        john: "Welche Antwort würde ein echter Pork-Boss geben?",
+        yesText: "JA",
+        noText: "NEIN",
+        yesEffects: { loyalty: 1, brainrot: 1 },
+        noEffects: { rage: 1 },
+        yesNext: 7,
+        noNext: 7
+      },
+      {
+        john: "Würdest du meine Socken aus dem Shop tragen?",
+        yesText: "JA, mit Stolz",
+        noText: "NEIN, niemals",
+        yesEffects: { loyalty: 2, brainrot: 1 },
+        noEffects: { rage: 2 },
+        yesNext: 8,
+        noNext: 8
+      },
+      {
+        john: "Denkst du, dass du dem Brainrot noch entkommen kannst?",
+        yesText: "JA, vielleicht",
+        noText: "NEIN, ich bin verloren",
+        yesEffects: { rage: 1 },
+        noEffects: { brainrot: 2, loyalty: 1 },
+        yesNext: 9,
+        noNext: 9
+      },
+      {
+        john: "Letzte Frage... bist du bereit, ein offizieller Teil von John Pork zu werden?",
+        yesText: "JA, ich akzeptiere",
+        noText: "NEIN, ich lehne ab",
+        yesEffects: { loyalty: 3, brainrot: 2 },
+        noEffects: { rage: 3 },
+        yesNext: "finish",
+        noNext: "finish"
       }
     ];
 
@@ -334,59 +454,154 @@
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    function showQuestion() {
-      if (typeof step === "number" && questions[step]) {
-        setTimeout(() => {
-          addBubble(questions[step].john, "john");
-          questionLabel.textContent = "Deine Antwort:";
-        }, 500);
+    function addSystem(text) {
+      addBubble(text, "system");
+    }
+
+    function updateRageBar() {
+      let ragePercent = Math.min((rage / 15) * 100, 100);
+      rageFill.style.width = ragePercent + "%";
+
+      if (rage >= 8) {
+        phoneScreen.classList.add("rage-mode");
+        statusText.textContent = "john pork wird wütend...";
       }
     }
 
-    function finishGame(type) {
+    function showQuestion() {
+      if (!questions[step]) return;
+
+      setTimeout(() => {
+        addBubble(questions[step].john, "john");
+        questionLabel.textContent = "Deine Antwort:";
+      }, 500);
+    }
+
+    function applyEffects(effects) {
+      if (!effects) return;
+      rage += effects.rage || 0;
+      loyalty += effects.loyalty || 0;
+      brainrot += effects.brainrot || 0;
+      updateRageBar();
+    }
+
+    function getEnding() {
+      if (rage >= 9) {
+        return {
+          title: "💀 BÖSES ENDE",
+          text: "John Pork ist komplett ausgerastet. Das Gespräch endet in maximalem Chaos. Du hörst nur noch wütendes Schweine-Atmen.",
+          messages: [
+            "📞 John Pork: DU HÄTTEST FRÜHER ABNEHMEN SOLLEN.",
+            "💀 Die Leitung glitcht. Irgendwo kracht etwas um.",
+            "📵 Gespräch zwangsweise beendet."
+          ]
+        };
+      }
+
+      if (loyalty >= 8 && brainrot >= 6) {
+        return {
+          title: "👑 PORK BOSS ENDE",
+          text: "John Pork akzeptiert dich als legendären Brainrot-Boss. Du bist jetzt Teil des inneren Pork-Kreises.",
+          messages: [
+            "📞 John Pork: Beeindruckend. Du bist loyal... und komplett brainrot.",
+            "👑 Willkommen im geheimen Pork-Imperium.",
+            "✨ Gespräch erfolgreich abgeschlossen."
+          ]
+        };
+      }
+
+      if (loyalty >= 7) {
+        return {
+          title: "✅ GUTES ENDE",
+          text: "John Pork vertraut dir. Du bist offiziell ein Freund des Pork-Universums.",
+          messages: [
+            "📞 John Pork: Nicht schlecht. Du hast Potenzial.",
+            "🐷 Vielleicht rufe ich dich wieder an.",
+            "📴 Gespräch freundlich beendet."
+          ]
+        };
+      }
+
+      if (brainrot >= 7) {
+        return {
+          title: "🧠 BRAINROT ENDE",
+          text: "Du bist komplett im Brainrot versunken. John Pork findet das irgendwie stark.",
+          messages: [
+            "📞 John Pork: Dein Zustand ist kritisch... aber auf gute Art.",
+            "🧠 Brainrot-Level maximal erreicht.",
+            "📞 John Pork kichert und legt auf."
+          ]
+        };
+      }
+
+      return {
+        title: "😵 CHAOS ENDE",
+        text: "Niemand weiß genau, was dieses Gespräch war. Aber es war definitiv cursed.",
+        messages: [
+          "📞 John Pork: Hm... seltsame Antworten.",
+          "🌫️ Die Leitung rauscht merkwürdig.",
+          "📴 Gespräch beendet."
+        ]
+      };
+    }
+
+    function finishGame() {
       controls.classList.add("hidden");
       endScreen.classList.remove("hidden");
       statusText.textContent = "gespräch beendet";
       phoneScreen.classList.remove("ring");
 
-      if (type === "end_yes") {
-        addBubble("JA", "user");
-        addBubble("💀 John Pork: Ich wusste es. Du bist jetzt offiziell Teil des Pork-Universums.", "john");
-        addBubble("📞 John Pork hat aufgelegt...", "john");
-        endText.textContent = "John Pork hat dich akzeptiert. Dein Brainrot-Level ist jetzt maximal.";
-      } else {
-        addBubble("NEIN", "user");
-        addBubble("📞 John Pork: Zu spät. Jetzt bist du trotzdem drin.", "john");
-        addBubble("💀 Das Telefon rauscht... irgendwo hört man ein Schwein lachen.", "john");
-        endText.textContent = "Du wolltest nein sagen, aber John Pork hatte andere Pläne.";
-      }
+      const ending = getEnding();
+
+      endTitle.textContent = ending.title;
+      endText.textContent =
+        ending.text +
+        " | Wut: " + rage +
+        " | Loyalität: " + loyalty +
+        " | Brainrot: " + brainrot;
+
+      setTimeout(() => addBubble(ending.messages[0], "john"), 300);
+      setTimeout(() => addBubble(ending.messages[1], "john"), 900);
+      setTimeout(() => addBubble(ending.messages[2], "system"), 1500);
     }
 
     function answer(isYes) {
-      if (typeof step !== "number") return;
+      if (!questions[step]) return;
 
       const current = questions[step];
-      const userText = isYes ? current.yesReply : current.noReply;
+      const userText = isYes ? current.yesText : current.noText;
       const next = isYes ? current.yesNext : current.noNext;
+      const effects = isYes ? current.yesEffects : current.noEffects;
 
       addBubble(userText, "user");
+      applyEffects(effects);
 
       if (step === 0) {
         statusText.textContent = "verbunden mit John Pork";
         phoneScreen.classList.remove("ring");
+        addSystem("verbindung stabilisiert...");
       }
 
-      if (next === "end_yes" || next === "end_no") {
+      if (step === 1 && rage >= 4) {
+        setTimeout(() => addBubble("📞 John Pork: Pass auf, wie du mit mir redest.", "john"), 500);
+      }
+
+      if (step === 4 && loyalty >= 4) {
+        setTimeout(() => addBubble("📞 John Pork: Hm. Vielleicht bist du doch brauchbar.", "john"), 500);
+      }
+
+      if (step === 7 && brainrot >= 5) {
+        setTimeout(() => addBubble("🧠 System: kritische Brainrot-Werte erkannt.", "system"), 500);
+      }
+
+      if (next === "finish") {
         step = next;
-        setTimeout(() => finishGame(step), 700);
+        setTimeout(() => finishGame(), 900);
         return;
       }
 
       step = next;
-
-      setTimeout(() => {
-        showQuestion();
-      }, 500);
+      setTimeout(() => showQuestion(), 700);
     }
 
     yesBtn.addEventListener("click", () => answer(true));
@@ -397,8 +612,12 @@
     }, 900);
 
     setTimeout(() => {
-      addBubble("John Pork: Nimm endlich ab.", "john");
+      addBubble("John Pork: Diesmal kommst du mir nicht mehr aus.", "john");
     }, 1700);
+
+    setTimeout(() => {
+      addSystem("anruf angenommen? entscheidung ausstehend...");
+    }, 2400);
   </script>
 </body>
 </html>
