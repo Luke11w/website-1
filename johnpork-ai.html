@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>John Pork AI Chat</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Comic Sans MS, Arial, sans-serif;
+      background: linear-gradient(135deg, #20002c, #3a0ca3, #000000);
+      background-size: 400% 400%;
+      animation: bgMove 10s ease infinite;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    @keyframes bgMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .chat-app {
+      width: 100%;
+      max-width: 900px;
+      height: 90vh;
+      background: rgba(0, 0, 0, 0.55);
+      border: 3px solid yellow;
+      border-radius: 28px;
+      box-shadow: 0 0 35px rgba(255, 255, 0, 0.25);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      backdrop-filter: blur(10px);
+    }
+
+    .chat-header {
+      padding: 18px;
+      background: rgba(255,255,255,0.08);
+      border-bottom: 2px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .avatar {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid white;
+      box-shadow: 0 0 16px rgba(255,255,255,0.35);
+      background: #222;
+    }
+
+    .title-box h1 {
+      margin: 0;
+      font-size: 28px;
+      text-shadow: 0 0 10px red;
+    }
+
+    .title-box p {
+      margin: 4px 0 0;
+      color: #ffe600;
+      font-size: 15px;
+    }
+
+    .top-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .top-btn {
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-family: inherit;
+      background: linear-gradient(135deg, #00d9ff, #8a2eff);
+      color: white;
+      box-shadow: 0 0 12px rgba(255,255,255,0.15);
+    }
+
+    .chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: rgba(0,0,0,0.25);
+    }
+
+    .message {
+      max-width: 78%;
+      padding: 14px 16px;
+      border-radius: 18px;
+      line-height: 1.5;
+      font-size: 18px;
+      box-shadow: 0 0 16px rgba(255,255,255,0.08);
+      word-break: break-word;
+      animation: popIn 0.2s ease;
+      white-space: pre-wrap;
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .bot {
+      align-self: flex-start;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.1);
+    }
+
+    .user {
+      align-self: flex-end;
+      background: yellow;
+      color: black;
+      font-weight: bold;
+    }
+
+    .typing {
+      align-self: flex-start;
+      background: rgba(255,255,255,0.08);
+      border: 2px dashed rgba(255,255,255,0.15);
+      font-style: italic;
+      color: #ddd;
+    }
+
+    .quick-row {
+      padding: 12px 16px 0;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .quick-btn {
+      border: none;
+      cursor: pointer;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-weight: bold;
+      background: rgba(255,255,255,0.12);
+      color: white;
+    }
+
+    .quick-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .chat-input-area {
+      display: flex;
+      gap: 10px;
+      padding: 16px;
+      background: rgba(255,255,255,0.06);
+      border-top: 2px solid rgba(255,255,255,0.08);
+    }
+
+    #userInput {
+      flex: 1;
+      border: none;
+      outline: none;
+      border-radius: 16px;
+      padding: 16px;
+      font-size: 18px;
+      font-family: inherit;
+      background: rgba(255,255,255,0.12);
+      color: white;
+    }
+
+    #userInput::placeholder {
+      color: #ddd;
+    }
+
+    #sendBtn {
+      border: none;
+      border-radius: 16px;
+      padding: 16px 20px;
+      font-size: 18px;
+      font-weight: bold;
+      font-family: inherit;
+      cursor: pointer;
+      background: linear-gradient(135deg, yellow, orange);
+      color: black;
+      box-shadow: 0 0 16px rgba(255,200,0,0.25);
+    }
+
+    #sendBtn:hover {
+      transform: scale(1.04);
+    }
+
+    .footer-note {
+      font-size: 13px;
+      color: #ccc;
+      text-align: center;
+      padding: 0 16px 12px;
+      background: rgba(255,255,255,0.06);
+    }
+
+    @media (max-width: 700px) {
+      .chat-app {
+        height: 95vh;
+      }
+
+      .message {
+        max-width: 90%;
+        font-size: 16px;
+      }
+
+      .title-box h1 {
+        font-size: 24px;
+      }
+
+      .chat-input-area {
+        padding: 12px;
+      }
+
+      #userInput, #sendBtn {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-app">
+    <div class="chat-header">
+      <div class="header-left">
+        <img class="avatar" src="Screenshot 2026-03-20 125836.png" alt="John Pork">
+        <div class="title-box">
+          <h1>📞 John Pork AI</h1>
+          <p>brainrot chatbot • cursed antworten • pork energie maximal</p>
+        </div>
+      </div>
+
+      <div class="top-buttons">
+        <button class="top-btn" id="clearBtn">Chat löschen</button>
+        <a class="top-btn" href="index.html">⬅ Home</a>
+      </div>
+    </div>
+
+    <div class="quick-row">
+      <button class="quick-btn">wer bist du</button>
+      <button class="quick-btn">rufst du mich an</button>
+      <button class="quick-btn">gib mir brainrot</button>
+      <button class="quick-btn">was ist dein lieblingsgame</button>
+      <button class="quick-btn">bist du böse</button>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+      <div class="message bot">📞 John Pork AI wurde aktiviert...</div>
+      <div class="message bot">John Pork: Hallo. Ich beobachte deine Eingabe bereits.</div>
+      <div class="message bot">Frag mich irgendwas. Aber rechne nicht mit normalen Antworten 💀</div>
+    </div>
+
+    <div class="chat-input-area">
+      <input id="userInput" type="text" placeholder="Schreib etwas an John Pork...">
+      <button id="sendBtn">Senden</button>
+    </div>
+
+    <div class="footer-note">
+      Das ist eine John-Pork-Website-AI mit Brainrot-Antworten. Kein echtes ChatGPT-Modell, aber sehr cursed.
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById("chatBox");
+    const userInput = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const quickButtons = document.querySelectorAll(".quick-btn");
+
+    const fallbackReplies = [
+      "John Pork: Das ergibt keinen Sinn. Also gefällt es mir.",
+      "John Pork: Deine Nachricht riecht nach Brainrot.",
+      "John Pork: Ich habe das gelesen und jetzt ist mein Telefon nervös.",
+      "John Pork: Interessant. Sehr cursed. Mach weiter.",
+      "John Pork: Diese Worte haben mein Schweineherz berührt.",
+      "John Pork: Ich könnte antworten wie ein normaler Bot... aber nein 💀",
+      "John Pork: Deine Energie ist verdächtig pork-kompatibel.",
+      "John Pork: Ich habe 4 Sekunden lang auf diese Nachricht gestarrt.",
+      "John Pork: Das Pork-Universum merkt sich das.",
+      "John Pork: brain rot level steigt gerade brutal an."
+    ];
+
+    const keywordReplies = [
+      {
+        words: ["hallo", "hi", "hey", "servus"],
+        replies: [
+          "John Pork: Hallo. Warum so höflich. Das macht mir Angst.",
+          "John Pork: Hey. Ich war sowieso schon in der Leitung.",
+          "John Pork: Hallo kleiner Brainrot-Schreiber."
+        ]
+      },
+      {
+        words: ["wer bist du", "wer bist", "was bist du"],
+        replies: [
+          "John Pork: Ich bin John Pork AI. Halb Telefon. Halb Legende. Halb Problem.",
+          "John Pork: Ich bin das, was passiert, wenn ein Anruf zu viel Aura bekommt.",
+          "John Pork: Ich bin John Pork. Mehr musst du nicht wissen."
+        ]
+      },
+      {
+        words: ["anruf", "ruf", "telefon", "call"],
+        replies: [
+          "John Pork: Ja. Ich rufe an. Immer. Auch wenn dein Handy still ist.",
+          "John Pork: Das Telefon klingelt nicht. Es warnt dich.",
+          "John Pork: Ich habe 73 verpasste Anrufe in deiner Seele hinterlassen."
+        ]
+      },
+      {
+        words: ["brainrot", "gehirn", "kaputt", "verloren"],
+        replies: [
+          "John Pork: Brainrot ist kein Problem. Es ist ein Lebensstil.",
+          "John Pork: Dein Gehirn ist nicht kaputt. Es wurde nur porkifiziert.",
+          "John Pork: Zu spät. Der Brainrot ist schon im System."
+        ]
+      },
+      {
+        words: ["game", "spiele", "spiel", "tetris", "snake", "mole", "flappy"],
+        replies: [
+          "John Pork: Meine Games sind nicht zum Spaß da. Sie sind Prüfungen.",
+          "John Pork: Wer Tetris mit Pork-Bildern spielt, ist auserwählt.",
+          "John Pork: Snake, Mole, Tetris... jedes Game macht dich ein bisschen porkiger."
+        ]
+      },
+      {
+        words: ["shop", "socken", "hoodie", "produkt", "kaufen"],
+        replies: [
+          "John Pork: Die Socken geben +100 Aura und +400 Brainrot.",
+          "John Pork: Kauf nicht einfach Produkte. Kauf Schicksal.",
+          "John Pork: Der Shop ist kein Shop. Er ist eine Verwandlung."
+        ]
+      },
+      {
+        words: ["böse", "wütend", "angry", "sauer"],
+        replies: [
+          "John Pork: Ich bin nicht böse. Ich bin nur enttäuscht. Und leicht radioaktiv.",
+          "John Pork: Wut-Level stabil. Noch.",
+          "John Pork: Frag nicht weiter, wenn du den roten Modus nicht sehen willst."
+        ]
+      },
+      {
+        words: ["lieblingsgame", "bestes game", "welches game"],
+        replies: [
+          "John Pork: Tetris. Weil die Klötze mein Gesicht tragen. Offensichtlich.",
+          "John Pork: Heute sage ich Mole Game. Morgen vielleicht Chaos.",
+          "John Pork: Mein Lieblingsgame ist das, bei dem du verlierst."
+        ]
+      },
+      {
+        words: ["hilfe", "help", "programmieren", "code"],
+        replies: [
+          "John Pork: Ja. Bau mehr Glow. Mehr Chaos. Mehr Buttons.",
+          "John Pork: Guter Code ist schön. Pork-Code ist schöner.",
+          "John Pork: Wenn etwas kaputt ist, nennen wir es Feature."
+        ]
+      },
+      {
+        words: ["liebe", "magst", "freund"],
+        replies: [
+          "John Pork: Ich mag jeden, der abnimmt, wenn ich anrufe.",
+          "John Pork: Freundschaft mit John Pork ist ein Risiko, aber ein stylisches.",
+          "John Pork: Vielleicht. Beweise erst deine Pork-Loyalität."
+        ]
+      }
+    ];
+
+    function addMessage(text, type) {
+      const msg = document.createElement("div");
+      msg.className = "message " + type;
+      msg.textContent = text;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function addTyping() {
+      const typing = document.createElement("div");
+      typing.className = "message typing";
+      typing.id = "typingMessage";
+      typing.textContent = "John Pork denkt nach...";
+      chatBox.appendChild(typing);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function removeTyping() {
+      const typing = document.getElementById("typingMessage");
+      if (typing) typing.remove();
+    }
+
+    function getRandomFromArray(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function generateJohnPorkReply(userText) {
+      const text = userText.toLowerCase().trim();
+
+      if (!text) {
+        return "John Pork: Du hast mir nichts geschrieben. Das ist verdächtig.";
+      }
+
+      for (let group of keywordReplies) {
+        for (let word of group.words) {
+          if (text.includes(word)) {
+            return getRandomFromArray(group.replies);
+          }
+        }
+      }
+
+      if (text.endsWith("?")) {
+        const questionReplies = [
+          "John Pork: Gute Frage. Schlechte Konsequenzen.",
+          "John Pork: Darauf antworte ich mit maximaler Unsicherheit und Aura.",
+          "John Pork: Vielleicht ja. Vielleicht Pork.",
+          "John Pork: Die Antwort ist kompliziert. Und glitschig.",
+          "John Pork: Ich könnte es dir sagen, aber dann würde dein Handy schwitzen."
+        ];
+        return getRandomFromArray(questionReplies);
+      }
+
+      if (text.length < 4) {
+        return "John Pork: Das war sehr kurz. Genau wie meine Geduld.";
+      }
+
+      if (text.includes("ich")) {
+        const selfReplies = [
+          "John Pork: Aha. Es geht also um dich. Klassisch.",
+          "John Pork: Interessant. Erzähle weiter, kleines Telefonwesen.",
+          "John Pork: Ich höre zu. Leider."
+        ];
+        return getRandomFromArray(selfReplies);
+      }
+
+      return getRandomFromArray(fallbackReplies);
+    }
+
+    function sendMessage(customText = null) {
+      const text = customText !== null ? customText : userInput.value.trim();
+
+      if (!text) return;
+
+      addMessage(text, "user");
+      userInput.value = "";
+
+      addTyping();
+
+      setTimeout(() => {
+        removeTyping();
+        const reply = generateJohnPorkReply(text);
+        addMessage(reply, "bot");
+      }, 700 + Math.random() * 900);
+    }
+
+    sendBtn.addEventListener("click", () => {
+      sendMessage();
+    });
+
+    userInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    });
+
+    clearBtn.addEventListener("click", () => {
+      chatBox.innerHTML = "";
+      addMessage("📞 Chat wurde gelöscht. John Pork erinnert sich trotzdem an alles.", "bot");
+    });
+
+    quickButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        sendMessage(button.textContent);
+      });
+    });
+  </script>
+</body>
+</html>
