@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>John Pork Call Mode</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Comic Sans MS, Arial, sans-serif;
+      background: radial-gradient(circle at top, #32006b, #120024, #050008);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    .phone-screen {
+      width: 95%;
+      max-width: 430px;
+      min-height: 90vh;
+      background: linear-gradient(180deg, #180033, #0c0018);
+      border: 4px solid #ffea00;
+      border-radius: 30px;
+      box-shadow: 0 0 40px rgba(255, 234, 0, 0.35);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .topbar {
+      background: rgba(255,255,255,0.08);
+      padding: 16px;
+      text-align: center;
+      border-bottom: 2px solid rgba(255,255,255,0.08);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 28px;
+      text-shadow: 0 0 15px #ff4d4d;
+    }
+
+    .status {
+      font-size: 14px;
+      color: #ffd900;
+      margin-top: 6px;
+    }
+
+    .call-area {
+      padding: 20px 16px 120px 16px;
+    }
+
+    .john-box {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .john-img {
+      width: 140px;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 4px solid #fff;
+      box-shadow: 0 0 30px rgba(255,255,255,0.45);
+      background: #222;
+    }
+
+    .john-name {
+      margin-top: 12px;
+      font-size: 28px;
+      font-weight: bold;
+      text-shadow: 0 0 15px #ff4d4d;
+    }
+
+    .john-sub {
+      color: #ffea00;
+      font-size: 16px;
+      margin-top: 6px;
+    }
+
+    .chat-box {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .bubble {
+      max-width: 85%;
+      padding: 14px 16px;
+      border-radius: 18px;
+      font-size: 18px;
+      line-height: 1.4;
+      box-shadow: 0 0 18px rgba(255,255,255,0.12);
+      animation: popIn 0.25s ease;
+    }
+
+    .john {
+      align-self: flex-start;
+      background: rgba(255,255,255,0.12);
+      border: 2px solid rgba(255,255,255,0.15);
+    }
+
+    .user {
+      align-self: flex-end;
+      background: #ffea00;
+      color: black;
+      font-weight: bold;
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .controls {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 16px;
+      background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.7));
+      border-top: 2px solid rgba(255,255,255,0.08);
+    }
+
+    .question-label {
+      text-align: center;
+      font-size: 16px;
+      color: #ffea00;
+      margin-bottom: 12px;
+      min-height: 22px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      flex: 1;
+      border: none;
+      border-radius: 16px;
+      padding: 16px 10px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+      font-family: inherit;
+    }
+
+    .yes-btn {
+      background: #40ff77;
+      color: black;
+      box-shadow: 0 0 20px rgba(64,255,119,0.35);
+    }
+
+    .no-btn {
+      background: #ff4d4d;
+      color: white;
+      box-shadow: 0 0 20px rgba(255,77,77,0.35);
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+    }
+
+    .home-link {
+      display: inline-block;
+      margin-top: 12px;
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+      background: rgba(255,255,255,0.12);
+      padding: 10px 14px;
+      border-radius: 12px;
+    }
+
+    .home-link:hover {
+      color: #ffea00;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .end-screen {
+      margin-top: 18px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 0 20px rgba(255,255,255,0.08);
+    }
+
+    .ring {
+      animation: ringPulse 1s infinite;
+    }
+
+    @keyframes ringPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+
+    @media (max-width: 500px) {
+      .topbar h1 {
+        font-size: 24px;
+      }
+
+      .john-name {
+        font-size: 24px;
+      }
+
+      .bubble {
+        font-size: 16px;
+      }
+
+      .btn {
+        font-size: 18px;
+        padding: 14px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-screen ring">
+    <div class="topbar">
+      <h1>📞 JOHN PORK CALL MODE</h1>
+      <div class="status" id="statusText">eingehender anruf...</div>
+    </div>
+
+    <div class="call-area">
+      <div class="john-box">
+        <img class="john-img" src="Screenshot 2026-03-20 125829.png" alt="John Pork">
+        <div class="john-name">John Pork</div>
+        <div class="john-sub">nimmt keine Ausreden an</div>
+        <a class="home-link" href="index.html">⬅ zurück zur Startseite</a>
+      </div>
+
+      <div class="chat-box" id="chatBox">
+        <div class="bubble john">📞 John Pork ruft dich an...</div>
+      </div>
+
+      <div class="end-screen hidden" id="endScreen">
+        <h2>💀 Gespräch beendet</h2>
+        <p id="endText">John Pork hat aufgelegt.</p>
+        <a class="home-link" href="johnpork-call.html">🔁 Nochmal spielen</a>
+      </div>
+    </div>
+
+    <div class="controls" id="controls">
+      <div class="question-label" id="questionLabel">Nimmst du ab?</div>
+      <div class="btn-row">
+        <button class="btn yes-btn" id="yesBtn">JA</button>
+        <button class="btn no-btn" id="noBtn">NEIN</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById("chatBox");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const questionLabel = document.getElementById("questionLabel");
+    const statusText = document.getElementById("statusText");
+    const controls = document.getElementById("controls");
+    const endScreen = document.getElementById("endScreen");
+    const endText = document.getElementById("endText");
+    const phoneScreen = document.querySelector(".phone-screen");
+
+    let step = 0;
+
+    const questions = [
+      {
+        john: "Du hast endlich abgenommen. Bist du wirklich bereit für dieses Gespräch?",
+        yesReply: "JA",
+        noReply: "NEIN",
+        yesNext: 1,
+        noNext: 1
+      },
+      {
+        john: "Hast du meine 73 verpassten Anrufe ignoriert?",
+        yesReply: "JA",
+        noReply: "NEIN",
+        yesNext: 2,
+        noNext: 2
+      },
+      {
+        john: "Hast du heute schon genug Brainrot konsumiert?",
+        yesReply: "JA",
+        noReply: "NEIN",
+        yesNext: 3,
+        noNext: 3
+      },
+      {
+        john: "Willst du in das geheime Pork-Universum eintreten?",
+        yesReply: "JA",
+        noReply: "NEIN",
+        yesNext: 4,
+        noNext: 4
+      },
+      {
+        john: "Würdest du für John Pork ein cursed Mole Game um 3 Uhr nachts spielen?",
+        yesReply: "JA",
+        noReply: "NEIN",
+        yesNext: 5,
+        noNext: 5
+      },
+      {
+        john: "Letzte Frage... bist du selbst vielleicht ein bisschen John Pork geworden?",
+        yesReply: "JA",
+        noReply: "NEIN",
+        yesNext: "end_yes",
+        noNext: "end_no"
+      }
+    ];
+
+    function addBubble(text, type) {
+      const bubble = document.createElement("div");
+      bubble.className = "bubble " + type;
+      bubble.textContent = text;
+      chatBox.appendChild(bubble);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function showQuestion() {
+      if (typeof step === "number" && questions[step]) {
+        setTimeout(() => {
+          addBubble(questions[step].john, "john");
+          questionLabel.textContent = "Deine Antwort:";
+        }, 500);
+      }
+    }
+
+    function finishGame(type) {
+      controls.classList.add("hidden");
+      endScreen.classList.remove("hidden");
+      statusText.textContent = "gespräch beendet";
+      phoneScreen.classList.remove("ring");
+
+      if (type === "end_yes") {
+        addBubble("JA", "user");
+        addBubble("💀 John Pork: Ich wusste es. Du bist jetzt offiziell Teil des Pork-Universums.", "john");
+        addBubble("📞 John Pork hat aufgelegt...", "john");
+        endText.textContent = "John Pork hat dich akzeptiert. Dein Brainrot-Level ist jetzt maximal.";
+      } else {
+        addBubble("NEIN", "user");
+        addBubble("📞 John Pork: Zu spät. Jetzt bist du trotzdem drin.", "john");
+        addBubble("💀 Das Telefon rauscht... irgendwo hört man ein Schwein lachen.", "john");
+        endText.textContent = "Du wolltest nein sagen, aber John Pork hatte andere Pläne.";
+      }
+    }
+
+    function answer(isYes) {
+      if (typeof step !== "number") return;
+
+      const current = questions[step];
+      const userText = isYes ? current.yesReply : current.noReply;
+      const next = isYes ? current.yesNext : current.noNext;
+
+      addBubble(userText, "user");
+
+      if (step === 0) {
+        statusText.textContent = "verbunden mit John Pork";
+        phoneScreen.classList.remove("ring");
+      }
+
+      if (next === "end_yes" || next === "end_no") {
+        step = next;
+        setTimeout(() => finishGame(step), 700);
+        return;
+      }
+
+      step = next;
+
+      setTimeout(() => {
+        showQuestion();
+      }, 500);
+    }
+
+    yesBtn.addEventListener("click", () => answer(true));
+    noBtn.addEventListener("click", () => answer(false));
+
+    setTimeout(() => {
+      addBubble("📞 Unbekannte Schweine-Energie erkannt...", "john");
+    }, 900);
+
+    setTimeout(() => {
+      addBubble("John Pork: Nimm endlich ab.", "john");
+    }, 1700);
+  </script>
+</body>
+</html>
