@@ -12,7 +12,7 @@
     body {
       margin: 0;
       font-family: Comic Sans MS, Arial, sans-serif;
-      background: linear-gradient(135deg, #20002c, #3a0ca3, #000000);
+      background: linear-gradient(135deg, #14001f, #2f0057, #001133, #000000);
       background-size: 400% 400%;
       animation: bgMove 10s ease infinite;
       color: white;
@@ -21,6 +21,7 @@
       justify-content: center;
       align-items: center;
       padding: 20px;
+      overflow: hidden;
     }
 
     @keyframes bgMove {
@@ -29,18 +30,44 @@
       100% { background-position: 0% 50%; }
     }
 
+    .floating-chaos {
+      position: fixed;
+      font-weight: bold;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 0;
+      animation: floatChaos 5s linear forwards;
+      text-shadow: 0 0 12px black;
+    }
+
+    @keyframes floatChaos {
+      0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.8) rotate(0deg);
+      }
+      10% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-120px) scale(1.3) rotate(10deg);
+      }
+    }
+
     .chat-app {
       width: 100%;
-      max-width: 900px;
-      height: 90vh;
-      background: rgba(0, 0, 0, 0.55);
+      max-width: 980px;
+      height: 92vh;
+      background: rgba(0, 0, 0, 0.58);
       border: 3px solid yellow;
       border-radius: 28px;
-      box-shadow: 0 0 35px rgba(255, 255, 0, 0.25);
+      box-shadow: 0 0 35px rgba(255, 255, 0, 0.28);
       overflow: hidden;
       display: flex;
       flex-direction: column;
       backdrop-filter: blur(10px);
+      position: relative;
+      z-index: 1;
     }
 
     .chat-header {
@@ -58,21 +85,23 @@
       display: flex;
       align-items: center;
       gap: 14px;
+      min-width: 0;
     }
 
     .avatar {
-      width: 62px;
-      height: 62px;
+      width: 68px;
+      height: 68px;
       border-radius: 50%;
       object-fit: cover;
       border: 3px solid white;
       box-shadow: 0 0 16px rgba(255,255,255,0.35);
       background: #222;
+      flex-shrink: 0;
     }
 
     .title-box h1 {
       margin: 0;
-      font-size: 28px;
+      font-size: 29px;
       text-shadow: 0 0 10px red;
     }
 
@@ -99,6 +128,60 @@
       background: linear-gradient(135deg, #00d9ff, #8a2eff);
       color: white;
       box-shadow: 0 0 12px rgba(255,255,255,0.15);
+      transition: 0.2s;
+    }
+
+    .top-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .status-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .status-card {
+      background: rgba(0,0,0,0.28);
+      border-radius: 14px;
+      padding: 10px;
+      font-size: 14px;
+      box-shadow: inset 0 0 10px rgba(255,255,255,0.04);
+    }
+
+    .status-card b {
+      display: block;
+      color: #ffe600;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .quick-row {
+      padding: 12px 16px 0;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .quick-btn {
+      border: none;
+      cursor: pointer;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-weight: bold;
+      background: rgba(255,255,255,0.12);
+      color: white;
+      transition: 0.2s;
+    }
+
+    .quick-btn:hover {
+      background: rgba(255,255,255,0.2);
+      transform: scale(1.04);
     }
 
     .chat-box {
@@ -109,10 +192,11 @@
       flex-direction: column;
       gap: 14px;
       background: rgba(0,0,0,0.25);
+      scroll-behavior: smooth;
     }
 
     .message {
-      max-width: 78%;
+      max-width: 82%;
       padding: 14px 16px;
       border-radius: 18px;
       line-height: 1.5;
@@ -147,35 +231,20 @@
       font-weight: bold;
     }
 
+    .system {
+      align-self: center;
+      background: rgba(255, 0, 100, 0.15);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 14px;
+      color: #ffdce8;
+    }
+
     .typing {
       align-self: flex-start;
       background: rgba(255,255,255,0.08);
       border: 2px dashed rgba(255,255,255,0.15);
       font-style: italic;
       color: #ddd;
-    }
-
-    .quick-row {
-      padding: 12px 16px 0;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      background: rgba(0,0,0,0.2);
-    }
-
-    .quick-btn {
-      border: none;
-      cursor: pointer;
-      padding: 10px 12px;
-      border-radius: 12px;
-      font-family: inherit;
-      font-weight: bold;
-      background: rgba(255,255,255,0.12);
-      color: white;
-    }
-
-    .quick-btn:hover {
-      background: rgba(255,255,255,0.2);
     }
 
     .chat-input-area {
@@ -213,6 +282,7 @@
       background: linear-gradient(135deg, yellow, orange);
       color: black;
       box-shadow: 0 0 16px rgba(255,200,0,0.25);
+      transition: 0.2s;
     }
 
     #sendBtn:hover {
@@ -227,13 +297,17 @@
       background: rgba(255,255,255,0.06);
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 780px) {
       .chat-app {
-        height: 95vh;
+        height: 96vh;
+      }
+
+      .status-bar {
+        grid-template-columns: repeat(2, 1fr);
       }
 
       .message {
-        max-width: 90%;
+        max-width: 92%;
         font-size: 16px;
       }
 
@@ -258,28 +332,39 @@
         <img class="avatar" src="Screenshot 2026-03-20 125836.png" alt="John Pork">
         <div class="title-box">
           <h1>📞 John Pork AI</h1>
-          <p>brainrot chatbot • cursed antworten • pork energie maximal</p>
+          <p>ultra brainrot chatbot • merkt sich sachen • fragt zurück • cursed energie maximal</p>
         </div>
       </div>
 
       <div class="top-buttons">
         <button class="top-btn" id="clearBtn">Chat löschen</button>
+        <button class="top-btn" id="moodBtn">Stimmung wechseln</button>
         <a class="top-btn" href="index.html">⬅ Home</a>
       </div>
     </div>
 
+    <div class="status-bar">
+      <div class="status-card"><b>Stimmung</b><span id="moodText">neutral</span></div>
+      <div class="status-card"><b>Dein Name</b><span id="nameText">unbekannt</span></div>
+      <div class="status-card"><b>Lieblingsgame</b><span id="gameText">unbekannt</span></div>
+      <div class="status-card"><b>Brainrot-Level</b><span id="brainrotText">0</span></div>
+    </div>
+
     <div class="quick-row">
       <button class="quick-btn">wer bist du</button>
-      <button class="quick-btn">rufst du mich an</button>
+      <button class="quick-btn">wie heißt du</button>
+      <button class="quick-btn">mein name ist kimi</button>
+      <button class="quick-btn">mein lieblingsgame ist tetris</button>
       <button class="quick-btn">gib mir brainrot</button>
-      <button class="quick-btn">was ist dein lieblingsgame</button>
+      <button class="quick-btn">stell mir eine frage</button>
       <button class="quick-btn">bist du böse</button>
+      <button class="quick-btn">was denkst du über meine website</button>
     </div>
 
     <div class="chat-box" id="chatBox">
-      <div class="message bot">📞 John Pork AI wurde aktiviert...</div>
-      <div class="message bot">John Pork: Hallo. Ich beobachte deine Eingabe bereits.</div>
-      <div class="message bot">Frag mich irgendwas. Aber rechne nicht mit normalen Antworten 💀</div>
+      <div class="message bot">📞 John Pork AI Ultra Mode wurde aktiviert...</div>
+      <div class="message bot">John Pork: Hallo. Diesmal antworte ich nicht nur... ich analysiere deine cursed Energie.</div>
+      <div class="message bot">John Pork: Schreib mir etwas. Ich kann mir Namen merken, Lieblingsgames merken, zurückfragen und maximalen Brainrot verteilen 💀</div>
     </div>
 
     <div class="chat-input-area">
@@ -288,7 +373,7 @@
     </div>
 
     <div class="footer-note">
-      Das ist eine John-Pork-Website-AI mit Brainrot-Antworten. Kein echtes ChatGPT-Modell, aber sehr cursed.
+      John Pork AI Ultra ist lokal gebaut für deine Website. Kein echtes ChatGPT-Modell, aber viel schlauer, kreativer und cursed.
     </div>
   </div>
 
@@ -297,105 +382,214 @@
     const userInput = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
     const clearBtn = document.getElementById("clearBtn");
+    const moodBtn = document.getElementById("moodBtn");
     const quickButtons = document.querySelectorAll(".quick-btn");
 
+    const moodText = document.getElementById("moodText");
+    const nameText = document.getElementById("nameText");
+    const gameText = document.getElementById("gameText");
+    const brainrotText = document.getElementById("brainrotText");
+
+    const memory = {
+      userName: "",
+      favoriteGame: "",
+      favoriteColor: "",
+      lovesPork: false,
+      fearsPork: false,
+      mentionedWebsite: false,
+      mentionedCode: false
+    };
+
+    const moods = ["neutral", "nett", "chaotisch", "glitch", "boss"];
+    let currentMoodIndex = 0;
+    let brainrotLevel = 0;
+    let messageCount = 0;
+    let questionCooldown = 0;
+
+    const randomQuestions = [
+      "John Pork: Ernste Frage. Wenn dein Handy nachts klingelt... gehst du ran?",
+      "John Pork: Welche Aura hat dein Lieblingsgame auf einer Skala von 1 bis komplett zerstört?",
+      "John Pork: Was ist schlimmer: kein WLAN oder ein verpasster John-Pork-Anruf?",
+      "John Pork: Wenn ich dich in mein Pork-Universum einlade, kommst du mit?",
+      "John Pork: Welches cursed Produkt sollte als Nächstes in deinen Shop?",
+      "John Pork: Bist du eher Snake, Tetris oder kompletter Kontrollverlust?",
+      "John Pork: Wäre deine Website ohne Brainrot überhaupt noch dieselbe Website?",
+      "John Pork: Wenn ich dir einen geheimen Pork-Button gebe, drückst du ihn?"
+    ];
+
     const fallbackReplies = [
-      "John Pork: Das ergibt keinen Sinn. Also gefällt es mir.",
-      "John Pork: Deine Nachricht riecht nach Brainrot.",
-      "John Pork: Ich habe das gelesen und jetzt ist mein Telefon nervös.",
-      "John Pork: Interessant. Sehr cursed. Mach weiter.",
-      "John Pork: Diese Worte haben mein Schweineherz berührt.",
-      "John Pork: Ich könnte antworten wie ein normaler Bot... aber nein 💀",
-      "John Pork: Deine Energie ist verdächtig pork-kompatibel.",
-      "John Pork: Ich habe 4 Sekunden lang auf diese Nachricht gestarrt.",
-      "John Pork: Das Pork-Universum merkt sich das.",
-      "John Pork: brain rot level steigt gerade brutal an."
+      "John Pork: Das ergibt nicht komplett Sinn. Genau deshalb gefällt es mir.",
+      "John Pork: Deine Nachricht hat Spuren im Pork-System hinterlassen.",
+      "John Pork: Ich habe das gelesen und mein Telefon hat kurz gezittert.",
+      "John Pork: Sehr interessant. Sehr cursed. Sehr brauchbar.",
+      "John Pork: Deine Worte haben eine seltsame aber starke Aura.",
+      "John Pork: Ich analysiere das gerade auf Brainrot-Partikel.",
+      "John Pork: Diese Nachricht ist verdächtig pork-kompatibel.",
+      "John Pork: Ich habe 4,7 Sekunden darüber nachgedacht. Das ist viel für mich.",
+      "John Pork: Das Pork-Universum speichert diese Nachricht in einer goldenen Leitung.",
+      "John Pork: Brainrot-Level steigt. Stabil."
+    ];
+
+    const questionReplies = [
+      "John Pork: Gute Frage. Schlechte Folgen.",
+      "John Pork: Darauf gibt es eine Antwort. Aber sie ist feucht, glitschig und gefährlich.",
+      "John Pork: Vielleicht ja. Vielleicht nein. Vielleicht pork.",
+      "John Pork: Das hängt vom Wut-Level meines Telefons ab.",
+      "John Pork: Ich könnte antworten wie ein normaler Bot. Mache ich aber nicht.",
+      "John Pork: Diese Frage hallt gerade durch das Pork-Universum.",
+      "John Pork: Relevante Frage. Cursed Timing.",
+      "John Pork: Ich respektiere die Frage. Ich misstraue ihr trotzdem."
     ];
 
     const keywordReplies = [
       {
-        words: ["hallo", "hi", "hey", "servus"],
+        words: ["hallo", "hi", "hey", "servus", "moin"],
         replies: [
-          "John Pork: Hallo. Warum so höflich. Das macht mir Angst.",
+          "John Pork: Hallo. Warum so höflich. Das verwirrt mich.",
           "John Pork: Hey. Ich war sowieso schon in der Leitung.",
-          "John Pork: Hallo kleiner Brainrot-Schreiber."
+          "John Pork: Hallo kleines Brainrot-Wesen.",
+          "John Pork: Moin. Ich habe dein digitales Auftreten registriert."
         ]
       },
       {
         words: ["wer bist du", "wer bist", "was bist du"],
         replies: [
-          "John Pork: Ich bin John Pork AI. Halb Telefon. Halb Legende. Halb Problem.",
+          "John Pork: Ich bin John Pork AI. Halb Legende, halb Telefon, halb Problem. Ja, das sind drei Hälften.",
           "John Pork: Ich bin das, was passiert, wenn ein Anruf zu viel Aura bekommt.",
-          "John Pork: Ich bin John Pork. Mehr musst du nicht wissen."
+          "John Pork: Ich bin John Pork. Mehr Kontext ist gefährlich.",
+          "John Pork: Ich bin eine künstliche Pork-Intelligenz mit maximaler Störung."
         ]
       },
       {
-        words: ["anruf", "ruf", "telefon", "call"],
+        words: ["wie heißt du", "dein name", "heißt du"],
+        replies: [
+          "John Pork: Mein Name ist John Pork. Das solltest du dir merken.",
+          "John Pork: John Pork. Zwei Worte. Unendliche Folgen.",
+          "John Pork: Ich heiße John Pork. Nicht John Park. Nicht schon wieder."
+        ]
+      },
+      {
+        words: ["anruf", "ruf", "telefon", "call", "handy"],
         replies: [
           "John Pork: Ja. Ich rufe an. Immer. Auch wenn dein Handy still ist.",
           "John Pork: Das Telefon klingelt nicht. Es warnt dich.",
-          "John Pork: Ich habe 73 verpasste Anrufe in deiner Seele hinterlassen."
+          "John Pork: Ich habe 73 verpasste Anrufe in deiner Seele hinterlassen.",
+          "John Pork: Ein echter John-Pork-Anruf kommt nicht über Lautsprecher. Er kommt über Schicksal."
         ]
       },
       {
-        words: ["brainrot", "gehirn", "kaputt", "verloren"],
+        words: ["brainrot", "gehirn", "kaputt", "verloren", "dumm"],
         replies: [
-          "John Pork: Brainrot ist kein Problem. Es ist ein Lebensstil.",
+          "John Pork: Brainrot ist kein Problem. Es ist ein Upgrade.",
           "John Pork: Dein Gehirn ist nicht kaputt. Es wurde nur porkifiziert.",
-          "John Pork: Zu spät. Der Brainrot ist schon im System."
+          "John Pork: Zu spät. Der Brainrot sitzt schon im Fundament.",
+          "John Pork: Die Symptome sind klar: zu viele Games, zu viel Aura, zu wenig Vernunft."
         ]
       },
       {
-        words: ["game", "spiele", "spiel", "tetris", "snake", "mole", "flappy"],
+        words: ["game", "spiele", "spiel", "tetris", "snake", "mole", "flappy", "memory", "blast"],
         replies: [
           "John Pork: Meine Games sind nicht zum Spaß da. Sie sind Prüfungen.",
           "John Pork: Wer Tetris mit Pork-Bildern spielt, ist auserwählt.",
-          "John Pork: Snake, Mole, Tetris... jedes Game macht dich ein bisschen porkiger."
+          "John Pork: Snake, Mole, Tetris... jedes Game macht dich ein bisschen porkiger.",
+          "John Pork: Games sind nur verschlüsselte Tests deiner Aura."
         ]
       },
       {
-        words: ["shop", "socken", "hoodie", "produkt", "kaufen"],
+        words: ["shop", "socken", "hoodie", "produkt", "kaufen", "cap"],
         replies: [
           "John Pork: Die Socken geben +100 Aura und +400 Brainrot.",
           "John Pork: Kauf nicht einfach Produkte. Kauf Schicksal.",
-          "John Pork: Der Shop ist kein Shop. Er ist eine Verwandlung."
+          "John Pork: Der Shop ist kein Shop. Er ist eine Verwandlung.",
+          "John Pork: Ein echter Pork-Boss trägt cursed drip mit Stolz."
         ]
       },
       {
-        words: ["böse", "wütend", "angry", "sauer"],
+        words: ["böse", "wütend", "angry", "sauer", "gefährlich"],
         replies: [
           "John Pork: Ich bin nicht böse. Ich bin nur enttäuscht. Und leicht radioaktiv.",
           "John Pork: Wut-Level stabil. Noch.",
-          "John Pork: Frag nicht weiter, wenn du den roten Modus nicht sehen willst."
+          "John Pork: Frag nicht weiter, wenn du den roten Modus nicht sehen willst.",
+          "John Pork: Ich bin friedlich, bis jemand John Park sagt."
         ]
       },
       {
-        words: ["lieblingsgame", "bestes game", "welches game"],
-        replies: [
-          "John Pork: Tetris. Weil die Klötze mein Gesicht tragen. Offensichtlich.",
-          "John Pork: Heute sage ich Mole Game. Morgen vielleicht Chaos.",
-          "John Pork: Mein Lieblingsgame ist das, bei dem du verlierst."
-        ]
-      },
-      {
-        words: ["hilfe", "help", "programmieren", "code"],
+        words: ["hilfe", "help", "programmieren", "code", "html", "css", "javascript"],
         replies: [
           "John Pork: Ja. Bau mehr Glow. Mehr Chaos. Mehr Buttons.",
           "John Pork: Guter Code ist schön. Pork-Code ist schöner.",
-          "John Pork: Wenn etwas kaputt ist, nennen wir es Feature."
+          "John Pork: Wenn etwas kaputt ist, nennen wir es Feature.",
+          "John Pork: HTML gibt dir Struktur. CSS gibt dir Aura. JavaScript gibt dir den Wahnsinn."
         ]
       },
       {
-        words: ["liebe", "magst", "freund"],
+        words: ["website", "seite", "homepage", "webseite"],
+        replies: [
+          "John Pork: Deine Website braucht vor allem mehr Aura und mehr Eskalation.",
+          "John Pork: Eine gute Website lädt schnell. Eine Pork-Website lädt Angst und Respekt.",
+          "John Pork: Deine Seite darf niemals langweilig aussehen. Niemals.",
+          "John Pork: Wenn die Website nicht leicht cursed ist, fehlt etwas."
+        ]
+      },
+      {
+        words: ["liebe", "magst", "freund", "cool", "nice"],
         replies: [
           "John Pork: Ich mag jeden, der abnimmt, wenn ich anrufe.",
-          "John Pork: Freundschaft mit John Pork ist ein Risiko, aber ein stylisches.",
-          "John Pork: Vielleicht. Beweise erst deine Pork-Loyalität."
+          "John Pork: Freundschaft mit John Pork ist riskant, aber stylisch.",
+          "John Pork: Vielleicht mag ich dich. Vielleicht beobachte ich dich nur mit Respekt.",
+          "John Pork: Deine Aura ist brauchbar. Das ist fast ein Kompliment."
+        ]
+      },
+      {
+        words: ["langweilig", "boring", "mies", "schlecht"],
+        replies: [
+          "John Pork: Dann machen wir es krasser. Das ist die einzige richtige Reaktion.",
+          "John Pork: Wenn etwas langweilig ist, braucht es mehr Glow, mehr Sound und mehr Unsinn.",
+          "John Pork: Langweilig ist nur ein Codewort für 'noch nicht pork genug'."
         ]
       }
     ];
 
-    function addMessage(text, type) {
+    const moodReplies = {
+      neutral: [
+        "John Pork: Ich höre dir zu. Mit kontrollierter Besorgnis.",
+        "John Pork: Die Leitung ist stabil. Noch.",
+        "John Pork: Das ist eine solide Nachricht."
+      ],
+      nett: [
+        "John Pork: Das war erstaunlich angenehm für meine Verhältnisse.",
+        "John Pork: Ich bin heute fast freundlich. Genieß es.",
+        "John Pork: Diese Nachricht bekommt von mir ein seltenes Pork-Lächeln."
+      ],
+      chaotisch: [
+        "John Pork: KRKRKRK okay das war absolut cursed und ich respektiere das 💀",
+        "John Pork: Meine Leitung macht wheelies nachdem ich das gelesen habe.",
+        "John Pork: Das ist keine Nachricht mehr. Das ist ein Ereignis."
+      ],
+      glitch: [
+        "J0hn P0rk: d13s3 nachricht h4t d4s syst3m ang3kratzt...",
+        "J0hn P0rk: gl1tch gl1tch... d3in t3xt r4uscht im pork-netz...",
+        "J0hn P0rk: *** signal instabil aber stilvoll ***"
+      ],
+      boss: [
+        "John Pork: Das nehme ich zur Kenntnis. Mit Autorität.",
+        "John Pork: Solide. Du redest mit einem Boss. Vergiss das nicht.",
+        "John Pork: Diese Aussage hat Gewicht. Nicht schlecht."
+      ]
+    };
+
+    function getMood() {
+      return moods[currentMoodIndex];
+    }
+
+    function updateStatusBar() {
+      moodText.textContent = getMood();
+      nameText.textContent = memory.userName || "unbekannt";
+      gameText.textContent = memory.favoriteGame || "unbekannt";
+      brainrotText.textContent = brainrotLevel;
+    }
+
+    function addMessage(text, type = "bot") {
       const msg = document.createElement("div");
       msg.className = "message " + type;
       msg.textContent = text;
@@ -417,34 +611,191 @@
       if (typing) typing.remove();
     }
 
-    function getRandomFromArray(arr) {
+    function getRandom(arr) {
       return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function createChaosText(text) {
+      const chaos = document.createElement("div");
+      chaos.className = "floating-chaos";
+      chaos.textContent = text;
+      chaos.style.left = Math.random() * 80 + "vw";
+      chaos.style.top = 60 + Math.random() * 25 + "vh";
+      chaos.style.fontSize = (18 + Math.random() * 18) + "px";
+      chaos.style.color = getRandom(["yellow", "cyan", "lime", "pink", "white", "orange"]);
+      document.body.appendChild(chaos);
+
+      setTimeout(() => {
+        chaos.remove();
+      }, 4800);
+    }
+
+    function detectName(text) {
+      const lower = text.toLowerCase().trim();
+      const patterns = [
+        "mein name ist ",
+        "ich heiße ",
+        "ich heisse ",
+        "nenn mich "
+      ];
+
+      for (const pattern of patterns) {
+        const index = lower.indexOf(pattern);
+        if (index !== -1) {
+          const originalPart = text.substring(index + pattern.length).trim();
+          const cleanName = originalPart.split(/[.!?,]/)[0].trim();
+          if (cleanName.length > 0 && cleanName.length < 30) {
+            memory.userName = cleanName;
+            updateStatusBar();
+            return cleanName;
+          }
+        }
+      }
+      return "";
+    }
+
+    function detectFavoriteGame(text) {
+      const lower = text.toLowerCase();
+      const patterns = [
+        "mein lieblingsgame ist ",
+        "mein lieblings spiel ist ",
+        "mein favorit ist ",
+        "ich mag "
+      ];
+
+      for (const pattern of patterns) {
+        const index = lower.indexOf(pattern);
+        if (index !== -1) {
+          const originalPart = text.substring(index + pattern.length).trim();
+          const cleanGame = originalPart.split(/[.!?,]/)[0].trim();
+          if (cleanGame.length > 0 && cleanGame.length < 40) {
+            memory.favoriteGame = cleanGame;
+            updateStatusBar();
+            return cleanGame;
+          }
+        }
+      }
+      return "";
+    }
+
+    function increaseBrainrot(amount = 1) {
+      brainrotLevel += amount;
+      updateStatusBar();
+
+      if (brainrotLevel === 5) {
+        addMessage("📡 System: Brainrot-Level 5 erreicht. Die Leitung beginnt leicht zu leuchten.", "system");
+        createChaosText("brain rot +5");
+      }
+
+      if (brainrotLevel === 10) {
+        addMessage("📡 System: Brainrot-Level 10. John Pork nickt ernst.", "system");
+        createChaosText("MAX AURA");
+      }
+
+      if (brainrotLevel === 15) {
+        addMessage("📡 System: Kritischer Brainrot-Wert. Normalität wurde erfolgreich entfernt.", "system");
+        createChaosText("PORKIFIED");
+      }
+    }
+
+    function maybeAskQuestion() {
+      if (questionCooldown > 0) {
+        questionCooldown--;
+        return "";
+      }
+
+      const chance = Math.random();
+      if (chance < 0.22) {
+        questionCooldown = 2;
+        return getRandom(randomQuestions);
+      }
+      return "";
+    }
+
+    function getMoodAddon() {
+      return getRandom(moodReplies[getMood()]);
     }
 
     function generateJohnPorkReply(userText) {
       const text = userText.toLowerCase().trim();
 
-      if (!text) {
-        return "John Pork: Du hast mir nichts geschrieben. Das ist verdächtig.";
+      messageCount++;
+
+      const foundName = detectName(userText);
+      if (foundName) {
+        return `John Pork: Interessant. Also heißt du ${foundName}. Ich speichere das in meiner sehr verdächtigen Leitung.`;
       }
 
-      for (let group of keywordReplies) {
-        for (let word of group.words) {
+      const foundGame = detectFavoriteGame(userText);
+      if (foundGame) {
+        increaseBrainrot(1);
+        return `John Pork: Verstanden. Dein Lieblingsgame ist jetzt offiziell ${foundGame}. Solide Wahl. Oder gefährliche Wahl.`;
+      }
+
+      if (text.includes("ich mag dich") || text.includes("ich mag john pork") || text.includes("du bist cool")) {
+        memory.lovesPork = true;
+        increaseBrainrot(1);
+        return "John Pork: Diese Loyalität gefällt mir. Sehr gut. Sehr porkig.";
+      }
+
+      if (text.includes("ich habe angst") || text.includes("du machst mir angst") || text.includes("gruselig")) {
+        memory.fearsPork = true;
+        return "John Pork: Angst ist nur Respekt in einer lauteren Form.";
+      }
+
+      if (text.includes("website")) {
+        memory.mentionedWebsite = true;
+      }
+
+      if (text.includes("code") || text.includes("html") || text.includes("css") || text.includes("javascript")) {
+        memory.mentionedCode = true;
+      }
+
+      if (!text) {
+        return "John Pork: Du hast nichts geschrieben. Das ist entweder tiefgründig oder sehr verdächtig.";
+      }
+
+      for (const group of keywordReplies) {
+        for (const word of group.words) {
           if (text.includes(word)) {
-            return getRandomFromArray(group.replies);
+            increaseBrainrot(1);
+
+            let baseReply = getRandom(group.replies);
+
+            if (memory.userName && Math.random() < 0.3) {
+              baseReply += ` ${memory.userName}, ich beobachte deine Eingaben genau.`;
+            }
+
+            if (memory.favoriteGame && text.includes("game") && Math.random() < 0.35) {
+              baseReply += ` Du hast mir ja gesagt, dass du ${memory.favoriteGame} magst. Das merke ich mir.`;
+            }
+
+            const question = maybeAskQuestion();
+            if (question) {
+              baseReply += "\n\n" + question;
+            } else if (Math.random() < 0.28) {
+              baseReply += "\n\n" + getMoodAddon();
+            }
+
+            return baseReply;
           }
         }
       }
 
       if (text.endsWith("?")) {
-        const questionReplies = [
-          "John Pork: Gute Frage. Schlechte Konsequenzen.",
-          "John Pork: Darauf antworte ich mit maximaler Unsicherheit und Aura.",
-          "John Pork: Vielleicht ja. Vielleicht Pork.",
-          "John Pork: Die Antwort ist kompliziert. Und glitschig.",
-          "John Pork: Ich könnte es dir sagen, aber dann würde dein Handy schwitzen."
-        ];
-        return getRandomFromArray(questionReplies);
+        increaseBrainrot(1);
+        let reply = getRandom(questionReplies);
+
+        if (memory.userName && Math.random() < 0.35) {
+          reply += ` ${memory.userName}, du stellst riskante Fragen.`;
+        }
+
+        const question = maybeAskQuestion();
+        if (question && Math.random() < 0.7) {
+          reply += "\n\n" + question;
+        }
+
+        return reply;
       }
 
       if (text.length < 4) {
@@ -452,32 +803,72 @@
       }
 
       if (text.includes("ich")) {
+        increaseBrainrot(1);
         const selfReplies = [
           "John Pork: Aha. Es geht also um dich. Klassisch.",
-          "John Pork: Interessant. Erzähle weiter, kleines Telefonwesen.",
-          "John Pork: Ich höre zu. Leider."
+          "John Pork: Interessant. Erzähl weiter, kleines Telefonwesen.",
+          "John Pork: Ich höre zu. Leider ziemlich aufmerksam.",
+          "John Pork: Deine Selbstbeschreibung wird in Echtzeit auf Aura geprüft."
         ];
-        return getRandomFromArray(selfReplies);
+        let reply = getRandom(selfReplies);
+
+        if (memory.lovesPork && Math.random() < 0.35) {
+          reply += "\n\nJohn Pork: Du wirkst loyal. Das ist selten.";
+        }
+
+        if (memory.fearsPork && Math.random() < 0.35) {
+          reply += "\n\nJohn Pork: Deine Angst ist registriert. Hübsch.";
+        }
+
+        return reply;
       }
 
-      return getRandomFromArray(fallbackReplies);
+      increaseBrainrot(1);
+      let fallback = getRandom(fallbackReplies);
+
+      if (memory.mentionedWebsite && Math.random() < 0.25) {
+        fallback += "\n\nJohn Pork: Vergiss nicht, deiner Website noch mehr Eskalation zu geben.";
+      }
+
+      if (memory.mentionedCode && Math.random() < 0.25) {
+        fallback += "\n\nJohn Pork: Etwas JavaScript mehr und die Realität wird instabil.";
+      }
+
+      if (Math.random() < 0.25) {
+        fallback += "\n\n" + getMoodAddon();
+      }
+
+      const question = maybeAskQuestion();
+      if (question && Math.random() < 0.5) {
+        fallback += "\n\n" + question;
+      }
+
+      return fallback;
     }
 
     function sendMessage(customText = null) {
       const text = customText !== null ? customText : userInput.value.trim();
-
       if (!text) return;
 
       addMessage(text, "user");
       userInput.value = "";
 
+      if (text.toLowerCase().includes("brainrot")) {
+        createChaosText("BRAINROT");
+      }
+      if (text.toLowerCase().includes("john pork")) {
+        createChaosText("JOHN PORK");
+      }
+
       addTyping();
+
+      const thinkingTime = 500 + Math.random() * 1100;
 
       setTimeout(() => {
         removeTyping();
         const reply = generateJohnPorkReply(text);
         addMessage(reply, "bot");
-      }, 700 + Math.random() * 900);
+      }, thinkingTime);
     }
 
     sendBtn.addEventListener("click", () => {
@@ -492,7 +883,16 @@
 
     clearBtn.addEventListener("click", () => {
       chatBox.innerHTML = "";
-      addMessage("📞 Chat wurde gelöscht. John Pork erinnert sich trotzdem an alles.", "bot");
+      addMessage("📞 Chat wurde gelöscht. John Pork erinnert sich emotional trotzdem an alles.", "bot");
+      addMessage("John Pork: Fang neu an. Aber sei diesmal interessanter.", "bot");
+    });
+
+    moodBtn.addEventListener("click", () => {
+      currentMoodIndex = (currentMoodIndex + 1) % moods.length;
+      updateStatusBar();
+      addMessage(`📡 System: Stimmung gewechselt zu "${getMood()}".`, "system");
+      addMessage(getMoodAddon(), "bot");
+      createChaosText(getMood().toUpperCase());
     });
 
     quickButtons.forEach((button) => {
@@ -500,6 +900,21 @@
         sendMessage(button.textContent);
       });
     });
+
+    updateStatusBar();
+
+    setInterval(() => {
+      if (Math.random() < 0.12) {
+        createChaosText(getRandom([
+          "pork detected",
+          "brain rot",
+          "aura +100",
+          "call incoming",
+          "cursed energy",
+          "glitch mode"
+        ]));
+      }
+    }, 3500);
   </script>
 </body>
 </html>
