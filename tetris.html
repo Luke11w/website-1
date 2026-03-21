@@ -330,6 +330,55 @@
       margin-bottom: 14px;
     }
 
+    .mobile-controls {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.92);
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+      z-index: 99999;
+      display: none;
+      border-top: 2px solid rgba(255,255,255,0.15);
+      box-shadow: 0 -8px 25px rgba(0,0,0,0.45);
+      backdrop-filter: blur(8px);
+    }
+
+    .mobile-grid {
+      max-width: 520px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .mobile-btn {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 10px;
+      font-size: 20px;
+      font-weight: bold;
+      font-family: inherit;
+      color: white;
+      background: linear-gradient(135deg, #6a00ff, #ff0077);
+      box-shadow: 0 0 16px rgba(255,255,255,0.16);
+      cursor: pointer;
+    }
+
+    .mobile-btn.big {
+      grid-column: span 3;
+      background: linear-gradient(135deg, #ff7b00, #ff003c);
+    }
+
+    .mobile-btn.green {
+      background: linear-gradient(135deg, #00c853, #64dd17);
+      color: black;
+    }
+
+    .mobile-btn.blue {
+      background: linear-gradient(135deg, #00b0ff, #2962ff);
+    }
+
     @media (max-width: 900px) {
       .game-wrap {
         flex-direction: column;
@@ -339,6 +388,24 @@
       .left-panel,
       .right-panel {
         width: min(95%, 500px);
+      }
+    }
+
+    @media (max-width: 800px) {
+      body {
+        padding-bottom: 185px;
+      }
+
+      .right-panel .touch-controls {
+        display: none;
+      }
+
+      .mobile-controls {
+        display: block;
+      }
+
+      .page {
+        padding-bottom: 20px;
       }
     }
   </style>
@@ -425,6 +492,20 @@
     </div>
   </div>
 
+  <div class="mobile-controls">
+    <div class="mobile-grid">
+      <button class="mobile-btn blue" id="mRotate">⟳</button>
+      <button class="mobile-btn green" id="mDrop">⤓</button>
+      <button class="mobile-btn blue" id="mPause">⏸</button>
+
+      <button class="mobile-btn" id="mLeft">⬅</button>
+      <button class="mobile-btn" id="mDown">⬇</button>
+      <button class="mobile-btn" id="mRight">➡</button>
+
+      <button class="mobile-btn big" id="mHard">💥 HARD DROP</button>
+    </div>
+  </div>
+
   <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
@@ -450,6 +531,14 @@
     const hardDropBtn = document.getElementById("hardDropBtn");
     const dropBtn = document.getElementById("dropBtn");
     const pauseTouchBtn = document.getElementById("pauseTouchBtn");
+
+    const mLeft = document.getElementById("mLeft");
+    const mRight = document.getElementById("mRight");
+    const mDown = document.getElementById("mDown");
+    const mRotate = document.getElementById("mRotate");
+    const mHard = document.getElementById("mHard");
+    const mDrop = document.getElementById("mDrop");
+    const mPause = document.getElementById("mPause");
 
     const COLS = 10;
     const ROWS = 20;
@@ -904,6 +993,14 @@
     dropBtn.addEventListener("click", () => dropPiece());
     pauseTouchBtn.addEventListener("click", () => togglePause());
 
+    mLeft.addEventListener("click", () => movePiece(-1));
+    mRight.addEventListener("click", () => movePiece(1));
+    mDown.addEventListener("click", () => dropPiece());
+    mRotate.addEventListener("click", () => rotatePiece());
+    mHard.addEventListener("click", () => hardDrop());
+    mDrop.addEventListener("click", () => dropPiece());
+    mPause.addEventListener("click", () => togglePause());
+
     function attachHoldButton(button, action) {
       let holdInterval = null;
 
@@ -920,7 +1017,6 @@
       button.addEventListener("mousedown", startHold);
       button.addEventListener("mouseup", stopHold);
       button.addEventListener("mouseleave", stopHold);
-
       button.addEventListener("touchstart", startHold, { passive: false });
       button.addEventListener("touchend", stopHold);
       button.addEventListener("touchcancel", stopHold);
@@ -929,6 +1025,10 @@
     attachHoldButton(leftBtn, () => movePiece(-1));
     attachHoldButton(rightBtn, () => movePiece(1));
     attachHoldButton(downBtn, () => dropPiece());
+
+    attachHoldButton(mLeft, () => movePiece(-1));
+    attachHoldButton(mRight, () => movePiece(1));
+    attachHoldButton(mDown, () => dropPiece());
 
     async function init() {
       const images = await loadImages();
