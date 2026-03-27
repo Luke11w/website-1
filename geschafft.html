@@ -3,10 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>John Pork Rätsel geschafft</title>
+  <title>Geschafft</title>
   <link rel="stylesheet" href="css/ultra-raetsel.css">
 </head>
 <body>
+  <div class="particles" id="particles"></div>
+  <div class="overlay-flash" id="overlayFlash"></div>
+
   <div class="topbar">
     <div class="topbar-inner">
       <div class="logo">👑 Gewinnerseite</div>
@@ -15,10 +18,14 @@
   </div>
 
   <div class="wrap">
-    <div class="box">
+    <div class="card">
       <h1>🏆 DU HAST ALLE 5 GESCHAFFT</h1>
-      <p>Absoluter John-Pork-Meister. Dein Gehirn wurde offiziell vom Pork-Universum akzeptiert.</p>
-      <div class="badge">✅ Gewinner freigeschaltet</div>
+      <p>John Pork akzeptiert dich offiziell als Brainrot-Meister.</p>
+
+      <div class="badge-row">
+        <div class="badge">✅ Sieger</div>
+        <div class="badge lives" id="livesText">❤️ Leben: 3</div>
+      </div>
 
       <div class="input-row">
         <input type="text" id="winnerName" placeholder="Dein Name">
@@ -34,17 +41,18 @@
 
       <p>📸 Mach jetzt einen Screenshot mit deinem Namen auf dieser Seite.</p>
       <p>Schick den Screenshot an <strong>johnporkgamer</strong> auf TikTok.</p>
-      <p class="small">Das Verschicken passiert nicht automatisch über die Website.</p>
+      <p class="small">Das Senden passiert nicht automatisch über die Website.</p>
 
       <div class="input-row">
-        <button class="btn" id="restartBtn">🔁 Neue zufällige Runde starten</button>
+        <button class="btn" id="restartBtn">🔁 Neue Runde starten</button>
       </div>
     </div>
   </div>
 
-  <script src="js/ultra-raetsel-flow.js"></script>
+  <script src="js/ultra-raetsel-core.js"></script>
   <script>
     startAmbientEffects();
+    spawnParticles();
     markSolved(6);
     loadWinnerPage();
   </script>
