@@ -9,46 +9,39 @@
 <body>
   <div class="topbar">
     <div class="topbar-inner">
-      <div class="logo">🔥 Final Pork Gate</div>
+      <div class="logo">🏁 Final Pork Gate</div>
       <a class="top-link" href="index.html">⬅ Startseite</a>
     </div>
   </div>
 
   <div class="wrap">
-    <div class="box">
-      <h1>🔥 Rätsel 5 / 5</h1>
+    <div class="box" id="quizBox">
+      <h1>🏆 FINAL BOSS</h1>
+      <div class="badge">Letztes Level</div>
 
       <div class="progress-wrap">
-        <div class="progress-label">Fortschritt: 5 von 5</div>
+        <div class="progress-label" id="progressLabel">Fortschritt: 5 von 5</div>
         <div class="progress-bar">
-          <div class="progress-fill" style="width: 100%;"></div>
+          <div class="progress-fill" id="progressFill"></div>
         </div>
       </div>
 
-      <p>
-        Finale Frage:
-      </p>
-
-      <div class="big-code">67 • 67 • 67</div>
-
-      <p class="hint">
-        Welche Kultzahl taucht hier immer wieder auf?
-      </p>
+      <h2 id="questionTitle">Rätsel 5 / 5</h2>
+      <div class="question-box" id="questionText"></div>
 
       <div class="input-row">
-        <input type="number" id="code5" placeholder="Code eingeben">
-        <button class="btn" onclick="checkCode('67', 'geschafft.html', 'msg5', 'code5')">Prüfen</button>
+        <input type="text" id="answerInput" placeholder="Antwort eingeben">
+        <button class="btn" id="checkBtn">Prüfen</button>
       </div>
 
-      <div class="result" id="msg5"></div>
-
-      <div class="hidden-clue">finale pork-mathematik: nein, nicht 676767</div>
+      <div class="result" id="resultText"></div>
     </div>
   </div>
 
-  <script src="js/ultra-raetsel.js"></script>
+  <script src="js/ultra-raetsel-flow.js"></script>
   <script>
-    pressEnterSubmit("code5", "67", "geschafft.html", "msg5");
+    startAmbientEffects();
+    loadStep(5);
   </script>
 </body>
 </html>
