@@ -9,47 +9,39 @@
 <body>
   <div class="topbar">
     <div class="topbar-inner">
-      <div class="logo">💀 Pork Chaos Gate</div>
+      <div class="logo">🔥 Pork Chaos Core</div>
       <a class="top-link" href="index.html">⬅ Startseite</a>
     </div>
   </div>
 
   <div class="wrap">
-    <div class="box">
-      <h1>💀 Rätsel 4 / 5</h1>
+    <div class="box" id="quizBox">
+      <h1>😈 FAST GESCHAFFT</h1>
+      <div class="badge">Level 4 aktiv</div>
 
       <div class="progress-wrap">
-        <div class="progress-label">Fortschritt: 4 von 5</div>
+        <div class="progress-label" id="progressLabel">Fortschritt: 4 von 5</div>
         <div class="progress-bar">
-          <div class="progress-fill" style="width: 80%;"></div>
+          <div class="progress-fill" id="progressFill"></div>
         </div>
       </div>
 
-      <p>
-        John Pork ruft dich 3-mal an.
-      </p>
-      <p>
-        Beim wievielten Mal gehst du ran, wenn du erst beim dritten Mal abnimmst?
-      </p>
-
-      <p class="hint">
-        Kein Trick. Es ist wirklich die Zahl selbst.
-      </p>
+      <h2 id="questionTitle">Rätsel 4 / 5</h2>
+      <div class="question-box" id="questionText"></div>
 
       <div class="input-row">
-        <input type="number" id="code4" placeholder="Code eingeben">
-        <button class="btn" onclick="checkCode('3', 'raetsel-5.html', 'msg4', 'code4')">Prüfen</button>
+        <input type="text" id="answerInput" placeholder="Antwort eingeben">
+        <button class="btn" id="checkBtn">Prüfen</button>
       </div>
 
-      <div class="result" id="msg4"></div>
-
-      <div class="hidden-clue">wenn du hier falsch bist, musst du wirklich schlafen gehen</div>
+      <div class="result" id="resultText"></div>
     </div>
   </div>
 
-  <script src="js/ultra-raetsel.js"></script>
+  <script src="js/ultra-raetsel-flow.js"></script>
   <script>
-    pressEnterSubmit("code4", "3", "raetsel-5.html", "msg4");
+    startAmbientEffects();
+    loadStep(4);
   </script>
 </body>
 </html>
