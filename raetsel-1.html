@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>John Pork Rätsel 1</title>
+  <link rel="stylesheet" href="css/ultra-raetsel.css">
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="logo">🐷 John Pork Ultra Rätsel</div>
+      <a class="top-link" href="index.html">⬅ Startseite</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="box">
+      <h1>🔐 Rätsel 1 / 5</h1>
+
+      <div class="progress-wrap">
+        <div class="progress-label">Fortschritt: 1 von 5</div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 20%;"></div>
+        </div>
+      </div>
+
+      <p>
+        John Pork hat auf deiner Startseite schon fast direkt die erste Kultzahl versteckt.
+      </p>
+      <p class="hint">
+        Welche Zahl ist gemeint?
+      </p>
+
+      <div class="chaos-note">Hinweis: manche Legenden starten mit 67</div>
+
+      <div class="input-row">
+        <input type="number" id="code1" placeholder="Code eingeben">
+        <button class="btn" onclick="checkCode('67', 'raetsel-2.html', 'msg1', 'code1')">Prüfen</button>
+      </div>
+
+      <div class="result" id="msg1"></div>
+
+      <div class="hidden-clue">versteckter pork-hinweis: 6 + 7 ist nicht die antwort 👀</div>
+    </div>
+  </div>
+
+  <script src="js/ultra-raetsel.js"></script>
+  <script>
+    pressEnterSubmit("code1", "67", "raetsel-2.html", "msg1");
+  </script>
+</body>
+</html>
