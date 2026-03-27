@@ -9,52 +9,44 @@
 <body>
   <div class="topbar">
     <div class="topbar-inner">
-      <div class="logo">🏆 Pork Winner Page</div>
+      <div class="logo">👑 Gewinnerseite</div>
       <a class="top-link" href="index.html">⬅ Startseite</a>
     </div>
   </div>
 
   <div class="wrap">
     <div class="box">
-      <h1>🏆 DU HAST ALLE RÄTSEL GESCHAFFT</h1>
-      <p>
-        Absoluter John-Pork-Meister. Dein Brainrot-Level ist offiziell zu hoch für normale Menschen.
-      </p>
-
-      <div class="badge">✅ Pork Status: Freigeschaltet</div>
-
-      <p>
-        Trag jetzt deinen Namen ein, damit er auf der Gewinnerseite erscheint.
-      </p>
+      <h1>🏆 DU HAST ALLE 5 GESCHAFFT</h1>
+      <p>Absoluter John-Pork-Meister. Dein Gehirn wurde offiziell vom Pork-Universum akzeptiert.</p>
+      <div class="badge">✅ Gewinner freigeschaltet</div>
 
       <div class="input-row">
         <input type="text" id="winnerName" placeholder="Dein Name">
-        <button class="btn" onclick="saveWinnerName()">Name anzeigen</button>
+        <button class="btn" id="saveNameBtn">Name anzeigen</button>
       </div>
 
       <div class="result" id="saveInfo"></div>
 
       <div class="name-card">
-        <h2>👑 Gewinnername:</h2>
+        <h2>👑 Gewinnername</h2>
         <div class="final-name" id="finalNameOutput">Noch kein Name eingetragen</div>
       </div>
 
-      <p>
-        📸 Mach jetzt einen Screenshot mit deinem Namen auf dieser Seite.
-      </p>
-      <p>
-        Schick den Screenshot an <strong>johnporkgamer</strong> auf TikTok.
-      </p>
-      <p>
-        Als Belohnung kann eine Story oder ein TikTok-Video auf dem John-Pork-Account gemacht werden.
-      </p>
+      <p>📸 Mach jetzt einen Screenshot mit deinem Namen auf dieser Seite.</p>
+      <p>Schick den Screenshot an <strong>johnporkgamer</strong> auf TikTok.</p>
+      <p class="small">Das Verschicken passiert nicht automatisch über die Website.</p>
 
-      <p class="footer-note">
-        Das Senden passiert nicht automatisch über die Website. Den Screenshot muss man selbst machen und selbst schicken.
-      </p>
+      <div class="input-row">
+        <button class="btn" id="restartBtn">🔁 Neue zufällige Runde starten</button>
+      </div>
     </div>
   </div>
 
-  <script src="js/ultra-raetsel.js"></script>
+  <script src="js/ultra-raetsel-flow.js"></script>
+  <script>
+    startAmbientEffects();
+    markSolved(6);
+    loadWinnerPage();
+  </script>
 </body>
 </html>
