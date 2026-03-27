@@ -9,46 +9,39 @@
 <body>
   <div class="topbar">
     <div class="topbar-inner">
-      <div class="logo">🐷 Pork Mind Test</div>
+      <div class="logo">💀 Brainrot Chamber</div>
       <a class="top-link" href="index.html">⬅ Startseite</a>
     </div>
   </div>
 
   <div class="wrap">
-    <div class="box">
-      <h1>🐷 Rätsel 3 / 5</h1>
+    <div class="box" id="quizBox">
+      <h1>⚡ HALBZEIT</h1>
+      <div class="badge">Level 3 aktiv</div>
 
       <div class="progress-wrap">
-        <div class="progress-label">Fortschritt: 3 von 5</div>
+        <div class="progress-label" id="progressLabel">Fortschritt: 3 von 5</div>
         <div class="progress-bar">
-          <div class="progress-fill" style="width: 60%;"></div>
+          <div class="progress-fill" id="progressFill"></div>
         </div>
       </div>
 
-      <p>
-        Wie viele Buchstaben hat der Vorname:
-      </p>
-
-      <div class="big-code">JOHN</div>
-
-      <p class="hint">
-        Zähle einfach die Buchstaben.
-      </p>
+      <h2 id="questionTitle">Rätsel 3 / 5</h2>
+      <div class="question-box" id="questionText"></div>
 
       <div class="input-row">
-        <input type="number" id="code3" placeholder="Code eingeben">
-        <button class="btn" onclick="checkCode('4', 'raetsel-4.html', 'msg3', 'code3')">Prüfen</button>
+        <input type="text" id="answerInput" placeholder="Antwort eingeben">
+        <button class="btn" id="checkBtn">Prüfen</button>
       </div>
 
-      <div class="result" id="msg3"></div>
-
-      <div class="hidden-clue">j o h n = 4, nicht 5 du skibidi legende</div>
+      <div class="result" id="resultText"></div>
     </div>
   </div>
 
-  <script src="js/ultra-raetsel.js"></script>
+  <script src="js/ultra-raetsel-flow.js"></script>
   <script>
-    pressEnterSubmit("code3", "4", "raetsel-4.html", "msg3");
+    startAmbientEffects();
+    loadStep(3);
   </script>
 </body>
 </html>
