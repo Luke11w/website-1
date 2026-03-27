@@ -9,46 +9,39 @@
 <body>
   <div class="topbar">
     <div class="topbar-inner">
-      <div class="logo">📞 Pork Code Zone</div>
+      <div class="logo">📞 Pork Mind Gate</div>
       <a class="top-link" href="index.html">⬅ Startseite</a>
     </div>
   </div>
 
   <div class="wrap">
-    <div class="box">
-      <h1>📞 Rätsel 2 / 5</h1>
+    <div class="box" id="quizBox">
+      <h1>🧠 WEITER GEHT'S</h1>
+      <div class="badge">Level 2 aktiv</div>
 
       <div class="progress-wrap">
-        <div class="progress-label">Fortschritt: 2 von 5</div>
+        <div class="progress-label" id="progressLabel">Fortschritt: 2 von 5</div>
         <div class="progress-bar">
-          <div class="progress-fill" style="width: 40%;"></div>
+          <div class="progress-fill" id="progressFill"></div>
         </div>
       </div>
 
-      <p>
-        Brainrot-Level auf der Startseite:
-      </p>
-
-      <div class="big-code">6767676767</div>
-
-      <p class="hint">
-        Wie viele Ziffern hat diese Zahl?
-      </p>
+      <h2 id="questionTitle">Rätsel 2 / 5</h2>
+      <div class="question-box" id="questionText"></div>
 
       <div class="input-row">
-        <input type="number" id="code2" placeholder="Code eingeben">
-        <button class="btn" onclick="checkCode('10', 'raetsel-3.html', 'msg2', 'code2')">Prüfen</button>
+        <input type="text" id="answerInput" placeholder="Antwort eingeben">
+        <button class="btn" id="checkBtn">Prüfen</button>
       </div>
 
-      <div class="result" id="msg2"></div>
-
-      <div class="hidden-clue">10 ziffern. ja das war peinlich leicht 💀</div>
+      <div class="result" id="resultText"></div>
     </div>
   </div>
 
-  <script src="js/ultra-raetsel.js"></script>
+  <script src="js/ultra-raetsel-flow.js"></script>
   <script>
-    pressEnterSubmit("code2", "10", "raetsel-3.html", "msg2");
+    startAmbientEffects();
+    loadStep(2);
   </script>
 </body>
 </html>
