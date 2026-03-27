@@ -3,27 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>John Pork Rätsel 3</title>
-  <link rel="stylesheet" href="css/ultra-raetsel.css">
+  <title>Rätsel 3</title>
+  <link rel="stylesheet" href="css/raetsel.css">
 </head>
 <body>
-  <div class="particles" id="particles"></div>
-  <div class="overlay-flash" id="overlayFlash"></div>
-
   <div class="topbar">
     <div class="topbar-inner">
-      <div class="logo">💀 Brainrot Chamber</div>
-      <a class="top-link" href="index.html">⬅ Startseite</a>
+      <div class="logo">🐷 John Pork Rätsel</div>
+      <a class="back-link" href="index.html">⬅ Startseite</a>
     </div>
   </div>
 
   <div class="wrap">
     <div class="card" id="quizCard">
-      <h1>⚡ LEVEL 3</h1>
+      <h1>⚡ Halbzeit</h1>
 
       <div class="badge-row">
-        <div class="badge">Halbzeit</div>
-        <div class="badge lives" id="livesText">❤️ Leben: 3</div>
+        <div class="badge">Level 3</div>
       </div>
 
       <div class="progress-wrap">
@@ -34,10 +30,7 @@
       </div>
 
       <h2 id="questionTitle">Rätsel 3 / 5</h2>
-
-      <div class="question-shell">
-        <div class="question-box" id="questionText"></div>
-      </div>
+      <div class="question-box" id="questionText">Frage lädt...</div>
 
       <div class="input-row">
         <input type="text" id="answerInput" placeholder="Antwort eingeben">
@@ -48,11 +41,9 @@
     </div>
   </div>
 
-  <script src="js/ultra-raetsel-core.js"></script>
+  <script src="js/raetsel.js"></script>
   <script>
-    startAmbientEffects();
-    spawnParticles();
-    loadStepPage(3);
+    loadQuestionPage(3);
   </script>
 </body>
 </html>
