@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>John Pork Rätsel 5</title>
+  <link rel="stylesheet" href="css/ultra-raetsel.css">
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="logo">🔥 Final Pork Gate</div>
+      <a class="top-link" href="index.html">⬅ Startseite</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="box">
+      <h1>🔥 Rätsel 5 / 5</h1>
+
+      <div class="progress-wrap">
+        <div class="progress-label">Fortschritt: 5 von 5</div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 100%;"></div>
+        </div>
+      </div>
+
+      <p>
+        Finale Frage:
+      </p>
+
+      <div class="big-code">67 • 67 • 67</div>
+
+      <p class="hint">
+        Welche Kultzahl taucht hier immer wieder auf?
+      </p>
+
+      <div class="input-row">
+        <input type="number" id="code5" placeholder="Code eingeben">
+        <button class="btn" onclick="checkCode('67', 'geschafft.html', 'msg5', 'code5')">Prüfen</button>
+      </div>
+
+      <div class="result" id="msg5"></div>
+
+      <div class="hidden-clue">finale pork-mathematik: nein, nicht 676767</div>
+    </div>
+  </div>
+
+  <script src="js/ultra-raetsel.js"></script>
+  <script>
+    pressEnterSubmit("code5", "67", "geschafft.html", "msg5");
+  </script>
+</body>
+</html>
