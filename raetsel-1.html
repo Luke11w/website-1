@@ -9,45 +9,40 @@
 <body>
   <div class="topbar">
     <div class="topbar-inner">
-      <div class="logo">🐷 John Pork Ultra Rätsel</div>
+      <div class="logo">🐷 John Pork Rätsel</div>
       <a class="top-link" href="index.html">⬅ Startseite</a>
     </div>
   </div>
 
   <div class="wrap">
-    <div class="box">
-      <h1>🔐 Rätsel 1 / 5</h1>
+    <div class="box" id="quizBox">
+      <h1>🔐 JOHN PORK CHALLENGE</h1>
+      <div class="badge">Zufällige Fragen aktiv</div>
 
       <div class="progress-wrap">
-        <div class="progress-label">Fortschritt: 1 von 5</div>
+        <div class="progress-label" id="progressLabel">Fortschritt: 1 von 5</div>
         <div class="progress-bar">
-          <div class="progress-fill" style="width: 20%;"></div>
+          <div class="progress-fill" id="progressFill"></div>
         </div>
       </div>
 
-      <p>
-        John Pork hat auf deiner Startseite schon fast direkt die erste Kultzahl versteckt.
-      </p>
-      <p class="hint">
-        Welche Zahl ist gemeint?
-      </p>
-
-      <div class="chaos-note">Hinweis: manche Legenden starten mit 67</div>
+      <h2 id="questionTitle">Rätsel 1 / 5</h2>
+      <div class="question-box" id="questionText"></div>
 
       <div class="input-row">
-        <input type="number" id="code1" placeholder="Code eingeben">
-        <button class="btn" onclick="checkCode('67', 'raetsel-2.html', 'msg1', 'code1')">Prüfen</button>
+        <input type="text" id="answerInput" placeholder="Antwort eingeben">
+        <button class="btn" id="checkBtn">Prüfen</button>
       </div>
 
-      <div class="result" id="msg1"></div>
-
-      <div class="hidden-clue">versteckter pork-hinweis: 6 + 7 ist nicht die antwort 👀</div>
+      <div class="result" id="resultText"></div>
     </div>
   </div>
 
-  <script src="js/ultra-raetsel.js"></script>
+  <script src="js/ultra-raetsel-flow.js"></script>
   <script>
-    pressEnterSubmit("code1", "67", "raetsel-2.html", "msg1");
+    resetQuizSet();
+    startAmbientEffects();
+    loadStep(1);
   </script>
 </body>
 </html>
