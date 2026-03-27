@@ -3,27 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>John Pork Rätsel 1</title>
-  <link rel="stylesheet" href="css/ultra-raetsel.css">
+  <title>Rätsel 1</title>
+  <link rel="stylesheet" href="css/raetsel.css">
 </head>
 <body>
-  <div class="particles" id="particles"></div>
-  <div class="overlay-flash" id="overlayFlash"></div>
-
   <div class="topbar">
     <div class="topbar-inner">
-      <div class="logo">🐷 John Pork Challenge</div>
-      <a class="top-link" href="index.html">⬅ Startseite</a>
+      <div class="logo">🐷 John Pork Rätsel</div>
+      <a class="back-link" href="index.html">⬅ Startseite</a>
     </div>
   </div>
 
   <div class="wrap">
     <div class="card" id="quizCard">
-      <h1>🔐 START DES CHAOS</h1>
+      <h1>🔐 Start</h1>
 
       <div class="badge-row">
         <div class="badge">Zufällige Fragen</div>
-        <div class="badge lives" id="livesText">❤️ Leben: 3</div>
+        <div class="badge">5 Rätsel</div>
       </div>
 
       <div class="progress-wrap">
@@ -34,10 +31,7 @@
       </div>
 
       <h2 id="questionTitle">Rätsel 1 / 5</h2>
-
-      <div class="question-shell">
-        <div class="question-box" id="questionText"></div>
-      </div>
+      <div class="question-box" id="questionText">Frage lädt...</div>
 
       <div class="input-row">
         <input type="text" id="answerInput" placeholder="Antwort eingeben">
@@ -48,68 +42,9 @@
     </div>
   </div>
 
-  <script src="js/ultra-raetsel-core.js"></script>
+  <script src="js/raetsel.js"></script>
   <script>
-    startAmbientEffects();
-    spawnParticles();
-    loadStepPage(1);
-  </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>John Pork Rätsel 1</title>
-  <link rel="stylesheet" href="css/ultra-raetsel.css">
-</head>
-<body>
-  <div class="particles" id="particles"></div>
-  <div class="overlay-flash" id="overlayFlash"></div>
-
-  <div class="topbar">
-    <div class="topbar-inner">
-      <div class="logo">🐷 John Pork Challenge</div>
-      <a class="top-link" href="index.html">⬅ Startseite</a>
-    </div>
-  </div>
-
-  <div class="wrap">
-    <div class="card" id="quizCard">
-      <h1>🔐 START DES CHAOS</h1>
-
-      <div class="badge-row">
-        <div class="badge">Zufällige Fragen</div>
-        <div class="badge lives" id="livesText">❤️ Leben: 3</div>
-      </div>
-
-      <div class="progress-wrap">
-        <div class="progress-label" id="progressLabel">Fortschritt: 1 von 5</div>
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
-      </div>
-
-      <h2 id="questionTitle">Rätsel 1 / 5</h2>
-
-      <div class="question-shell">
-        <div class="question-box" id="questionText"></div>
-      </div>
-
-      <div class="input-row">
-        <input type="text" id="answerInput" placeholder="Antwort eingeben">
-        <button class="btn" id="checkBtn">Prüfen</button>
-      </div>
-
-      <div class="result" id="resultText"></div>
-    </div>
-  </div>
-
-  <script src="js/ultra-raetsel-core.js"></script>
-  <script>
-    startAmbientEffects();
-    spawnParticles();
-    loadStepPage(1);
+    loadQuestionPage(1);
   </script>
 </body>
 </html>
