@@ -7,6 +7,9 @@
   <link rel="stylesheet" href="css/ultra-raetsel.css">
 </head>
 <body>
+  <div class="particles" id="particles"></div>
+  <div class="overlay-flash" id="overlayFlash"></div>
+
   <div class="topbar">
     <div class="topbar-inner">
       <div class="logo">🏁 Final Pork Gate</div>
@@ -15,9 +18,13 @@
   </div>
 
   <div class="wrap">
-    <div class="box" id="quizBox">
+    <div class="card" id="quizCard">
       <h1>🏆 FINAL BOSS</h1>
-      <div class="badge">Letztes Level</div>
+
+      <div class="badge-row">
+        <div class="badge">Letzte Frage</div>
+        <div class="badge lives" id="livesText">❤️ Leben: 3</div>
+      </div>
 
       <div class="progress-wrap">
         <div class="progress-label" id="progressLabel">Fortschritt: 5 von 5</div>
@@ -27,7 +34,10 @@
       </div>
 
       <h2 id="questionTitle">Rätsel 5 / 5</h2>
-      <div class="question-box" id="questionText"></div>
+
+      <div class="question-shell">
+        <div class="question-box" id="questionText"></div>
+      </div>
 
       <div class="input-row">
         <input type="text" id="answerInput" placeholder="Antwort eingeben">
@@ -38,10 +48,11 @@
     </div>
   </div>
 
-  <script src="js/ultra-raetsel-flow.js"></script>
+  <script src="js/ultra-raetsel-core.js"></script>
   <script>
     startAmbientEffects();
-    loadStep(5);
+    spawnParticles();
+    loadStepPage(5);
   </script>
 </body>
 </html>
