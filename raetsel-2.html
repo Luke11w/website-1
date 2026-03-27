@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>John Pork Rätsel 2</title>
+  <link rel="stylesheet" href="css/ultra-raetsel.css">
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="logo">📞 Pork Code Zone</div>
+      <a class="top-link" href="index.html">⬅ Startseite</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="box">
+      <h1>📞 Rätsel 2 / 5</h1>
+
+      <div class="progress-wrap">
+        <div class="progress-label">Fortschritt: 2 von 5</div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 40%;"></div>
+        </div>
+      </div>
+
+      <p>
+        Brainrot-Level auf der Startseite:
+      </p>
+
+      <div class="big-code">6767676767</div>
+
+      <p class="hint">
+        Wie viele Ziffern hat diese Zahl?
+      </p>
+
+      <div class="input-row">
+        <input type="number" id="code2" placeholder="Code eingeben">
+        <button class="btn" onclick="checkCode('10', 'raetsel-3.html', 'msg2', 'code2')">Prüfen</button>
+      </div>
+
+      <div class="result" id="msg2"></div>
+
+      <div class="hidden-clue">10 ziffern. ja das war peinlich leicht 💀</div>
+    </div>
+  </div>
+
+  <script src="js/ultra-raetsel.js"></script>
+  <script>
+    pressEnterSubmit("code2", "10", "raetsel-3.html", "msg2");
+  </script>
+</body>
+</html>
