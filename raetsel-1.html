@@ -114,6 +114,11 @@
       box-shadow: 0 0 16px orange;
     }
 
+    .lives-badge {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
     .progress-wrap {
       margin: 16px 0 20px 0;
     }
@@ -320,6 +325,7 @@
           <div class="badge">10 zufällige Fragen</div>
           <div class="badge">3 Levels</div>
           <div class="badge level-badge" id="levelBadge">Level 1</div>
+          <div class="badge lives-badge" id="livesDisplay">❤️❤️❤️</div>
         </div>
 
         <div class="progress-wrap">
@@ -490,6 +496,7 @@ Wie groß ist der Winkel zwischen Stunden- und Minutenzeiger?`,
     let currentQuestions = [];
     let currentIndex = 0;
     let pendingLevelStartIndex = null;
+    let lives = 3;
 
     const questionTitle = document.getElementById("questionTitle");
     const questionText = document.getElementById("questionText");
@@ -506,6 +513,7 @@ Wie groß ist der Winkel zwischen Stunden- und Minutenzeiger?`,
     const levelScreenTitle = document.getElementById("levelScreenTitle");
     const levelScreenText = document.getElementById("levelScreenText");
     const continueLevelBtn = document.getElementById("continueLevelBtn");
+    const livesDisplay = document.getElementById("livesDisplay");
 
     function normalizeText(text) {
       return text.trim().toLowerCase().replace(/\s+/g, " ");
@@ -520,6 +528,17 @@ Wie groß ist der Winkel zwischen Stunden- und Minutenzeiger?`,
       return copy;
     }
 
+    function updateLives() {
+      let hearts = "";
+      for (let i = 0; i < lives; i++) {
+        hearts += "❤️";
+      }
+      for (let i = lives; i < 3; i++) {
+        hearts += "🖤";
+      }
+      livesDisplay.textContent = hearts;
+    }
+
     function getLevel(questionNumber) {
       if (questionNumber <= 3) return 1;
       if (questionNumber <= 7) return 2;
@@ -530,6 +549,8 @@ Wie groß ist der Winkel zwischen Stunden- und Minutenzeiger?`,
       currentQuestions = shuffleArray(QUESTION_POOL).slice(0, QUESTIONS_PER_ROUND);
       currentIndex = 0;
       pendingLevelStartIndex = null;
+      lives = 3;
+      updateLives();
       quizSection.style.display = "block";
       winnerSection.style.display = "none";
       levelScreen.classList.remove("active");
@@ -572,6 +593,19 @@ Wie groß ist der Winkel zwischen Stunden- und Minutenzeiger?`,
       levelScreenText.textContent = `Du hast jetzt Level ${level} erreicht.`;
     }
 
+    function gameOver() {
+      quizSection.style.display = "none";
+      levelScreen.style.display = "none";
+      winnerSection.style.display = "block";
+
+      document.querySelector("#winnerSection h1").textContent = "💀 GAME OVER";
+      document.querySelector("#winnerSection p").textContent = "Du hast alle 3 Leben verloren.";
+      document.getElementById("finalNameOutput").textContent = "JOHN PORK HAT AUFGELEGT 💀";
+      document.getElementById("saveInfo").textContent = "";
+      document.getElementById("winnerName").style.display = "none";
+      document.getElementById("saveNameBtn").style.display = "none";
+    }
+
     function goNextStep() {
       currentIndex++;
 
@@ -608,6 +642,14 @@ Wie groß ist der Winkel zwischen Stunden- und Minutenzeiger?`,
           goNextStep();
         }, 800);
       } else {
+        lives--;
+        updateLives();
+
+        if (lives <= 0) {
+          gameOver();
+          return;
+        }
+
         resultText.className = "result bad";
         resultText.textContent = WRONG_MESSAGES[Math.floor(Math.random() * WRONG_MESSAGES.length)];
         shakeCard();
@@ -620,9 +662,16 @@ Wie groß ist der Winkel zwischen Stunden- und Minutenzeiger?`,
       levelScreen.style.display = "none";
       winnerSection.style.display = "block";
 
+      document.querySelector("#winnerSection h1").textContent = "🏆 DU HAST ALLE 10 GESCHAFFT";
+      document.querySelector("#winnerSection p").textContent = "John Pork akzeptiert dich offiziell als Brainrot-Meister.";
+      document.getElementById("winnerName").style.display = "inline-block";
+      document.getElementById("saveNameBtn").style.display = "inline-block";
+
       const savedName = localStorage.getItem("johnPorkWinnerName");
       if (savedName) {
         document.getElementById("finalNameOutput").textContent = savedName;
+      } else {
+        document.getElementById("finalNameOutput").textContent = "Noch kein Name eingetragen";
       }
     }
 
@@ -668,6 +717,8 @@ Wie groß ist der Winkel zwischen Stunden- und Minutenzeiger?`,
     });
 
     document.getElementById("restartBtn").addEventListener("click", function () {
+      document.getElementById("winnerName").value = "";
+      document.getElementById("saveInfo").textContent = "";
       startQuiz();
     });
 
