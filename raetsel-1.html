@@ -3,8 +3,263 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rätsel 1</title>
-  <link rel="stylesheet" href="css/raetsel.css">
+  <title>John Pork Rätsel</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Comic Sans MS", Arial, sans-serif;
+      color: white;
+      text-align: center;
+      background: linear-gradient(45deg, #2b0000, #32004d, #002b66, #000000);
+      background-size: 300% 300%;
+      animation: bgMove 8s infinite;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    @keyframes bgMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      padding: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .topbar-inner {
+      width: min(94%, 950px);
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      text-shadow: 0 0 12px red;
+    }
+
+    .back-link {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      background: rgba(255,255,255,0.08);
+      padding: 10px 14px;
+      border-radius: 12px;
+    }
+
+    .wrap {
+      width: min(94%, 900px);
+      margin: 22px auto;
+    }
+
+    .card {
+      background: rgba(0,0,0,0.62);
+      border-radius: 24px;
+      padding: 24px 18px;
+      box-shadow: 0 0 28px rgba(255,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    h1 {
+      font-size: clamp(30px, 6vw, 52px);
+      margin: 0 0 12px 0;
+      text-shadow: 0 0 18px white;
+    }
+
+    h2 {
+      font-size: clamp(24px, 4vw, 34px);
+      margin: 0 0 10px 0;
+    }
+
+    p {
+      font-size: clamp(17px, 2.6vw, 22px);
+      line-height: 1.65;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 10px 0 18px 0;
+    }
+
+    .badge {
+      background: rgba(255,255,255,0.1);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 15px;
+    }
+
+    .progress-wrap {
+      margin: 16px 0 20px 0;
+    }
+
+    .progress-label {
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 18px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 20%;
+      background: linear-gradient(90deg, yellow, orange, red);
+      box-shadow: 0 0 16px orange;
+      transition: width 0.3s ease;
+    }
+
+    .question-box {
+      background: rgba(255,255,255,0.06);
+      border-radius: 18px;
+      padding: 18px;
+      min-height: 170px;
+      font-size: clamp(20px, 3vw, 28px);
+      line-height: 1.75;
+      white-space: pre-line;
+    }
+
+    .input-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    input[type="text"] {
+      width: min(330px, 92%);
+      padding: 15px 16px;
+      border-radius: 14px;
+      border: 2px solid yellow;
+      outline: none;
+      font-size: 20px;
+      text-align: center;
+      font-family: inherit;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 20px;
+      background: yellow;
+      color: black;
+      font-weight: bold;
+      font-size: 18px;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 0 16px orange;
+      transition: 0.2s;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+      background: orange;
+    }
+
+    .result {
+      min-height: 36px;
+      margin-top: 18px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .good {
+      color: #66ff99;
+    }
+
+    .bad {
+      color: #ff8080;
+    }
+
+    .shake {
+      animation: shake 0.28s;
+    }
+
+    @keyframes shake {
+      0% { transform: translate(0,0); }
+      25% { transform: translate(5px,-5px); }
+      50% { transform: translate(-5px,5px); }
+      75% { transform: translate(5px,5px); }
+      100% { transform: translate(-5px,-5px); }
+    }
+
+    .name-card {
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .final-name {
+      font-size: clamp(28px, 5vw, 42px);
+      color: yellow;
+      text-shadow: 0 0 14px red;
+      margin-top: 10px;
+      word-break: break-word;
+    }
+
+    .small {
+      font-size: 15px;
+      opacity: 0.85;
+    }
+
+    .winner-section {
+      display: none;
+    }
+
+    @media (max-width: 700px) {
+      .topbar-inner {
+        justify-content: center;
+      }
+
+      .logo {
+        font-size: 20px;
+      }
+
+      .card {
+        padding: 20px 14px;
+      }
+
+      .btn {
+        width: min(320px, 92%);
+      }
+
+      input[type="text"] {
+        font-size: 18px;
+      }
+
+      .result {
+        font-size: 20px;
+      }
+
+      .question-box {
+        min-height: 150px;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="topbar">
@@ -16,35 +271,275 @@
 
   <div class="wrap">
     <div class="card" id="quizCard">
-      <h1>🔐 Start</h1>
+      <div id="quizSection">
+        <h1>🔐 JOHN PORK CHALLENGE</h1>
 
-      <div class="badge-row">
-        <div class="badge">Zufällige Fragen</div>
-        <div class="badge">5 Rätsel</div>
+        <div class="badge-row">
+          <div class="badge">5 zufällige Fragen</div>
+          <div class="badge">Brainrot Test</div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-label" id="progressLabel">Fortschritt: 1 von 5</div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+
+        <h2 id="questionTitle">Rätsel 1 / 5</h2>
+        <div class="question-box" id="questionText">Frage lädt...</div>
+
+        <div class="input-row">
+          <input type="text" id="answerInput" placeholder="Antwort eingeben">
+          <button class="btn" id="checkBtn" type="button">Prüfen</button>
+        </div>
+
+        <div class="result" id="resultText"></div>
       </div>
 
-      <div class="progress-wrap">
-        <div class="progress-label" id="progressLabel">Fortschritt: 1 von 5</div>
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill"></div>
+      <div class="winner-section" id="winnerSection">
+        <h1>🏆 DU HAST ALLE 5 GESCHAFFT</h1>
+        <p>John Pork akzeptiert dich offiziell als Brainrot-Meister.</p>
+
+        <div class="badge-row">
+          <div class="badge">✅ Sieger</div>
+        </div>
+
+        <div class="input-row">
+          <input type="text" id="winnerName" placeholder="Dein Name">
+          <button class="btn" id="saveNameBtn" type="button">Name anzeigen</button>
+        </div>
+
+        <div class="result" id="saveInfo"></div>
+
+        <div class="name-card">
+          <h2>👑 Gewinnername</h2>
+          <div class="final-name" id="finalNameOutput">Noch kein Name eingetragen</div>
+        </div>
+
+        <p>📸 Mach jetzt einen Screenshot mit deinem Namen auf dieser Seite.</p>
+        <p>Schick den Screenshot an <strong>johnporkgamer</strong> auf TikTok.</p>
+        <p class="small">Das Senden passiert nicht automatisch über die Website.</p>
+
+        <div class="input-row">
+          <button class="btn" id="restartBtn" type="button">🔁 Neue Runde starten</button>
         </div>
       </div>
-
-      <h2 id="questionTitle">Rätsel 1 / 5</h2>
-      <div class="question-box" id="questionText">Frage lädt...</div>
-
-      <div class="input-row">
-        <input type="text" id="answerInput" placeholder="Antwort eingeben">
-        <button class="btn" id="checkBtn">Prüfen</button>
-      </div>
-
-      <div class="result" id="resultText"></div>
     </div>
   </div>
 
-  <script src="js/raetsel.js"></script>
   <script>
-    loadQuestionPage(1);
+    const QUESTION_POOL = [
+      {
+        question: `Ein Raum hat 4 Ecken.
+In jeder Ecke sitzt 1 Katze.
+Vor jeder Katze sitzen 3 Katzen.
+Wie viele Katzen sind im Raum?`,
+        answers: ["4"]
+      },
+      {
+        question: `Du hast 3 Äpfel.
+Du nimmst 2 weg.
+Wie viele hast du?`,
+        answers: ["2"]
+      },
+      {
+        question: `Wie viele Monate haben 28 Tage?`,
+        answers: ["12"]
+      },
+      {
+        question: `Ein Bauer hat 17 Schafe.
+Alle bis auf 9 laufen weg.
+Wie viele bleiben übrig?`,
+        answers: ["9"]
+      },
+      {
+        question: `Wenn du an einem Rennen teilnimmst
+und den Zweiten überholst,
+an welchem Platz bist du dann?`,
+        answers: ["2", "zweiter", "platz 2"]
+      },
+      {
+        question: `Ein Flugzeug stürzt genau auf der Grenze
+von Deutschland und Frankreich ab.
+In welchem Land werden die Überlebenden begraben?
+Gib 0 ein, wenn gar nicht.`,
+        answers: ["0", "gar nicht", "nicht", "nirgendwo"]
+      },
+      {
+        question: `Was ist schwerer:
+1 Kilo Federn oder 1 Kilo Steine?
+Gib den Unterschied als Zahl ein.`,
+        answers: ["0"]
+      },
+      {
+        question: `Du gehst um 20 Uhr schlafen
+und stellst deinen Wecker auf 9 Uhr.
+Wie viele Stunden schläfst du?`,
+        answers: ["1"]
+      },
+      {
+        question: `Wie oft kannst du 10 von 100 abziehen?`,
+        answers: ["1"]
+      },
+      {
+        question: `Wenn 5 Maschinen 5 Minuten brauchen,
+um 5 Teile herzustellen,
+wie lange brauchen 100 Maschinen für 100 Teile?`,
+        answers: ["5"]
+      },
+      {
+        question: `Ein elektrischer Zug fährt von Bern nach Zürich.
+Der Wind weht nach Westen.
+In welche Richtung weht der Rauch?
+Gib 0 ein, wenn es keinen gibt.`,
+        answers: ["0"]
+      },
+      {
+        question: `2, 4, 8, 16, ?
+Welche Zahl kommt als nächstes?`,
+        answers: ["32"]
+      }
+    ];
+
+    const WRONG_MESSAGES = [
+      "❌ Falsch. Denk nochmal nach.",
+      "❌ Nope. Das war ein Trick.",
+      "❌ Nicht richtig. Versuch es nochmal.",
+      "❌ Fast... aber leider nein.",
+      "❌ John Pork schüttelt den Kopf."
+    ];
+
+    let currentQuestions = [];
+    let currentIndex = 0;
+
+    const questionTitle = document.getElementById("questionTitle");
+    const questionText = document.getElementById("questionText");
+    const progressLabel = document.getElementById("progressLabel");
+    const progressFill = document.getElementById("progressFill");
+    const answerInput = document.getElementById("answerInput");
+    const checkBtn = document.getElementById("checkBtn");
+    const resultText = document.getElementById("resultText");
+    const quizCard = document.getElementById("quizCard");
+    const quizSection = document.getElementById("quizSection");
+    const winnerSection = document.getElementById("winnerSection");
+
+    function normalizeText(text) {
+      return text.trim().toLowerCase().replace(/\s+/g, " ");
+    }
+
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function startQuiz() {
+      currentQuestions = shuffleArray(QUESTION_POOL).slice(0, 5);
+      currentIndex = 0;
+      showQuestion();
+      quizSection.style.display = "block";
+      winnerSection.style.display = "none";
+    }
+
+    function showQuestion() {
+      const current = currentQuestions[currentIndex];
+
+      questionTitle.textContent = `Rätsel ${currentIndex + 1} / 5`;
+      questionText.textContent = current.question;
+      progressLabel.textContent = `Fortschritt: ${currentIndex + 1} von 5`;
+      progressFill.style.width = `${(currentIndex + 1) * 20}%`;
+
+      answerInput.value = "";
+      resultText.textContent = "";
+      resultText.className = "result";
+      answerInput.focus();
+    }
+
+    function shakeCard() {
+      quizCard.classList.remove("shake");
+      void quizCard.offsetWidth;
+      quizCard.classList.add("shake");
+    }
+
+    function checkAnswer() {
+      const current = currentQuestions[currentIndex];
+      const value = normalizeText(answerInput.value);
+      const validAnswers = current.answers.map(normalizeText);
+
+      if (validAnswers.includes(value)) {
+        resultText.className = "result good";
+        resultText.textContent = "✅ Richtig! Weiter geht's...";
+
+        setTimeout(() => {
+          currentIndex++;
+
+          if (currentIndex >= currentQuestions.length) {
+            showWinner();
+          } else {
+            showQuestion();
+          }
+        }, 800);
+      } else {
+        resultText.className = "result bad";
+        resultText.textContent = WRONG_MESSAGES[Math.floor(Math.random() * WRONG_MESSAGES.length)];
+        shakeCard();
+        answerInput.select();
+      }
+    }
+
+    function showWinner() {
+      quizSection.style.display = "none";
+      winnerSection.style.display = "block";
+
+      const savedName = localStorage.getItem("johnPorkWinnerName");
+      if (savedName) {
+        document.getElementById("finalNameOutput").textContent = savedName;
+      }
+    }
+
+    function saveWinnerName() {
+      const input = document.getElementById("winnerName");
+      const info = document.getElementById("saveInfo");
+      const output = document.getElementById("finalNameOutput");
+      const name = input.value.trim();
+
+      if (name.length < 2) {
+        info.className = "result bad";
+        info.textContent = "❌ Bitte mindestens 2 Zeichen eingeben.";
+        return;
+      }
+
+      localStorage.setItem("johnPorkWinnerName", name);
+      output.textContent = name;
+      info.className = "result good";
+      info.textContent = "✅ Name gespeichert. Jetzt Screenshot machen.";
+    }
+
+    checkBtn.addEventListener("click", checkAnswer);
+
+    answerInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        checkAnswer();
+      }
+    });
+
+    document.getElementById("saveNameBtn").addEventListener("click", saveWinnerName);
+
+    document.getElementById("winnerName").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        saveWinnerName();
+      }
+    });
+
+    document.getElementById("restartBtn").addEventListener("click", function () {
+      startQuiz();
+    });
+
+    startQuiz();
   </script>
 </body>
 </html>
