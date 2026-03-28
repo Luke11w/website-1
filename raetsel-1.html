@@ -73,6 +73,7 @@
       padding: 24px 18px;
       box-shadow: 0 0 28px rgba(255,0,0,0.35);
       border: 1px solid rgba(255,255,255,0.08);
+      position: relative;
     }
 
     h1 {
@@ -104,6 +105,13 @@
       border-radius: 999px;
       padding: 10px 14px;
       font-size: 15px;
+    }
+
+    .level-badge {
+      background: linear-gradient(90deg, yellow, orange, red);
+      color: black;
+      font-weight: bold;
+      box-shadow: 0 0 16px orange;
     }
 
     .progress-wrap {
@@ -230,6 +238,40 @@
       display: none;
     }
 
+    .level-screen {
+      display: none;
+    }
+
+    .level-screen.active {
+      display: block;
+      animation: popIn 0.4s ease;
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.85); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .level-title {
+      font-size: clamp(34px, 7vw, 64px);
+      color: yellow;
+      text-shadow: 0 0 20px orange;
+      margin-bottom: 10px;
+    }
+
+    .level-sub {
+      font-size: clamp(18px, 3vw, 28px);
+      margin-bottom: 22px;
+    }
+
+    .glow-box {
+      background: rgba(255,255,255,0.06);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 0 26px rgba(255,255,0,0.2);
+      margin-top: 18px;
+    }
+
     @media (max-width: 700px) {
       .topbar-inner {
         justify-content: center;
@@ -276,7 +318,8 @@
 
         <div class="badge-row">
           <div class="badge">10 zufällige Fragen</div>
-          <div class="badge">Brainrot Test</div>
+          <div class="badge">3 Levels</div>
+          <div class="badge level-badge" id="levelBadge">Level 1</div>
         </div>
 
         <div class="progress-wrap">
@@ -297,12 +340,27 @@
         <div class="result" id="resultText"></div>
       </div>
 
+      <div class="level-screen" id="levelScreen">
+        <div class="level-title" id="levelScreenTitle">🔥 LEVEL 2 FREIGESCHALTET</div>
+        <div class="level-sub" id="levelScreenText">Du hast das nächste Level erreicht.</div>
+
+        <div class="glow-box">
+          <p>John Pork hat gesehen, dass du kein NPC bist.</p>
+          <p>Drück den Button und mach weiter.</p>
+        </div>
+
+        <div class="input-row">
+          <button class="btn" id="continueLevelBtn" type="button">🚀 Weiter zum nächsten Level</button>
+        </div>
+      </div>
+
       <div class="winner-section" id="winnerSection">
         <h1>🏆 DU HAST ALLE 10 GESCHAFFT</h1>
         <p>John Pork akzeptiert dich offiziell als Brainrot-Meister.</p>
 
         <div class="badge-row">
           <div class="badge">✅ Sieger</div>
+          <div class="badge level-badge">ALLE 3 LEVEL GESCHAFFT</div>
         </div>
 
         <div class="input-row">
@@ -431,6 +489,7 @@ Wie groß ist der Winkel zwischen Stunden- und Minutenzeiger?`,
 
     let currentQuestions = [];
     let currentIndex = 0;
+    let pendingLevelStartIndex = null;
 
     const questionTitle = document.getElementById("questionTitle");
     const questionText = document.getElementById("questionText");
@@ -442,6 +501,11 @@ Wie groß ist der Winkel zwischen Stunden- und Minutenzeiger?`,
     const quizCard = document.getElementById("quizCard");
     const quizSection = document.getElementById("quizSection");
     const winnerSection = document.getElementById("winnerSection");
+    const levelBadge = document.getElementById("levelBadge");
+    const levelScreen = document.getElementById("levelScreen");
+    const levelScreenTitle = document.getElementById("levelScreenTitle");
+    const levelScreenText = document.getElementById("levelScreenText");
+    const continueLevelBtn = document.getElementById("continueLevelBtn");
 
     function normalizeText(text) {
       return text.trim().toLowerCase().replace(/\s+/g, " ");
@@ -456,21 +520,37 @@ Wie groß ist der Winkel zwischen Stunden- und Minutenzeiger?`,
       return copy;
     }
 
+    function getLevel(questionNumber) {
+      if (questionNumber <= 3) return 1;
+      if (questionNumber <= 7) return 2;
+      return 3;
+    }
+
     function startQuiz() {
       currentQuestions = shuffleArray(QUESTION_POOL).slice(0, QUESTIONS_PER_ROUND);
       currentIndex = 0;
+      pendingLevelStartIndex = null;
       quizSection.style.display = "block";
       winnerSection.style.display = "none";
+      levelScreen.classList.remove("active");
+      levelScreen.style.display = "none";
       showQuestion();
     }
 
     function showQuestion() {
       const current = currentQuestions[currentIndex];
+      const questionNumber = currentIndex + 1;
+      const currentLevel = getLevel(questionNumber);
 
-      questionTitle.textContent = `Rätsel ${currentIndex + 1} / ${QUESTIONS_PER_ROUND}`;
+      quizSection.style.display = "block";
+      levelScreen.classList.remove("active");
+      levelScreen.style.display = "none";
+
+      levelBadge.textContent = `Level ${currentLevel}`;
+      questionTitle.textContent = `Rätsel ${questionNumber} / ${QUESTIONS_PER_ROUND}`;
       questionText.textContent = current.question;
-      progressLabel.textContent = `Fortschritt: ${currentIndex + 1} von ${QUESTIONS_PER_ROUND}`;
-      progressFill.style.width = `${((currentIndex + 1) / QUESTIONS_PER_ROUND) * 100}%`;
+      progressLabel.textContent = `Fortschritt: ${questionNumber} von ${QUESTIONS_PER_ROUND}`;
+      progressFill.style.width = `${(questionNumber / QUESTIONS_PER_ROUND) * 100}%`;
 
       answerInput.value = "";
       resultText.textContent = "";
@@ -484,6 +564,37 @@ Wie groß ist der Winkel zwischen Stunden- und Minutenzeiger?`,
       quizCard.classList.add("shake");
     }
 
+    function showLevelScreen(level) {
+      quizSection.style.display = "none";
+      levelScreen.style.display = "block";
+      levelScreen.classList.add("active");
+      levelScreenTitle.textContent = `🔥 LEVEL ${level} FREIGESCHALTET`;
+      levelScreenText.textContent = `Du hast jetzt Level ${level} erreicht.`;
+    }
+
+    function goNextStep() {
+      currentIndex++;
+
+      if (currentIndex >= currentQuestions.length) {
+        showWinner();
+        return;
+      }
+
+      if (currentIndex === 3) {
+        pendingLevelStartIndex = currentIndex;
+        showLevelScreen(2);
+        return;
+      }
+
+      if (currentIndex === 7) {
+        pendingLevelStartIndex = currentIndex;
+        showLevelScreen(3);
+        return;
+      }
+
+      showQuestion();
+    }
+
     function checkAnswer() {
       const current = currentQuestions[currentIndex];
       const value = normalizeText(answerInput.value);
@@ -494,13 +605,7 @@ Wie groß ist der Winkel zwischen Stunden- und Minutenzeiger?`,
         resultText.textContent = "✅ Richtig! Weiter geht's...";
 
         setTimeout(() => {
-          currentIndex++;
-
-          if (currentIndex >= currentQuestions.length) {
-            showWinner();
-          } else {
-            showQuestion();
-          }
+          goNextStep();
         }, 800);
       } else {
         resultText.className = "result bad";
@@ -512,6 +617,7 @@ Wie groß ist der Winkel zwischen Stunden- und Minutenzeiger?`,
 
     function showWinner() {
       quizSection.style.display = "none";
+      levelScreen.style.display = "none";
       winnerSection.style.display = "block";
 
       const savedName = localStorage.getItem("johnPorkWinnerName");
@@ -543,6 +649,13 @@ Wie groß ist der Winkel zwischen Stunden- und Minutenzeiger?`,
     answerInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         checkAnswer();
+      }
+    });
+
+    continueLevelBtn.addEventListener("click", function () {
+      if (pendingLevelStartIndex !== null) {
+        showQuestion();
+        pendingLevelStartIndex = null;
       }
     });
 
