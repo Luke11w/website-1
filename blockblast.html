@@ -7,15 +7,29 @@
   <style>
     * { box-sizing: border-box; }
 
-    body {
+    :root {
+      --bg1: #2a0047;
+      --bg2: #49006e;
+      --bg3: #001f5f;
+      --bg4: #000;
+      --panel: rgba(0,0,0,0.34);
+      --panel-border: rgba(255,255,255,0.12);
+      --yellow: #ffe600;
+      --orange: #ffb300;
+    }
+
+    html, body {
       margin: 0;
+      min-height: 100%;
+    }
+
+    body {
       font-family: Arial, sans-serif;
       color: white;
-      min-height: 100vh;
       overflow-x: hidden;
-      background: linear-gradient(135deg, #2a0047, #49006e, #001f5f, #000);
-      background-size: 400% 400%;
-      animation: bgMove 10s ease infinite;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3), var(--bg4));
+      background-size: 300% 300%;
+      animation: bgMove 14s ease infinite;
     }
 
     @keyframes bgMove {
@@ -26,124 +40,122 @@
 
     .floating-pork {
       position: fixed;
-      width: 84px;
-      height: 84px;
+      width: 64px;
+      height: 64px;
       object-fit: cover;
-      border-radius: 16px;
-      opacity: 0.12;
+      border-radius: 14px;
+      opacity: 0.08;
       z-index: 0;
       pointer-events: none;
       animation: floatPork linear infinite;
-      box-shadow: 0 0 18px rgba(255,255,255,0.2);
     }
 
     @keyframes floatPork {
-      from { transform: translateY(110vh) rotate(0deg); }
-      to { transform: translateY(-140px) rotate(360deg); }
+      from { transform: translateY(105vh) rotate(0deg); }
+      to { transform: translateY(-120px) rotate(360deg); }
     }
 
     .app {
       position: relative;
       z-index: 2;
-      max-width: 1100px;
+      max-width: 1080px;
       margin: 0 auto;
-      padding: 18px 14px 36px;
+      padding: 12px 10px 24px;
     }
 
     .topbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
 
     .title {
-      font-size: 38px;
+      font-size: 34px;
       font-weight: bold;
-      text-shadow: 0 0 10px #fff, 0 0 20px #ff00c8, 0 0 30px #00d9ff;
+      text-shadow: 0 0 10px #fff, 0 0 16px #ff00c8, 0 0 22px #00d9ff;
     }
 
     .top-controls {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
     .btn {
-      background: linear-gradient(90deg, #ffe600, #ffb300);
+      background: linear-gradient(90deg, var(--yellow), var(--orange));
       color: #111;
       border: none;
       border-radius: 12px;
-      padding: 12px 18px;
-      font-size: 16px;
+      padding: 11px 16px;
+      font-size: 15px;
       font-weight: bold;
       text-decoration: none;
       cursor: pointer;
-      box-shadow: 0 8px 18px rgba(0,0,0,0.22);
-      transition: transform 0.16s ease;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+      transition: transform 0.14s ease;
+      font-family: inherit;
     }
 
     .btn:hover {
-      transform: scale(1.05);
+      transform: scale(1.03);
     }
 
     .hud {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
-      margin-bottom: 18px;
+      margin-bottom: 12px;
     }
 
     .box {
-      background: rgba(0,0,0,0.38);
-      border: 1px solid rgba(255,255,255,0.14);
-      backdrop-filter: blur(8px);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
       border-radius: 16px;
-      padding: 12px 16px;
-      min-width: 140px;
-      box-shadow: 0 0 16px rgba(0,0,0,0.24);
+      padding: 10px 14px;
+      min-width: 110px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.16);
     }
 
     .label {
-      font-size: 13px;
+      font-size: 12px;
       opacity: 0.85;
     }
 
     .value {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: bold;
       color: #ffe766;
     }
 
     .game-layout {
       display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 18px;
+      grid-template-columns: 1fr 310px;
+      gap: 14px;
       align-items: start;
     }
 
     .board-wrap, .side-wrap {
-      background: rgba(0,0,0,0.35);
-      border: 1px solid rgba(255,255,255,0.14);
-      backdrop-filter: blur(8px);
-      border-radius: 24px;
-      padding: 16px;
-      box-shadow: 0 14px 34px rgba(0,0,0,0.28);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 22px;
+      padding: 12px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.18);
     }
 
     .board {
       width: 100%;
-      max-width: 600px;
+      max-width: 520px;
       aspect-ratio: 1;
       display: grid;
       grid-template-columns: repeat(8, 1fr);
-      gap: 6px;
+      gap: 4px;
       margin: 0 auto;
-      background: rgba(255,255,255,0.05);
-      padding: 10px;
-      border-radius: 20px;
+      background: rgba(255,255,255,0.04);
+      padding: 8px;
+      border-radius: 18px;
       touch-action: none;
       user-select: none;
       position: relative;
@@ -151,15 +163,14 @@
 
     .cell {
       position: relative;
-      background: rgba(255,255,255,0.07);
-      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 8px;
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.06);
     }
 
     .cell.block {
-      box-shadow: 0 0 10px rgba(255,255,255,0.25), 0 0 18px rgba(255,0,200,0.2);
-      animation: popIn 0.15s ease;
+      box-shadow: 0 0 6px rgba(255,255,255,0.14);
     }
 
     .cell img {
@@ -171,50 +182,44 @@
     }
 
     .cell.preview-valid {
-      outline: 3px solid rgba(0,255,136,0.95);
-      background: rgba(0,255,136,0.18);
+      outline: 2px solid rgba(0,255,136,0.95);
+      background: rgba(0,255,136,0.14);
     }
 
     .cell.preview-invalid {
-      outline: 3px solid rgba(255,70,70,0.95);
-      background: rgba(255,70,70,0.18);
+      outline: 2px solid rgba(255,70,70,0.95);
+      background: rgba(255,70,70,0.12);
     }
 
     .cell.clear-flash {
-      animation: clearFlash 0.25s ease 2;
-    }
-
-    @keyframes popIn {
-      from { transform: scale(0.72); opacity: 0.5; }
-      to { transform: scale(1); opacity: 1; }
+      animation: clearFlash 0.22s ease 2;
     }
 
     @keyframes clearFlash {
       0% { filter: brightness(1); transform: scale(1); }
-      50% { filter: brightness(1.7); transform: scale(1.08); }
+      50% { filter: brightness(1.5); transform: scale(1.04); }
       100% { filter: brightness(1); transform: scale(1); }
     }
 
     .pieces-title {
-      font-size: 22px;
+      font-size: 21px;
       font-weight: bold;
-      margin-bottom: 12px;
-      text-shadow: 0 0 12px rgba(255,255,255,0.4);
+      margin-bottom: 10px;
     }
 
     .pieces {
       display: grid;
-      gap: 14px;
+      gap: 10px;
     }
 
     .piece {
-      background: rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.06);
       border: 2px solid transparent;
-      border-radius: 18px;
+      border-radius: 16px;
       cursor: grab;
-      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+      transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
       width: 100%;
-      height: 150px;
+      height: 126px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -225,12 +230,12 @@
     }
 
     .piece:hover {
-      transform: translateY(-3px);
+      transform: translateY(-2px);
     }
 
     .piece.selected {
       border-color: #ffe600;
-      box-shadow: 0 0 16px rgba(255,230,0,0.5);
+      box-shadow: 0 0 12px rgba(255,230,0,0.38);
     }
 
     .piece.used {
@@ -241,9 +246,9 @@
 
     .mini-grid {
       display: grid;
-      grid-template-columns: repeat(5, 32px);
-      grid-template-rows: repeat(5, 32px);
-      gap: 6px;
+      grid-template-columns: repeat(5, 26px);
+      grid-template-rows: repeat(5, 26px);
+      gap: 5px;
       justify-content: center;
       align-content: center;
       width: 100%;
@@ -251,16 +256,16 @@
     }
 
     .mini-cell {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
       background: rgba(255,255,255,0.04);
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.03);
     }
 
     .mini-cell.fill {
-      box-shadow: 0 0 10px rgba(255,255,255,0.18);
+      box-shadow: 0 0 6px rgba(255,255,255,0.12);
     }
 
     .mini-cell img {
@@ -276,15 +281,22 @@
       pointer-events: none;
       z-index: 1000;
       transform: translate(-50%, -50%);
-      opacity: 0.95;
-      filter: drop-shadow(0 0 16px rgba(255,255,255,0.45));
+      opacity: 0.94;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,0.25));
     }
 
     .tips {
-      margin-top: 16px;
-      line-height: 1.5;
+      margin-top: 12px;
+      line-height: 1.45;
       color: #eee;
-      font-size: 15px;
+      font-size: 14px;
+    }
+
+    .mobile-tip {
+      margin-top: 8px;
+      color: #ffe766;
+      font-size: 13px;
+      display: none;
     }
 
     .overlay {
@@ -303,20 +315,19 @@
     }
 
     .overlay-box {
-      width: min(92%, 520px);
-      background: linear-gradient(135deg, rgba(255,0,170,0.2), rgba(0,180,255,0.22), rgba(0,255,140,0.16));
-      border: 1px solid rgba(255,255,255,0.18);
-      backdrop-filter: blur(10px);
-      border-radius: 24px;
-      padding: 28px 22px;
+      width: min(92%, 500px);
+      background: linear-gradient(135deg, rgba(255,0,170,0.18), rgba(0,180,255,0.18), rgba(0,255,140,0.14));
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 22px;
+      padding: 24px 18px;
       text-align: center;
-      box-shadow: 0 0 40px rgba(255,255,255,0.12);
+      box-shadow: 0 0 26px rgba(255,255,255,0.08);
     }
 
     .overlay-box h2 {
       margin-top: 0;
-      font-size: 34px;
-      text-shadow: 0 0 10px #fff, 0 0 18px #00d9ff;
+      font-size: 30px;
+      text-shadow: 0 0 10px #fff, 0 0 14px #00d9ff;
     }
 
     .particles {
@@ -329,10 +340,10 @@
 
     .particle {
       position: absolute;
-      width: 14px;
-      height: 14px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
-      animation: burst 0.9s ease-out forwards;
+      animation: burst 0.7s ease-out forwards;
     }
 
     @keyframes burst {
@@ -350,15 +361,110 @@
       .game-layout {
         grid-template-columns: 1fr;
       }
+
+      .side-wrap {
+        order: -1;
+      }
+
+      .pieces {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .piece {
+        height: 110px;
+      }
+
+      .mobile-tip {
+        display: block;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .app {
+        padding: 8px 8px 18px;
+      }
+
+      .title {
+        font-size: 26px;
+      }
+
+      .topbar {
+        margin-bottom: 8px;
+      }
+
+      .hud {
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+
+      .box {
+        min-width: 92px;
+        padding: 8px 10px;
+      }
+
+      .value {
+        font-size: 18px;
+      }
+
+      .board-wrap, .side-wrap {
+        padding: 10px;
+        border-radius: 18px;
+      }
+
+      .board {
+        max-width: min(92vw, 360px);
+        gap: 3px;
+        padding: 6px;
+        border-radius: 14px;
+      }
+
+      .pieces-title {
+        font-size: 18px;
+      }
+
+      .pieces {
+        gap: 8px;
+      }
+
+      .piece {
+        height: 90px;
+        border-radius: 14px;
+      }
+
+      .mini-grid {
+        grid-template-columns: repeat(5, 17px);
+        grid-template-rows: repeat(5, 17px);
+        gap: 3px;
+      }
+
+      .mini-cell {
+        width: 17px;
+        height: 17px;
+        border-radius: 5px;
+      }
+
+      .tips {
+        font-size: 12px;
+        margin-top: 8px;
+      }
+
+      .btn {
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+
+      .floating-pork {
+        width: 42px;
+        height: 42px;
+        opacity: 0.05;
+      }
     }
   </style>
 </head>
 <body>
-  <img class="floating-pork" src="Screenshot 2026-03-20 173804.png" style="left:5%;animation-duration:17s;animation-delay:0s;">
-  <img class="floating-pork" src="Screenshot 2026-03-20 173621.png" style="left:22%;animation-duration:20s;animation-delay:2s;">
-  <img class="floating-pork" src="Screenshot 2026-03-20 155545.png" style="left:40%;animation-duration:18s;animation-delay:5s;">
-  <img class="floating-pork" src="Screenshot 2026-03-20 180931.png" style="left:60%;animation-duration:22s;animation-delay:1s;">
-  <img class="floating-pork" src="Screenshot 2026-03-20 181111.png" style="left:80%;animation-duration:19s;animation-delay:4s;">
+  <img class="floating-pork" src="Screenshot 2026-03-20 173804.png" style="left:8%;animation-duration:24s;animation-delay:0s;">
+  <img class="floating-pork" src="Screenshot 2026-03-20 155545.png" style="left:52%;animation-duration:26s;animation-delay:4s;">
+  <img class="floating-pork" src="Screenshot 2026-03-20 181111.png" style="left:84%;animation-duration:22s;animation-delay:2s;">
 
   <div class="app">
     <div class="topbar">
@@ -392,10 +498,11 @@
       <div class="side-wrap">
         <div class="pieces-title">Formen</div>
         <div id="pieces" class="pieces"></div>
+        <div class="mobile-tip">Auf Handy: Form antippen, dann Feld antippen.</div>
         <div class="tips">
           Zieh ein Teil aufs Spielfeld.<br>
           Grün = passt, Rot = passt nicht.<br>
-          Die Vorschau zeigt exakt die Zielposition.
+          Auf Handy geht auch Antippen statt Ziehen.
         </div>
       </div>
     </div>
@@ -422,7 +529,8 @@
     const particlesEl = document.getElementById("particles");
     const overlay = document.getElementById("gameOverOverlay");
     const gameOverText = document.getElementById("gameOverText");
-    const bestKey = "johnPorkBlastBestV2";
+    const bestKey = "johnPorkBlastBestV3";
+    const isTouchMode = window.matchMedia("(max-width: 900px)").matches || "ontouchstart" in window;
 
     const imagePool = [
       "Screenshot 2026-03-20 125829.png",
@@ -457,7 +565,6 @@
       "Screenshot 2026-03-20 223855.png"
     ];
 
-    // Formen mit 5x5 Logik für saubere Anzeige und exaktere Platzierung
     const SHAPES = [
       [[1]],
       [[1,1]],
@@ -492,6 +599,7 @@
     let score = 0;
     let combo = 0;
     let dragState = null;
+    let selectedPieceIndex = null;
 
     function getBest() {
       return Number(localStorage.getItem(bestKey) || 0);
@@ -539,6 +647,7 @@
     function refillPiecesIfNeeded() {
       if (currentPieces.every(p => p.used)) {
         currentPieces = [createPiece(), createPiece(), createPiece()];
+        selectedPieceIndex = null;
         renderPieces();
       }
     }
@@ -548,6 +657,7 @@
       currentPieces = [createPiece(), createPiece(), createPiece()];
       score = 0;
       combo = 0;
+      selectedPieceIndex = null;
       endDrag();
       updateHud();
       renderBoard();
@@ -571,6 +681,12 @@
             cell.innerHTML = `<img src="${value}" alt="">`;
           }
 
+          cell.addEventListener("click", () => {
+            if (selectedPieceIndex !== null) {
+              tryTapPlace(selectedPieceIndex, r, c);
+            }
+          });
+
           boardEl.appendChild(cell);
         }
       }
@@ -583,6 +699,7 @@
         const pieceEl = document.createElement("div");
         pieceEl.className = "piece";
         if (piece.used) pieceEl.classList.add("used");
+        if (selectedPieceIndex === index) pieceEl.classList.add("selected");
 
         const miniGrid = document.createElement("div");
         miniGrid.className = "mini-grid";
@@ -606,7 +723,23 @@
         }
 
         pieceEl.appendChild(miniGrid);
-        pieceEl.addEventListener("pointerdown", (e) => startDrag(e, index, pieceEl));
+
+        pieceEl.addEventListener("click", () => {
+          if (piece.used) return;
+          selectedPieceIndex = selectedPieceIndex === index ? null : index;
+          clearPreview();
+          if (selectedPieceIndex !== null) {
+            pieceEl.classList.add("selected");
+          }
+          renderPieces();
+        });
+
+        pieceEl.addEventListener("pointerdown", (e) => {
+          if (piece.used) return;
+          if (isTouchMode) return; // auf Handy lieber Tap-Modus
+          startDrag(e, index, pieceEl);
+        });
+
         piecesEl.appendChild(pieceEl);
       });
     }
@@ -713,13 +846,15 @@
 
       if (keys.size === 0) return 0;
 
+      let particleCount = isTouchMode ? 5 : 8;
+
       keys.forEach(key => {
         const [r, c] = key.split(",").map(Number);
         const cell = boardEl.querySelector(`[data-r="${r}"][data-c="${c}"]`);
         if (cell) {
           cell.classList.add("clear-flash");
           const rect = cell.getBoundingClientRect();
-          spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, 10);
+          spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, particleCount);
         }
       });
 
@@ -729,22 +864,22 @@
           board[r][c] = null;
         });
         renderBoard();
-      }, 120);
+      }, 100);
 
       return rowsToClear.length + colsToClear.length;
     }
 
-    function spawnParticles(x, y, count = 14) {
+    function spawnParticles(x, y, count = 8) {
       for (let i = 0; i < count; i++) {
         const p = document.createElement("div");
         p.className = "particle";
         p.style.left = x + "px";
         p.style.top = y + "px";
         p.style.background = ["#ff00c8", "#00d9ff", "#00ff88", "#ffe600", "#ffffff"][Math.floor(Math.random() * 5)];
-        p.style.setProperty("--dx", (Math.random() * 220 - 110) + "px");
-        p.style.setProperty("--dy", (Math.random() * 220 - 110) + "px");
+        p.style.setProperty("--dx", (Math.random() * 110 - 55) + "px");
+        p.style.setProperty("--dy", (Math.random() * 110 - 55) + "px");
         particlesEl.appendChild(p);
-        setTimeout(() => p.remove(), 900);
+        setTimeout(() => p.remove(), 700);
       }
     }
 
@@ -882,6 +1017,24 @@
       dragState = null;
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onPointerUp);
+    }
+
+    function tryTapPlace(pieceIndex, row, col) {
+      const piece = currentPieces[pieceIndex];
+      if (!piece || piece.used) return;
+
+      const valid = showPreview(piece, row, col);
+
+      if (valid) {
+        placePiece(piece, row, col);
+        selectedPieceIndex = null;
+        clearPreview();
+        renderPieces();
+      } else {
+        clearPreview();
+        showPreview(piece, row, col);
+        setTimeout(clearPreview, 180);
+      }
     }
 
     resetGame();
