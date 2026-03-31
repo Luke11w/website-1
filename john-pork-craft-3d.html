@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>John Pork Craft 3D Ultra Lite</title>
+  <title>John Pork Craft 3D Ultra</title>
   <style>
     * { box-sizing: border-box; }
     html, body { margin: 0; height: 100%; overflow: hidden; font-family: Arial, sans-serif; }
@@ -47,7 +47,7 @@
     #hotbar {
       display: flex; gap: 8px; background: rgba(0,0,0,0.45); border-radius: 16px;
       padding: 8px; border: 1px solid rgba(255,255,255,0.15); flex-wrap: wrap;
-      max-width: min(100%, 760px);
+      max-width: min(100%, 900px);
     }
     .slot {
       width: 56px; height: 56px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.15);
@@ -61,7 +61,7 @@
       color: white; text-shadow: 0 0 4px black;
     }
     #help {
-      max-width: 360px; font-size: 13px; line-height: 1.45;
+      max-width: 390px; font-size: 13px; line-height: 1.45;
     }
     #startScreen {
       position: fixed; inset: 0; z-index: 20;
@@ -70,7 +70,7 @@
       padding: 16px;
     }
     .startBox {
-      width: min(92vw, 820px); background: rgba(0,0,0,0.55); backdrop-filter: blur(10px);
+      width: min(92vw, 860px); background: rgba(0,0,0,0.55); backdrop-filter: blur(10px);
       border-radius: 24px; border: 1px solid rgba(255,255,255,0.16);
       padding: 22px; box-shadow: 0 16px 40px rgba(0,0,0,0.35);
     }
@@ -107,6 +107,7 @@
       z-index: 16; background: rgba(0,0,0,0.7); color: white;
       padding: 10px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.14);
       opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+      max-width: min(90vw, 420px); text-align: center;
     }
     #toast.show { opacity: 1; }
     @media (max-width: 900px) {
@@ -124,20 +125,21 @@
   <div id="hud">
     <div class="topbar">
       <div class="panel">
-        <div class="title">⛏️ John Pork Craft 3D Ultra Lite</div>
+        <div class="title">⛏️ John Pork Craft 3D Ultra</div>
       </div>
       <div class="panel stats">
         <div class="stat"><div class="label">Block</div><div class="value" id="blockName">Grass</div></div>
         <div class="stat"><div class="label">Position</div><div class="value" id="posText">0,0,0</div></div>
         <div class="stat"><div class="label">Zeit</div><div class="value" id="timeText">Tag</div></div>
         <div class="stat"><div class="label">Mobs</div><div class="value" id="mobText">0</div></div>
+        <div class="stat"><div class="label">HP</div><div class="value" id="hpText">100</div></div>
       </div>
     </div>
 
     <div class="bottom">
       <div id="hotbar"></div>
       <div class="panel" id="help">
-        <b>PC:</b> WASD laufen, Maus schauen, Linksklick abbauen, Rechtsklick setzen, Leertaste springen, Shift runter. <br>
+        <b>PC:</b> W vorwärts, A links, S rückwärts, D rechts, Pfeiltasten auch möglich, Maus schauen, Linksklick abbauen, Rechtsklick setzen, Leertaste springen, Shift runter, F angreifen. <br>
         <b>Handy:</b> links laufen, rechts schauen, Buttons zum Springen / Abbauen / Setzen.
       </div>
     </div>
@@ -155,9 +157,9 @@
 
   <div id="startScreen">
     <div class="startBox">
-      <h1>🐷 John Pork Craft 3D Ultra Lite</h1>
-      <p>Jetzt mit <b>Dorf, NPCs, Tag/Nacht, mehr Blöcken, Pork-Totems, Bala-/Janis-Figuren und besserer Welt</b>.</p>
-      <p class="warn">Immer noch eine Browser-Lite-Version für GitHub Pages. Nicht das originale Minecraft Java und keine komplette Vollversion mit Crafting-Menüs, Multiplayer oder Nether.</p>
+      <h1>🐷 John Pork Craft 3D Ultra</h1>
+      <p>Jetzt mit <b>größerer Welt, besserer Steuerung, mehr Blöcken, Tag/Nacht, Dorf, NPCs, Pork-Monstern, HP und Angriff</b>.</p>
+      <p class="warn">Es ist weiter eine Browser-Version für GitHub Pages. Nicht das originale Minecraft Java, aber jetzt deutlich näher an einem richtigen kleinen Craft-Spiel.</p>
       <div class="row">
         <button id="startBtn">🎮 Spiel starten</button>
       </div>
@@ -175,18 +177,19 @@
     const posTextEl = document.getElementById('posText');
     const timeTextEl = document.getElementById('timeText');
     const mobTextEl = document.getElementById('mobText');
+    const hpTextEl = document.getElementById('hpText');
     const toast = document.getElementById('toast');
 
     const isTouch = ('ontouchstart' in window) || window.matchMedia('(max-width: 900px)').matches;
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87ceeb);
-    scene.fog = new THREE.Fog(0x87ceeb, 45, 160);
+    scene.fog = new THREE.Fog(0x87ceeb, 60, 260);
 
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1200);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
     renderer.shadowMap.enabled = false;
     game.appendChild(renderer.domElement);
 
@@ -232,6 +235,10 @@
       water: colorMat(0x3aa7ff),
       gold: colorMat(0xffd700),
       pork: colorMat(0xf2a7b5),
+      sand: colorMat(0xe7d28a),
+      brick: colorMat(0xb2442f),
+      obsidian: colorMat(0x26143a),
+      glow: colorMat(0xb8fff5),
       screenshot1: loadTex('Screenshot 2026-03-20 125829.png'),
       screenshot2: loadTex('Screenshot 2026-03-20 155545.png'),
       screenshot3: loadTex('Screenshot 2026-03-20 181111.png'),
@@ -252,6 +259,10 @@
       { key: 'water', label: 'Water', mat: materials.water },
       { key: 'gold', label: 'Gold', mat: materials.gold },
       { key: 'pork', label: 'Pork', mat: materials.pork },
+      { key: 'sand', label: 'Sand', mat: materials.sand },
+      { key: 'brick', label: 'Brick', mat: materials.brick },
+      { key: 'obsidian', label: 'Obsidian', mat: materials.obsidian },
+      { key: 'glow', label: 'Glow', mat: materials.glow },
       { key: 'screenshot1', label: 'Screenshot 1', mat: materials.screenshot1 },
       { key: 'screenshot2', label: 'Screenshot 2', mat: materials.screenshot2 },
       { key: 'screenshot3', label: 'Screenshot 3', mat: materials.screenshot3 },
@@ -263,6 +274,7 @@
 
     let selectedBlock = 0;
     let worldTime = 0;
+    let hp = 100;
 
     function showToast(text) {
       toast.textContent = text;
@@ -271,12 +283,18 @@
       showToast._t = setTimeout(() => toast.classList.remove('show'), 1500);
     }
 
+    function updateHud() {
+      blockNameEl.textContent = blockTypes[selectedBlock].label;
+      hpTextEl.textContent = String(Math.max(0, Math.round(hp)));
+      posTextEl.textContent = `${player.pos.x.toFixed(1)}, ${player.pos.y.toFixed(1)}, ${player.pos.z.toFixed(1)}`;
+      mobTextEl.textContent = String(mobs.length);
+    }
+
     function buildHotbar() {
       hotbar.innerHTML = '';
       blockTypes.forEach((b, i) => {
         const slot = document.createElement('div');
         slot.className = 'slot' + (i === selectedBlock ? ' active' : '');
-        slot.dataset.index = i;
         const img = document.createElement('img');
         if (b.key.startsWith('screenshot') || b.key.startsWith('image') || b.key === 'bala' || b.key === 'janis') {
           img.src = encodeURI(
@@ -307,7 +325,7 @@
 
     function refreshHotbar() {
       [...hotbar.children].forEach((c, i) => c.classList.toggle('active', i === selectedBlock));
-      blockNameEl.textContent = blockTypes[selectedBlock].label;
+      updateHud();
     }
 
     function key(x, y, z) { return `${x},${y},${z}`; }
@@ -336,7 +354,7 @@
     }
 
     function buildTree(x, z, baseY) {
-      const h = 3 + Math.floor(Math.random() * 2);
+      const h = 3 + Math.floor(Math.random() * 3);
       for (let i = 1; i <= h; i++) addBlock(x, baseY + i, z, 'wood');
       for (let lx = -2; lx <= 2; lx++) {
         for (let lz = -2; lz <= 2; lz++) {
@@ -368,6 +386,18 @@
       addBlock(x + 2, 1, z + 2, centerType);
     }
 
+    function buildTower(x, z) {
+      for (let y = 0; y < 9; y++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          for (let dz = -1; dz <= 1; dz++) {
+            if (Math.abs(dx) === 1 || Math.abs(dz) === 1) addBlock(x + dx, y, z + dz, 'stone');
+          }
+        }
+      }
+      addBlock(x, 9, z, 'gold');
+      addBlock(x, 10, z, 'glow');
+    }
+
     function buildPorkTotem(x, z) {
       addBlock(x, 0, z, 'stone');
       addBlock(x, 1, z, 'wood');
@@ -377,76 +407,101 @@
     }
 
     function buildVillage() {
-      const baseX = 12, baseZ = 8;
+      const baseX = 20, baseZ = 14;
       buildHouse(baseX, baseZ, 'screenshot2');
       buildHouse(baseX + 9, baseZ, 'bala');
       buildHouse(baseX, baseZ + 9, 'janis');
       buildHouse(baseX + 9, baseZ + 9, 'image2');
-      for (let p = 0; p < 18; p++) addBlock(baseX + (p % 12), 0, baseZ + 5, 'stone');
-      for (let p = 0; p < 18; p++) addBlock(baseX + 5, 0, baseZ + (p % 12), 'stone');
+      buildTower(baseX + 18, baseZ + 5);
+      for (let p = 0; p < 22; p++) addBlock(baseX + (p % 14), 0, baseZ + 6, 'stone');
+      for (let p = 0; p < 22; p++) addBlock(baseX + 6, 0, baseZ + (p % 14), 'stone');
       buildPorkTotem(baseX + 6, baseZ + 6);
       buildPorkTotem(baseX + 14, baseZ + 14);
     }
 
     function generateWorld() {
-      const size = 52;
+      const size = 84;
       for (let x = -size/2; x < size/2; x++) {
         for (let z = -size/2; z < size/2; z++) {
-          const wave = Math.round(Math.sin(x * 0.21) * 1 + Math.cos(z * 0.19) * 1);
-          const y = Math.max(-2, Math.min(3, wave));
-          for (let yy = -3; yy < y; yy++) addBlock(x, yy, z, yy === y - 1 ? 'grass' : yy > y - 4 ? 'dirt' : 'stone');
-          if (x > -18 && x < -8 && z > -18 && z < -8 && y === 1) addBlock(x, y - 1, z, 'water');
+          const wave = Math.round(Math.sin(x * 0.14) * 2 + Math.cos(z * 0.16) * 2 + Math.sin((x+z) * 0.08));
+          const y = Math.max(-3, Math.min(5, wave));
+          for (let yy = -5; yy < y; yy++) {
+            let type = yy === y - 1 ? 'grass' : yy > y - 4 ? 'dirt' : 'stone';
+            if (y <= -1 && yy === y - 1) type = 'sand';
+            addBlock(x, yy, z, type);
+          }
+          if (x > -26 && x < -12 && z > -26 && z < -12 && y <= 0) addBlock(x, y, z, 'water');
         }
       }
-      for (let i = 0; i < 30; i++) {
-        const tx = Math.floor(Math.random() * 40) - 20;
-        const tz = Math.floor(Math.random() * 40) - 20;
-        if (tx > 8 && tx < 28 && tz > 4 && tz < 24) continue;
+      for (let i = 0; i < 54; i++) {
+        const tx = Math.floor(Math.random() * 66) - 33;
+        const tz = Math.floor(Math.random() * 66) - 33;
+        if (tx > 14 && tx < 42 && tz > 10 && tz < 38) continue;
+        if (tx > -28 && tx < -10 && tz > -28 && tz < -10) continue;
         buildTree(tx, tz, 0);
       }
       buildVillage();
-      for (let x = -6; x <= -1; x++) for (let z = 10; z <= 15; z++) addBlock(x, 1, z, (x + z) % 2 === 0 ? 'screenshot1' : 'screenshot3');
-      addBlock(-8, 1, 14, 'image1');
-      addBlock(-9, 1, 14, 'image2');
-      addBlock(-12, 1, 12, 'bala');
-      addBlock(-12, 1, 13, 'janis');
+      for (let x = -8; x <= -1; x++) for (let z = 12; z <= 19; z++) addBlock(x, 1, z, (x + z) % 2 === 0 ? 'screenshot1' : 'screenshot3');
+      addBlock(-10, 1, 16, 'image1');
+      addBlock(-11, 1, 16, 'image2');
+      addBlock(-14, 1, 14, 'bala');
+      addBlock(-14, 1, 15, 'janis');
+      addBlock(-18, 1, 18, 'brick');
+      addBlock(-18, 2, 18, 'glow');
     }
 
-    function createNpc(x, z, type = 'pork') {
+    function createNpc(x, z, type = 'pork', hostile = false) {
       const g = new THREE.Group();
-      const bodyMat = type === 'bala' ? materials.bala : type === 'janis' ? materials.janis : materials.screenshot2;
+      const bodyMat = type === 'bala' ? materials.bala : type === 'janis' ? materials.janis : type === 'monster' ? materials.screenshot1 : materials.screenshot2;
+      const headMat = type === 'bala' ? materials.bala : type === 'janis' ? materials.janis : type === 'monster' ? materials.screenshot3 : materials.screenshot3;
       const body = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.2, 0.45), bodyMat);
       body.position.y = 1.1;
-      const head = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.75, 0.75), type === 'bala' ? materials.bala : type === 'janis' ? materials.janis : materials.screenshot3);
+      const head = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.75, 0.75), headMat);
       head.position.y = 2.05;
       g.add(body, head);
       g.position.set(x, 0, z);
       g.userData = {
         home: new THREE.Vector3(x, 0, z),
         t: Math.random() * Math.PI * 2,
-        type
+        type,
+        hostile,
+        hp: hostile ? 3 : 999,
+        cooldown: 0
       };
       mobGroup.add(g);
       mobs.push(g);
     }
 
     function spawnVillageNpcs() {
-      createNpc(15, 15, 'pork');
-      createNpc(20, 12, 'bala');
-      createNpc(14, 20, 'janis');
-      createNpc(22, 20, 'pork');
+      createNpc(23, 21, 'pork', false);
+      createNpc(29, 18, 'bala', false);
+      createNpc(22, 29, 'janis', false);
+      createNpc(31, 30, 'pork', false);
+    }
+
+    function maybeSpawnNightMonster() {
+      const cycle = (Math.sin(worldTime) + 1) / 2;
+      if (cycle > 0.32) return;
+      const hostileCount = mobs.filter(m => m.userData.hostile).length;
+      if (hostileCount >= 6) return;
+      const spawnDist = 10 + Math.random() * 10;
+      const ang = Math.random() * Math.PI * 2;
+      const x = Math.round(player.pos.x + Math.cos(ang) * spawnDist);
+      const z = Math.round(player.pos.z + Math.sin(ang) * spawnDist);
+      createNpc(x, z, 'monster', true);
     }
 
     const player = {
-      pos: new THREE.Vector3(0, 4, 8),
+      pos: new THREE.Vector3(0, 6, 8),
       vel: new THREE.Vector3(),
       yaw: -Math.PI / 2,
       pitch: -0.15,
-      speed: 7,
-      jump: 7.3,
+      speed: 7.5,
+      jump: 7.8,
       onGround: false,
       height: 1.7,
-      radius: 0.32
+      radius: 0.32,
+      attackCooldown: 0
     };
 
     let pointerLocked = false;
@@ -461,7 +516,7 @@
       camera.rotation.order = 'YXZ';
       camera.rotation.y = player.yaw;
       camera.rotation.x = player.pitch;
-      posTextEl.textContent = `${player.pos.x.toFixed(1)}, ${player.pos.y.toFixed(1)}, ${player.pos.z.toFixed(1)}`;
+      updateHud();
     }
 
     function intersectsAt(pos) {
@@ -481,19 +536,41 @@
       return false;
     }
 
+    function tryStepUp(basePos, moveX, moveZ) {
+      const stepHeights = [0.6, 1.0, 1.2];
+      for (const step of stepHeights) {
+        const stepped = basePos.clone();
+        stepped.y += step;
+        if (intersectsAt(stepped)) continue;
+        const moved = stepped.clone();
+        moved.x += moveX;
+        moved.z += moveZ;
+        if (intersectsAt(moved)) continue;
+        return moved;
+      }
+      return null;
+    }
+
     function movePlayer(dt) {
       const dir = new THREE.Vector3();
       const forward = new THREE.Vector3(Math.cos(player.yaw), 0, Math.sin(player.yaw));
       const right = new THREE.Vector3(-Math.sin(player.yaw), 0, Math.cos(player.yaw));
-      if (keys['KeyW']) dir.add(forward);
-      if (keys['KeyS']) dir.sub(forward);
-      if (keys['KeyA']) dir.sub(right);
-      if (keys['KeyD']) dir.add(right);
+
+      if (keys['KeyW'] || keys['ArrowUp']) dir.add(forward);
+      if (keys['KeyS'] || keys['ArrowDown']) dir.sub(forward);
+      if (keys['KeyA'] || keys['ArrowLeft']) dir.sub(right);
+      if (keys['KeyD'] || keys['ArrowRight']) dir.add(right);
       if (touchMove.y < -0.18) dir.add(forward);
       if (touchMove.y > 0.18) dir.sub(forward);
       if (touchMove.x < -0.18) dir.sub(right);
       if (touchMove.x > 0.18) dir.add(right);
-      if (dir.lengthSq() > 0) dir.normalize().multiplyScalar(player.speed * dt);
+
+      let moveX = 0, moveZ = 0;
+      if (dir.lengthSq() > 0) {
+        dir.normalize().multiplyScalar(player.speed * dt);
+        moveX = dir.x;
+        moveZ = dir.z;
+      }
 
       player.vel.y -= 18 * dt;
       if ((keys['Space'] || keys['KeyE']) && player.onGround) {
@@ -502,49 +579,108 @@
       }
       if (keys['ShiftLeft'] || keys['ShiftRight'] || keys['KeyQ']) player.vel.y -= 10 * dt;
 
+      if (moveX !== 0 || moveZ !== 0) {
+        let moved = false;
+        let tryPos = player.pos.clone();
+        tryPos.x += moveX; tryPos.z += moveZ;
+        if (!intersectsAt(tryPos)) {
+          player.pos.x = tryPos.x; player.pos.z = tryPos.z; moved = true;
+        } else {
+          tryPos = player.pos.clone(); tryPos.x += moveX;
+          if (!intersectsAt(tryPos)) { player.pos.x = tryPos.x; moved = true; }
+          else {
+            const stepped = tryStepUp(player.pos, moveX, 0);
+            if (stepped) { player.pos.copy(stepped); moved = true; }
+          }
+
+          tryPos = player.pos.clone(); tryPos.z += moveZ;
+          if (!intersectsAt(tryPos)) { player.pos.z = tryPos.z; moved = true; }
+          else {
+            const stepped = tryStepUp(player.pos, 0, moveZ);
+            if (stepped) { player.pos.copy(stepped); moved = true; }
+          }
+        }
+        if (!moved) {
+          const steppedDiag = tryStepUp(player.pos, moveX, moveZ);
+          if (steppedDiag) player.pos.copy(steppedDiag);
+        }
+      }
+
       let tryPos = player.pos.clone();
-      tryPos.x += dir.x;
-      if (!intersectsAt(tryPos)) player.pos.x = tryPos.x;
-      tryPos = player.pos.clone();
-      tryPos.z += dir.z;
-      if (!intersectsAt(tryPos)) player.pos.z = tryPos.z;
-      tryPos = player.pos.clone();
       tryPos.y += player.vel.y * dt;
       if (!intersectsAt(tryPos)) {
         player.pos.y = tryPos.y;
         player.onGround = false;
       } else {
-        if (player.vel.y < 0) player.onGround = true;
+        if (player.vel.y < 0) {
+          player.onGround = true;
+          player.pos.y = Math.floor(player.pos.y) + 0.001;
+        }
         player.vel.y = 0;
       }
-      if (player.pos.y < -20) {
-        player.pos.set(0, 5, 8);
+
+      if (player.onGround) {
+        const groundCheck = player.pos.clone();
+        groundCheck.y -= 0.08;
+        if (!intersectsAt(groundCheck)) player.onGround = false;
+      }
+
+      if (player.pos.y < -30) {
+        player.pos.set(0, 6, 8);
         player.vel.set(0, 0, 0);
+        hp = Math.max(10, hp - 10);
+        showToast('Du bist gefallen');
       }
     }
 
     function updateMobs(dt) {
-      mobs.forEach(m => {
-        m.userData.t += dt * (0.7 + Math.random() * 0.15);
-        const dx = Math.sin(m.userData.t) * 1.8;
-        const dz = Math.cos(m.userData.t * 0.8) * 1.8;
-        m.position.x = m.userData.home.x + dx;
-        m.position.z = m.userData.home.z + dz;
-        m.rotation.y += dt * 0.9;
+      const cycle = (Math.sin(worldTime) + 1) / 2;
+      mobs.forEach((m, idx) => {
+        if (!m.parent) return;
+        if (m.userData.cooldown > 0) m.userData.cooldown -= dt;
+
+        if (m.userData.hostile && cycle < 0.32) {
+          const toPlayer = player.pos.clone().sub(m.position);
+          toPlayer.y = 0;
+          const dist = toPlayer.length();
+          if (dist > 0.001) {
+            toPlayer.normalize();
+            m.position.addScaledVector(toPlayer, dt * 2.2);
+            m.lookAt(player.pos.x, m.position.y, player.pos.z);
+          }
+          if (dist < 1.5 && m.userData.cooldown <= 0) {
+            hp -= 8;
+            m.userData.cooldown = 1.0;
+            showToast('Pork-Monster trifft dich');
+            if (hp <= 0) {
+              hp = 100;
+              player.pos.set(0, 6, 8);
+              showToast('Du wurdest besiegt');
+            }
+          }
+        } else {
+          m.userData.t += dt * (0.7 + (idx % 3) * 0.08);
+          const dx = Math.sin(m.userData.t) * 1.8;
+          const dz = Math.cos(m.userData.t * 0.8) * 1.8;
+          m.position.x = m.userData.home.x + dx;
+          m.position.z = m.userData.home.z + dz;
+          m.rotation.y += dt * 0.9;
+        }
       });
-      mobTextEl.textContent = String(mobs.length);
+      mobTextEl.textContent = String(mobs.filter(m => m.parent).length);
     }
 
     function updateDayNight(dt) {
-      worldTime += dt * 0.04;
+      worldTime += dt * 0.03;
       const cycle = (Math.sin(worldTime) + 1) / 2;
-      hemiLight.intensity = 0.25 + cycle * 0.95;
-      dirLight.intensity = 0.15 + cycle * 1.0;
-      dirLight.position.set(Math.cos(worldTime) * 30, 18 + cycle * 18, Math.sin(worldTime) * 20);
+      hemiLight.intensity = 0.22 + cycle * 0.98;
+      dirLight.intensity = 0.12 + cycle * 1.05;
+      dirLight.position.set(Math.cos(worldTime) * 40, 12 + cycle * 28, Math.sin(worldTime) * 24);
       const sky = new THREE.Color().lerpColors(new THREE.Color(0x0d1630), new THREE.Color(0x87ceeb), cycle);
       scene.background = sky;
       scene.fog.color = sky;
-      timeTextEl.textContent = cycle > 0.55 ? 'Tag' : cycle > 0.35 ? 'Abend' : cycle > 0.15 ? 'Nacht' : 'Morgen';
+      timeTextEl.textContent = cycle > 0.58 ? 'Tag' : cycle > 0.38 ? 'Abend' : cycle > 0.17 ? 'Nacht' : 'Morgen';
+      if (Math.random() < 0.003) maybeSpawnNightMonster();
     }
 
     function getTarget() {
@@ -561,7 +697,7 @@
       const t = getTarget();
       if (!t) return;
       const { x, y, z } = t.object.userData;
-      if (y < -2) return;
+      if (y < -4) return;
       removeBlock(x, y, z);
     }
 
@@ -578,11 +714,43 @@
       addBlock(x, y, z, blockTypes[selectedBlock].key);
     }
 
+    function attack() {
+      if (player.attackCooldown > 0) return;
+      player.attackCooldown = 0.4;
+      const origin = camera.position.clone();
+      const dir = new THREE.Vector3();
+      camera.getWorldDirection(dir);
+      let bestMob = null;
+      let bestDist = 3.2;
+      mobs.forEach(m => {
+        if (!m.parent || !m.userData.hostile) return;
+        const toMob = m.position.clone().sub(origin);
+        const dist = toMob.length();
+        if (dist > bestDist) return;
+        toMob.normalize();
+        const dot = dir.dot(toMob);
+        if (dot > 0.88) {
+          bestDist = dist;
+          bestMob = m;
+        }
+      });
+      if (bestMob) {
+        bestMob.userData.hp -= 1;
+        showToast('Treffer!');
+        if (bestMob.userData.hp <= 0) {
+          mobGroup.remove(bestMob);
+          showToast('Monster besiegt');
+        }
+      }
+    }
+
     document.addEventListener('keydown', (e) => {
       keys[e.code] = true;
+      if (['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
       const idx = Number(e.key) - 1;
       if (idx >= 0 && idx < Math.min(blockTypes.length, 9)) { selectedBlock = idx; refreshHotbar(); }
-    });
+      if (e.code === 'KeyF') attack();
+    }, { passive: false });
     document.addEventListener('keyup', (e) => { keys[e.code] = false; });
 
     renderer.domElement.addEventListener('click', () => {
@@ -603,6 +771,7 @@
       if (!started || isTouch) return;
       if (e.button === 0) breakBlock();
       if (e.button === 2) placeBlock();
+      if (e.button === 1) attack();
     });
     renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
 
@@ -654,6 +823,7 @@
     jumpBtn.onclick = () => { keys['Space'] = true; setTimeout(() => keys['Space'] = false, 80); };
     breakBtn.onclick = () => breakBlock();
     placeBtn.onclick = () => placeBlock();
+    lookBtn.ondblclick = () => attack();
 
     startBtn.onclick = () => {
       started = true;
@@ -681,6 +851,7 @@
         movePlayer(dt);
         updateMobs(dt);
         updateDayNight(dt);
+        if (player.attackCooldown > 0) player.attackCooldown -= dt;
       }
       updateCamera();
       renderer.render(scene, camera);
