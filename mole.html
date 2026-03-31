@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JOHN PORK MOLE GAME</title>
   <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     body {
       margin: 0;
       font-family: Comic Sans MS, Arial, sans-serif;
@@ -37,6 +42,7 @@
       position: sticky;
       top: 0;
       z-index: 9999;
+      flex-wrap: wrap;
     }
 
     .topbar a {
@@ -51,12 +57,12 @@
     }
 
     .wrap {
-      width: 92%;
-      max-width: 900px;
-      margin: 28px auto;
+      width: 94%;
+      max-width: 950px;
+      margin: 22px auto;
       background: rgba(0,0,0,0.65);
       border-radius: 24px;
-      padding: 24px;
+      padding: 22px 16px;
       box-shadow: 0 0 30px red;
     }
 
@@ -68,12 +74,79 @@
 
     p {
       font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .player-select {
+      margin: 24px 0 12px 0;
+      background: rgba(255,255,255,0.06);
+      border-radius: 20px;
+      padding: 18px 14px;
+      box-shadow: 0 0 18px rgba(255,255,255,0.08);
+    }
+
+    .player-title {
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 14px;
+      text-shadow: 0 0 10px yellow;
+    }
+
+    .player-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .player-card {
+      background: rgba(255,255,255,0.08);
+      border: 2px solid transparent;
+      border-radius: 18px;
+      padding: 12px;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 0 14px rgba(255,255,255,0.08);
+    }
+
+    .player-card:hover {
+      transform: scale(1.03);
+      border-color: yellow;
+    }
+
+    .player-card.active {
+      border-color: yellow;
+      box-shadow: 0 0 20px yellow;
+      background: rgba(255,255,0,0.12);
+    }
+
+    .player-card img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 14px;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .player-name {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .current-player {
+      margin-top: 14px;
+      font-size: 20px;
+      font-weight: bold;
+      color: yellow;
+      text-shadow: 0 0 10px orange;
+      min-height: 28px;
     }
 
     .hud {
       display: flex;
       justify-content: center;
-      gap: 20px;
+      gap: 16px;
       flex-wrap: wrap;
       margin: 20px 0;
       font-size: 24px;
@@ -83,8 +156,8 @@
     .hud-box {
       background: rgba(255,255,255,0.1);
       border-radius: 16px;
-      padding: 12px 20px;
-      min-width: 140px;
+      padding: 12px 18px;
+      min-width: 130px;
       box-shadow: 0 0 14px rgba(255,255,255,0.15);
     }
 
@@ -99,6 +172,7 @@
       cursor: pointer;
       margin: 8px;
       transition: 0.2s;
+      font-family: inherit;
     }
 
     button:hover {
@@ -109,7 +183,7 @@
     .board {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
+      gap: 16px;
       margin-top: 24px;
     }
 
@@ -122,6 +196,7 @@
       box-shadow: inset 0 -14px 0 rgba(0,0,0,0.3), 0 0 18px rgba(0,0,0,0.4);
       cursor: pointer;
       user-select: none;
+      touch-action: manipulation;
     }
 
     .hole::after {
@@ -153,6 +228,7 @@
       box-shadow: 0 0 22px rgba(255,105,180,0.6);
       overflow: hidden;
       padding: 0;
+      pointer-events: none;
     }
 
     .mole img {
@@ -177,22 +253,104 @@
       font-size: 15px;
     }
 
+    .warn {
+      margin-top: 8px;
+      font-size: 17px;
+      color: #ffdf7a;
+      min-height: 24px;
+      font-weight: bold;
+    }
+
     @media (max-width: 700px) {
       h1 {
         font-size: 30px;
       }
 
+      p {
+        font-size: 16px;
+      }
+
+      .wrap {
+        width: 96%;
+        padding: 16px 10px;
+      }
+
+      .player-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .player-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-align: left;
+      }
+
+      .player-card img {
+        width: 82px;
+        height: 82px;
+        aspect-ratio: auto;
+        margin-bottom: 0;
+        flex-shrink: 0;
+      }
+
+      .player-name {
+        font-size: 22px;
+      }
+
+      .hud {
+        gap: 10px;
+        margin: 16px 0;
+      }
+
+      .hud-box {
+        min-width: 100px;
+        padding: 10px 12px;
+        font-size: 20px;
+      }
+
       .board {
         grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
       }
 
       .hole {
-        height: 150px;
+        height: 145px;
+        border-radius: 18px;
       }
 
       .mole {
-        width: 90px;
-        height: 90px;
+        width: 86px;
+        height: 86px;
+      }
+
+      button {
+        width: 100%;
+        max-width: 320px;
+        margin: 6px auto;
+        display: block;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .board {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .hole {
+        height: 130px;
+      }
+
+      .mole {
+        width: 76px;
+        height: 76px;
+      }
+
+      .hud-box {
+        min-width: 90px;
+        font-size: 18px;
       }
     }
   </style>
@@ -208,13 +366,37 @@
     <h1>🔨 JOHN PORK MOLE GAME 🐷</h1>
     <p>Klick die Brainrot-Bilder so schnell du kannst 💀</p>
 
+    <div class="player-select">
+      <div class="player-title">Wähle deinen Player</div>
+
+      <div class="player-grid">
+        <div class="player-card active" data-name="Cem" data-img="Screenshot 2026-03-20 155545.png">
+          <img src="Screenshot 2026-03-20 155545.png" alt="Cem">
+          <div class="player-name">Cem</div>
+        </div>
+
+        <div class="player-card" data-name="Bala" data-img="Image (40).jpg">
+          <img src="Image (40).jpg" alt="Bala">
+          <div class="player-name">Bala</div>
+        </div>
+
+        <div class="player-card" data-name="Janis" data-img="Image (41).jpg">
+          <img src="Image (41).jpg" alt="Janis">
+          <div class="player-name">Janis</div>
+        </div>
+      </div>
+
+      <div class="current-player" id="currentPlayerText">Aktueller Player: Cem</div>
+      <div class="warn" id="warnText"></div>
+    </div>
+
     <div class="hud">
       <div class="hud-box">Score: <span id="score">0</span></div>
       <div class="hud-box">Zeit: <span id="time">20</span>s</div>
       <div class="hud-box">Best: <span id="best">0</span></div>
     </div>
 
-    <button onclick="startGame()">▶️ Start</button>
+    <button id="startBtn">▶️ Start</button>
 
     <div class="board" id="board">
       <div class="hole"><div class="mole"><img src="Screenshot 2026-03-20 155545.png" alt="brainrot"></div></div>
@@ -236,9 +418,15 @@
   <script>
     const holes = document.querySelectorAll(".hole");
     const moles = document.querySelectorAll(".mole");
+    const moleImages = document.querySelectorAll(".mole img");
+    const playerCards = document.querySelectorAll(".player-card");
+
     const scoreEl = document.getElementById("score");
     const timeEl = document.getElementById("time");
     const bestEl = document.getElementById("best");
+    const currentPlayerText = document.getElementById("currentPlayerText");
+    const warnText = document.getElementById("warnText");
+    const startBtn = document.getElementById("startBtn");
 
     let score = 0;
     let timeLeft = 20;
@@ -247,8 +435,19 @@
     let timerInterval = null;
     let lastHole = null;
 
+    let selectedPlayerName = "Cem";
+    let selectedPlayerImg = "Screenshot 2026-03-20 155545.png";
+
     let best = Number(localStorage.getItem("porkMoleBest") || 0);
     bestEl.textContent = best;
+
+    function applySelectedPlayerImage() {
+      moleImages.forEach(img => {
+        img.src = selectedPlayerImg;
+        img.alt = selectedPlayerName;
+      });
+      currentPlayerText.textContent = "Aktueller Player: " + selectedPlayerName;
+    }
 
     function randomHole() {
       const index = Math.floor(Math.random() * holes.length);
@@ -271,7 +470,7 @@
       const mole = hole.querySelector(".mole");
       hole.classList.add("up");
 
-      const speed = Math.max(350, 900 - score * 12);
+      const speed = Math.max(320, 880 - score * 10);
 
       moleTimeout = setTimeout(() => {
         hole.classList.remove("up");
@@ -300,18 +499,39 @@
 
     holes.forEach(hole => {
       const mole = hole.querySelector(".mole");
+
       hole.addEventListener("click", () => whack(hole, mole));
+      hole.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        whack(hole, mole);
+      }, { passive: false });
+    });
+
+    playerCards.forEach(card => {
+      card.addEventListener("click", () => {
+        playerCards.forEach(c => c.classList.remove("active"));
+        card.classList.add("active");
+
+        selectedPlayerName = card.dataset.name;
+        selectedPlayerImg = card.dataset.img;
+
+        applySelectedPlayerImage();
+        warnText.textContent = "Player gewählt: " + selectedPlayerName;
+      });
     });
 
     function startGame() {
       clearTimeout(moleTimeout);
       clearInterval(timerInterval);
 
+      applySelectedPlayerImage();
+
       score = 0;
       timeLeft = 20;
       gameRunning = true;
       scoreEl.textContent = score;
       timeEl.textContent = timeLeft;
+      warnText.textContent = "Los geht's mit " + selectedPlayerName + " 🔨";
       hideAll();
 
       popMole();
@@ -334,9 +554,13 @@
       updateBest();
 
       setTimeout(() => {
-        alert("⏰ Runde vorbei! Dein Score: " + score);
+        alert("⏰ Runde vorbei! Player: " + selectedPlayerName + " | Dein Score: " + score);
       }, 80);
     }
+
+    startBtn.addEventListener("click", startGame);
+
+    applySelectedPlayerImage();
   </script>
 </body>
 </html>
