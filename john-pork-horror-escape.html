@@ -1,3 +1,6 @@
+Speichere diese Datei als `john-pork-horror-escape.html`.
+
+```html
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -6,7 +9,6 @@
   <title>John Pork Horror Call Escape</title>
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -17,13 +19,11 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
-
     .app {
       width: min(96%, 1100px);
       margin: 0 auto;
       padding: 14px 10px 24px;
     }
-
     .topbar {
       display: flex;
       justify-content: space-between;
@@ -32,13 +32,11 @@
       flex-wrap: wrap;
       margin-bottom: 12px;
     }
-
     .title {
       font-size: 34px;
       font-weight: bold;
       text-shadow: 0 0 10px red, 0 0 20px white;
     }
-
     .btn {
       border: none;
       border-radius: 14px;
@@ -53,23 +51,17 @@
       transition: transform 0.15s ease;
       font-family: inherit;
     }
-
-    .btn:hover {
-      transform: scale(1.04);
-    }
-
+    .btn:hover { transform: scale(1.04); }
     .btn-red {
       background: linear-gradient(90deg, #ff5a5a, #ff1f1f);
       color: white;
     }
-
     .hud {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
       margin-bottom: 14px;
     }
-
     .box {
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(255,255,255,0.1);
@@ -78,19 +70,16 @@
       min-width: 120px;
       box-shadow: 0 0 14px rgba(0,0,0,0.25);
     }
-
     .label {
       font-size: 12px;
       opacity: 0.8;
     }
-
     .value {
       font-size: 22px;
       font-weight: bold;
       color: #ffe874;
       margin-top: 4px;
     }
-
     .screen {
       display: none;
       background: rgba(0,0,0,0.42);
@@ -99,29 +88,22 @@
       padding: 18px;
       box-shadow: 0 0 28px rgba(0,0,0,0.32);
     }
-
-    .screen.active {
-      display: block;
-    }
-
+    .screen.active { display: block; }
     .intro {
       text-align: center;
       padding: 34px 18px;
     }
-
     .intro h1 {
       font-size: clamp(32px, 7vw, 58px);
       margin: 0 0 12px;
       text-shadow: 0 0 12px white, 0 0 24px red;
     }
-
     .intro p {
       font-size: clamp(18px, 2.5vw, 24px);
       line-height: 1.6;
       max-width: 780px;
       margin: 0 auto 16px;
     }
-
     .call-card {
       width: min(100%, 500px);
       margin: 18px auto 0;
@@ -132,18 +114,15 @@
       box-shadow: 0 0 26px rgba(255,0,0,0.3);
       animation: pulseCall 1.2s infinite;
     }
-
     @keyframes pulseCall {
       0% { box-shadow: 0 0 14px rgba(255,0,0,0.25); }
       50% { box-shadow: 0 0 28px rgba(255,255,0,0.25); }
       100% { box-shadow: 0 0 14px rgba(255,0,0,0.25); }
     }
-
     .call-title {
       font-size: 32px;
       margin-bottom: 8px;
     }
-
     .room-header {
       display: flex;
       justify-content: space-between;
@@ -152,89 +131,67 @@
       flex-wrap: wrap;
       margin-bottom: 12px;
     }
-
     .room-title {
       font-size: 28px;
       font-weight: bold;
       text-shadow: 0 0 12px rgba(255,255,255,0.4);
     }
-
     .room-sub {
       font-size: 16px;
       color: #ddd;
     }
-
     .room-grid {
       display: grid;
       grid-template-columns: 1.4fr 0.95fr;
       gap: 16px;
       align-items: start;
     }
-
     .scene {
       position: relative;
       min-height: 480px;
       border-radius: 22px;
       overflow: hidden;
       border: 1px solid rgba(255,255,255,0.08);
-      background:
-        radial-gradient(circle at 50% 15%, rgba(255,255,255,0.06), transparent 20%),
-        linear-gradient(180deg, #161616, #090909);
       box-shadow: inset 0 0 40px rgba(0,0,0,0.45);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
-
-    .scene.room1 {
-      background:
-        radial-gradient(circle at 50% 15%, rgba(255,255,255,0.08), transparent 18%),
-        linear-gradient(180deg, #1c1611, #090909);
+    .scene::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.35));
+      pointer-events: none;
     }
-
-    .scene.room2 {
-      background:
-        radial-gradient(circle at 50% 15%, rgba(255,255,255,0.08), transparent 18%),
-        linear-gradient(180deg, #151a24, #07090d);
-    }
-
-    .scene.room3 {
-      background:
-        radial-gradient(circle at 50% 15%, rgba(255,255,255,0.08), transparent 18%),
-        linear-gradient(180deg, #221114, #080708);
-    }
-
     .hint-btn {
       position: absolute;
-      border: 2px dashed rgba(255,255,255,0.22);
-      background: rgba(255,255,255,0.04);
+      border: 2px dashed rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.03);
       color: transparent;
       border-radius: 14px;
       cursor: pointer;
       transition: 0.15s;
+      z-index: 2;
     }
-
     .hint-btn:hover, .hint-btn.found {
       background: rgba(255,255,0,0.16);
-      border-color: rgba(255,255,0,0.55);
+      border-color: rgba(255,255,0,0.65);
       color: white;
       box-shadow: 0 0 18px rgba(255,255,0,0.18);
     }
-
-    .hint-btn.found {
-      cursor: default;
-    }
-
+    .hint-btn.found { cursor: default; }
     .panel {
       background: rgba(255,255,255,0.06);
       border-radius: 18px;
       padding: 14px;
       border: 1px solid rgba(255,255,255,0.08);
     }
-
     .panel h3 {
       margin-top: 0;
       margin-bottom: 10px;
       font-size: 22px;
     }
-
     .log {
       min-height: 96px;
       max-height: 200px;
@@ -246,14 +203,12 @@
       font-size: 15px;
       margin-bottom: 12px;
     }
-
     .code-row {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
       margin-bottom: 10px;
     }
-
     .code-input {
       flex: 1;
       min-width: 170px;
@@ -264,17 +219,14 @@
       font-size: 18px;
       text-align: center;
     }
-
     .message {
       min-height: 28px;
       font-size: 18px;
       font-weight: bold;
       margin-top: 10px;
     }
-
     .good { color: #75ff9b; }
     .bad { color: #ff8f8f; }
-
     .overlay {
       position: fixed;
       inset: 0;
@@ -285,11 +237,7 @@
       padding: 20px;
       z-index: 50;
     }
-
-    .overlay.show {
-      display: flex;
-    }
-
+    .overlay.show { display: flex; }
     .overlay-box {
       width: min(92%, 560px);
       background: linear-gradient(135deg, rgba(255,0,80,0.18), rgba(0,140,255,0.15), rgba(255,255,255,0.05));
@@ -299,17 +247,12 @@
       text-align: center;
       box-shadow: 0 0 30px rgba(255,255,255,0.08);
     }
-
     .overlay-box h2 {
       margin-top: 0;
       font-size: 34px;
       text-shadow: 0 0 14px red;
     }
-
-    .shake {
-      animation: shake 0.28s;
-    }
-
+    .shake { animation: shake 0.28s; }
     @keyframes shake {
       0% { transform: translate(0,0); }
       25% { transform: translate(5px,-5px); }
@@ -317,59 +260,25 @@
       75% { transform: translate(5px,5px); }
       100% { transform: translate(-5px,-5px); }
     }
-
     .tiny {
       font-size: 13px;
       opacity: 0.8;
       margin-top: 8px;
     }
-
     @media (max-width: 900px) {
-      .room-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .scene {
-        min-height: 360px;
-      }
+      .room-grid { grid-template-columns: 1fr; }
+      .scene { min-height: 360px; }
     }
-
     @media (max-width: 600px) {
-      .app {
-        padding: 10px 8px 18px;
-      }
-
-      .title {
-        font-size: 24px;
-      }
-
-      .room-title {
-        font-size: 23px;
-      }
-
-      .scene {
-        min-height: 300px;
-      }
-
-      .call-title {
-        font-size: 26px;
-      }
-
-      .box {
-        min-width: 95px;
-      }
-
-      .value {
-        font-size: 18px;
-      }
-
-      .btn, .code-input {
-        width: 100%;
-      }
-
-      .code-row {
-        flex-direction: column;
-      }
+      .app { padding: 10px 8px 18px; }
+      .title { font-size: 24px; }
+      .room-title { font-size: 23px; }
+      .scene { min-height: 300px; }
+      .call-title { font-size: 26px; }
+      .box { min-width: 95px; }
+      .value { font-size: 18px; }
+      .btn, .code-input { width: 100%; }
+      .code-row { flex-direction: column; }
     }
   </style>
 </head>
@@ -402,8 +311,8 @@
       <div class="intro">
         <h1>📞 ER RUFT AN</h1>
         <p>
-          John Pork ruft dich an.  
-          Du bist in einem verfluchten Haus eingesperrt.  
+          John Pork ruft dich an.
+          Du bist in einem verfluchten Haus eingesperrt.
           Finde in jedem Raum die Hinweise, entschlüssele den Code und entkomme, bevor die Zeit abläuft.
         </p>
 
@@ -424,9 +333,7 @@
       </div>
 
       <div class="room-grid">
-        <div class="scene room1" id="scene">
-          <!-- Hinweise werden per JS gesetzt -->
-        </div>
+        <div class="scene" id="scene"></div>
 
         <div class="panel">
           <h3>Hinweise</h3>
@@ -460,30 +367,33 @@
         title: "Raum 1 – Das Wohnzimmer",
         subtitle: "Finde 3 Hinweise. Die Ziffern verstecken sich im Raum.",
         code: "428",
+        image: "room1-john-pork-living-room.png",
         hints: [
-          { text: "Auf dem alten Fernseher flackert kurz die Zahl 4.", x: 12, y: 25, w: 18, h: 20, label: "TV" },
-          { text: "Unter dem Tisch ist mit Kreide eine 2 geschrieben.", x: 42, y: 62, w: 18, h: 16, label: "Tisch" },
-          { text: "An der Wand hängt ein Bild – hinten steht eine 8.", x: 70, y: 18, w: 18, h: 24, label: "Bild" }
+          { text: "Auf dem alten Fernseher flackert kurz die Zahl 4.", x: 14, y: 24, w: 18, h: 18, label: "TV" },
+          { text: "Unter dem Tisch ist mit Kreide eine 2 geschrieben.", x: 42, y: 69, w: 18, h: 12, label: "Tisch" },
+          { text: "An der Wand hängt ein Bild – hinten steht eine 8.", x: 72, y: 18, w: 16, h: 22, label: "Bild" }
         ]
       },
       {
         title: "Raum 2 – Die Küche",
         subtitle: "Die Küche riecht nach Gefahr. 3 weitere Hinweise warten.",
         code: "731",
+        image: "room2-john-pork-kitchen.png",
         hints: [
-          { text: "Am Kühlschrank klebt ein Zettel mit der Zahl 7.", x: 14, y: 18, w: 20, h: 30, label: "Kühlschrank" },
-          { text: "Im Spülbecken ist mit Finger eine 3 in den Dreck gezeichnet.", x: 42, y: 44, w: 20, h: 18, label: "Spüle" },
-          { text: "Auf dem Herd blinkt ganz kurz eine 1.", x: 70, y: 58, w: 16, h: 16, label: "Herd" }
+          { text: "Am Kühlschrank klebt ein Zettel mit der Zahl 7.", x: 14, y: 16, w: 18, h: 30, label: "Kühlschrank" },
+          { text: "Im Spülbecken ist mit Finger eine 3 in den Dreck gezeichnet.", x: 43, y: 48, w: 18, h: 14, label: "Spüle" },
+          { text: "Auf dem Herd blinkt ganz kurz eine 1.", x: 73, y: 61, w: 14, h: 12, label: "Herd" }
         ]
       },
       {
         title: "Raum 3 – Johns Zimmer",
         subtitle: "Das letzte Zimmer. Wenn du hier falsch liegst, war alles umsonst.",
         code: "590",
+        image: "room3-john-pork-bedroom.png",
         hints: [
-          { text: "Im Spiegel wurde eine 5 eingeritzt.", x: 16, y: 18, w: 18, h: 26, label: "Spiegel" },
-          { text: "Unter dem Bett liegt ein Handy mit 9% Akku.", x: 44, y: 72, w: 20, h: 12, label: "Bett" },
-          { text: "Auf der Tür steht mit roter Farbe eine 0.", x: 74, y: 22, w: 14, h: 36, label: "Tür" }
+          { text: "Im Spiegel wurde eine 5 eingeritzt.", x: 16, y: 18, w: 18, h: 24, label: "Spiegel" },
+          { text: "Unter dem Bett liegt ein Handy mit 9% Akku.", x: 44, y: 74, w: 20, h: 10, label: "Bett" },
+          { text: "Auf der Tür steht mit roter Farbe eine 0.", x: 75, y: 21, w: 12, h: 35, label: "Tür" }
         ]
       }
     ];
@@ -533,7 +443,7 @@
       foundHints = 0;
       roomTitle.textContent = room.title;
       roomSub.textContent = room.subtitle;
-      scene.className = "scene room" + (currentRoom + 1);
+      scene.style.backgroundImage = `url('${room.image}')`;
       scene.innerHTML = "";
       codeInput.value = "";
       messageBox.textContent = "";
@@ -663,6 +573,7 @@
       closeOverlay();
       clearLog();
       scene.innerHTML = "";
+      scene.style.backgroundImage = "";
       codeInput.value = "";
       messageBox.textContent = "";
     }
@@ -676,3 +587,4 @@
   </script>
 </body>
 </html>
+```
