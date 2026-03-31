@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>John Pork Craft 3D Lite</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; overflow: hidden; font-family: Arial, sans-serif; }
+    body {
+      background: linear-gradient(180deg, #79b8ff 0%, #bfe2ff 45%, #d8f0ff 100%);
+      color: white;
+    }
+    #game { position: fixed; inset: 0; }
+    #hud {
+      position: fixed; inset: 0; pointer-events: none; z-index: 10;
+      display: flex; flex-direction: column; justify-content: space-between;
+      padding: 12px;
+    }
+    .topbar {
+      display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+      pointer-events: auto;
+    }
+    .panel {
+      background: rgba(0,0,0,0.45); backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 16px;
+      padding: 10px 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .title { font-size: 22px; font-weight: 700; text-shadow: 0 0 10px rgba(255,255,255,0.8); }
+    .stats { display: flex; gap: 10px; flex-wrap: wrap; }
+    .stat { min-width: 90px; }
+    .label { font-size: 11px; opacity: 0.8; }
+    .value { font-size: 18px; font-weight: 700; color: #ffe76a; }
+    #crosshair {
+      position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 24px; height: 24px; z-index: 12; pointer-events: none;
+    }
+    #crosshair::before, #crosshair::after {
+      content: ""; position: absolute; background: white; box-shadow: 0 0 6px black;
+    }
+    #crosshair::before { width: 2px; height: 24px; left: 11px; top: 0; }
+    #crosshair::after { width: 24px; height: 2px; left: 0; top: 11px; }
+    .bottom {
+      display: flex; justify-content: space-between; align-items: end; gap: 12px; flex-wrap: wrap;
+      pointer-events: auto;
+    }
+    #hotbar {
+      display: flex; gap: 8px; background: rgba(0,0,0,0.45); border-radius: 16px;
+      padding: 8px; border: 1px solid rgba(255,255,255,0.15);
+    }
+    .slot {
+      width: 56px; height: 56px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+      background: rgba(255,255,255,0.06); position: relative; cursor: pointer;
+    }
+    .slot img { width: 100%; height: 100%; object-fit: cover; }
+    .slot.active { border-color: #ffe76a; box-shadow: 0 0 14px rgba(255,231,106,0.6); }
+    .slot span {
+      position: absolute; right: 5px; bottom: 3px; font-size: 11px; font-weight: 700;
+      color: white; text-shadow: 0 0 4px black;
+    }
+    #help {
+      max-width: 340px; font-size: 13px; line-height: 1.45;
+    }
+    #startScreen {
+      position: fixed; inset: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(circle at center, rgba(0,0,0,0.35), rgba(0,0,0,0.82));
+      padding: 16px;
+    }
+    .startBox {
+      width: min(92vw, 760px); background: rgba(0,0,0,0.55); backdrop-filter: blur(10px);
+      border-radius: 24px; border: 1px solid rgba(255,255,255,0.16);
+      padding: 22px; box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+    }
+    .startBox h1 { margin: 0 0 10px; font-size: clamp(28px, 5vw, 48px); }
+    .startBox p { margin: 8px 0; line-height: 1.5; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
+    button {
+      appearance: none; border: none; border-radius: 14px; padding: 13px 18px;
+      background: linear-gradient(90deg, #ffe600, #ffac00); color: #111;
+      font-weight: 700; font-size: 15px; cursor: pointer;
+    }
+    button:hover { transform: scale(1.03); }
+    .warn { color: #ffd6d6; font-size: 13px; }
+    #touchControls {
+      position: fixed; inset: 0; z-index: 14; pointer-events: none; display: none;
+    }
+    .touchPad, .touchActions {
+      position: absolute; bottom: 14px; pointer-events: auto;
+    }
+    .touchPad { left: 14px; width: 150px; height: 150px; border-radius: 50%; background: rgba(0,0,0,0.22); }
+    .touchKnob {
+      position: absolute; left: 50px; top: 50px; width: 50px; height: 50px; border-radius: 50%;
+      background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.25);
+    }
+    .touchActions { right: 14px; display: grid; grid-template-columns: repeat(2, 72px); gap: 10px; }
+    .touchBtn {
+      width: 72px; height: 72px; border-radius: 18px; background: rgba(0,0,0,0.28);
+      border: 1px solid rgba(255,255,255,0.18); color: white; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      padding: 6px;
+    }
+    @media (max-width: 900px) {
+      #help { max-width: 100%; }
+      #touchControls { display: block; }
+      .slot { width: 50px; height: 50px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="game"></div>
+
+  <div id="crosshair"></div>
+
+  <div id="hud">
+    <div class="topbar">
+      <div class="panel">
+        <div class="title">⛏️ John Pork Craft 3D Lite</div>
+      </div>
+      <div class="panel stats">
+        <div class="stat"><div class="label">Block</div><div class="value" id="blockName">Grass</div></div>
+        <div class="stat"><div class="label">Position</div><div class="value" id="posText">0,0,0</div></div>
+        <div class="stat"><div class="label">Mode</div><div class="value">Creative</div></div>
+      </div>
+    </div>
+
+    <div class="bottom">
+      <div id="hotbar"></div>
+      <div class="panel" id="help">
+        <b>PC:</b> WASD laufen, Maus schauen, Linksklick abbauen, Rechtsklick setzen, Leertaste springen, Shift runter. <br>
+        <b>Handy:</b> links laufen, rechts schauen, Buttons zum Springen / Abbauen / Setzen.
+      </div>
+    </div>
+  </div>
+
+  <div id="touchControls">
+    <div class="touchPad" id="touchPad"><div class="touchKnob" id="touchKnob"></div></div>
+    <div class="touchActions">
+      <div class="touchBtn" id="lookBtn">LOOK</div>
+      <div class="touchBtn" id="jumpBtn">JUMP</div>
+      <div class="touchBtn" id="breakBtn">BREAK</div>
+      <div class="touchBtn" id="placeBtn">PLACE</div>
+    </div>
+  </div>
+
+  <div id="startScreen">
+    <div class="startBox">
+      <h1>🐷 John Pork Craft 3D Lite</h1>
+      <p>Das ist eine <b>spielbare Minecraft-artige Lite-Version</b> für GitHub Pages. Du hast Terrain, Bäume, ein Dorf mit Häusern, Blöcke abbauen/setzen und Screenshot-Bild-Blöcke.</p>
+      <p class="warn">Nicht das originale Minecraft Java und nicht die komplette Vollversion mit Nether, Redstone, Inventar-Menüs oder Multiplayer. Aber es ist ein echtes 3D Block-Spiel im Browser.</p>
+      <div class="row">
+        <button id="startBtn">🎮 Spiel starten</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+
+    const game = document.getElementById('game');
+    const startScreen = document.getElementById('startScreen');
+    const startBtn = document.getElementById('startBtn');
+    const hotbar = document.getElementById('hotbar');
+    const blockNameEl = document.getElementById('blockName');
+    const posTextEl = document.getElementById('posText');
+
+    const isTouch = ('ontouchstart' in window) || window.matchMedia('(max-width: 900px)').matches;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87ceeb);
+    scene.fog = new THREE.Fog(0x87ceeb, 40, 140);
+
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.shadowMap.enabled = false;
+    game.appendChild(renderer.domElement);
+
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x557755, 1.15);
+    scene.add(hemiLight);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+    dirLight.position.set(20, 30, 10);
+    scene.add(dirLight);
+
+    const worldGroup = new THREE.Group();
+    scene.add(worldGroup);
+
+    const raycaster = new THREE.Raycaster();
+    const mouseCenter = new THREE.Vector2(0, 0);
+
+    const cubeGeo = new THREE.BoxGeometry(1, 1, 1);
+    const half = 0.5;
+    const worldMap = new Map();
+    const blockMeshes = [];
+
+    const textureLoader = new THREE.TextureLoader();
+    function loadTex(path, color = '#ffffff') {
+      const tex = textureLoader.load(encodeURI(path), undefined, undefined, () => {});
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.magFilter = THREE.NearestFilter;
+      tex.minFilter = THREE.NearestFilter;
+      return new THREE.MeshLambertMaterial({ map: tex });
+    }
+    function colorMat(color) {
+      return new THREE.MeshLambertMaterial({ color });
+    }
+
+    const materials = {
+      grass: colorMat(0x4caf50),
+      dirt: colorMat(0x7a4a24),
+      stone: colorMat(0x888888),
+      wood: colorMat(0x8d5a2b),
+      leaves: colorMat(0x2e8b57),
+      roof: colorMat(0xb63a2b),
+      plank: colorMat(0xc99a5f),
+      screenshot1: loadTex('Screenshot 2026-03-20 125829.png'),
+      screenshot2: loadTex('Screenshot 2026-03-20 155545.png'),
+      screenshot3: loadTex('Screenshot 2026-03-20 181111.png'),
+      image1: loadTex('Image (1).jpg'),
+      image2: loadTex('Image (10).jpg'),
+      bala: loadTex('Image (40).jpg'),
+      janis: loadTex('Image (41).jpg')
+    };
+
+    const blockTypes = [
+      { key: 'grass', label: 'Grass', mat: materials.grass },
+      { key: 'dirt', label: 'Dirt', mat: materials.dirt },
+      { key: 'stone', label: 'Stone', mat: materials.stone },
+      { key: 'wood', label: 'Wood', mat: materials.wood },
+      { key: 'leaves', label: 'Leaves', mat: materials.leaves },
+      { key: 'plank', label: 'Plank', mat: materials.plank },
+      { key: 'roof', label: 'Roof', mat: materials.roof },
+      { key: 'screenshot1', label: 'Screenshot 1', mat: materials.screenshot1 },
+      { key: 'screenshot2', label: 'Screenshot 2', mat: materials.screenshot2 },
+      { key: 'screenshot3', label: 'Screenshot 3', mat: materials.screenshot3 },
+      { key: 'image1', label: 'Image 1', mat: materials.image1 },
+      { key: 'image2', label: 'Image 10', mat: materials.image2 },
+      { key: 'bala', label: 'Bala', mat: materials.bala },
+      { key: 'janis', label: 'Janis', mat: materials.janis }
+    ];
+
+    let selectedBlock = 0;
+
+    function buildHotbar() {
+      hotbar.innerHTML = '';
+      blockTypes.forEach((b, i) => {
+        const slot = document.createElement('div');
+        slot.className = 'slot' + (i === selectedBlock ? ' active' : '');
+        slot.dataset.index = i;
+        const img = document.createElement('img');
+        if (b.key.startsWith('screenshot') || b.key.startsWith('image') || b.key === 'bala' || b.key === 'janis') {
+          img.src = encodeURI(
+            b.key === 'screenshot1' ? 'Screenshot 2026-03-20 125829.png' :
+            b.key === 'screenshot2' ? 'Screenshot 2026-03-20 155545.png' :
+            b.key === 'screenshot3' ? 'Screenshot 2026-03-20 181111.png' :
+            b.key === 'image1' ? 'Image (1).jpg' :
+            b.key === 'image2' ? 'Image (10).jpg' :
+            b.key === 'bala' ? 'Image (40).jpg' : 'Image (41).jpg'
+          );
+        } else {
+          const canvas = document.createElement('canvas');
+          canvas.width = 48; canvas.height = 48;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#' + b.mat.color.getHexString();
+          ctx.fillRect(0,0,48,48);
+          img.src = canvas.toDataURL();
+        }
+        slot.appendChild(img);
+        const span = document.createElement('span');
+        span.textContent = i + 1;
+        slot.appendChild(span);
+        slot.onclick = () => { selectedBlock = i; refreshHotbar(); };
+        hotbar.appendChild(slot);
+      });
+      refreshHotbar();
+    }
+
+    function refreshHotbar() {
+      [...hotbar.children].forEach((c, i) => c.classList.toggle('active', i === selectedBlock));
+      blockNameEl.textContent = blockTypes[selectedBlock].label;
+    }
+
+    function key(x, y, z) { return `${x},${y},${z}`; }
+
+    function addBlock(x, y, z, typeKey) {
+      const k = key(x, y, z);
+      if (worldMap.has(k)) return null;
+      const type = blockTypes.find(b => b.key === typeKey) || blockTypes[0];
+      const mesh = new THREE.Mesh(cubeGeo, type.mat);
+      mesh.position.set(x, y, z);
+      mesh.userData = { x, y, z, type: typeKey };
+      worldGroup.add(mesh);
+      worldMap.set(k, mesh);
+      blockMeshes.push(mesh);
+      return mesh;
+    }
+
+    function removeBlock(x, y, z) {
+      const k = key(x, y, z);
+      const mesh = worldMap.get(k);
+      if (!mesh) return;
+      worldGroup.remove(mesh);
+      worldMap.delete(k);
+      const idx = blockMeshes.indexOf(mesh);
+      if (idx >= 0) blockMeshes.splice(idx, 1);
+    }
+
+    function buildTree(x, z, baseY) {
+      const h = 3 + Math.floor(Math.random() * 2);
+      for (let i = 1; i <= h; i++) addBlock(x, baseY + i, z, 'wood');
+      for (let lx = -2; lx <= 2; lx++) {
+        for (let lz = -2; lz <= 2; lz++) {
+          for (let ly = h - 1; ly <= h + 1; ly++) {
+            if (Math.abs(lx) + Math.abs(lz) < 4) addBlock(x + lx, baseY + ly, z + lz, 'leaves');
+          }
+        }
+      }
+    }
+
+    function buildHouse(x, z) {
+      const w = 5;
+      const d = 5;
+      const h = 4;
+      for (let dx = 0; dx < w; dx++) {
+        for (let dz = 0; dz < d; dz++) addBlock(x + dx, 0, z + dz, 'plank');
+      }
+      for (let y = 1; y <= h; y++) {
+        for (let dx = 0; dx < w; dx++) {
+          for (let dz = 0; dz < d; dz++) {
+            const edge = dx === 0 || dz === 0 || dx === w-1 || dz === d-1;
+            if (!edge) continue;
+            if ((dx === 2 && dz === 0 && y <= 2) || (dx === 0 && dz === 2 && y === 2) || (dx === 4 && dz === 2 && y === 2)) continue;
+            addBlock(x + dx, y, z + dz, 'plank');
+          }
+        }
+      }
+      for (let dx = -1; dx <= w; dx++) {
+        for (let dz = -1; dz <= d; dz++) {
+          if (Math.abs(dx - 2) + Math.abs(dz - 2) <= 4) addBlock(x + dx, h + 1, z + dz, 'roof');
+        }
+      }
+      addBlock(x + 2, 1, z + 2, 'screenshot2');
+    }
+
+    function buildVillage() {
+      const baseX = 12;
+      const baseZ = 8;
+      const positions = [
+        [baseX, baseZ],
+        [baseX + 9, baseZ],
+        [baseX, baseZ + 9],
+        [baseX + 9, baseZ + 9]
+      ];
+      positions.forEach(([x, z]) => buildHouse(x, z));
+      for (let p = 0; p < 18; p++) addBlock(baseX + (p % 12), 0, baseZ + 5, 'stone');
+      addBlock(baseX + 4, 1, baseZ + 5, 'bala');
+      addBlock(baseX + 10, 1, baseZ + 5, 'janis');
+    }
+
+    function generateWorld() {
+      const size = 48;
+      for (let x = -size/2; x < size/2; x++) {
+        for (let z = -size/2; z < size/2; z++) {
+          const wave = Math.round(Math.sin(x * 0.23) * 1 + Math.cos(z * 0.21) * 1);
+          const y = Math.max(-2, Math.min(3, wave));
+          for (let yy = -3; yy < y; yy++) addBlock(x, yy, z, yy === y - 1 ? 'grass' : yy > y - 4 ? 'dirt' : 'stone');
+        }
+      }
+      for (let i = 0; i < 24; i++) {
+        const tx = Math.floor(Math.random() * 36) - 18;
+        const tz = Math.floor(Math.random() * 36) - 18;
+        buildTree(tx, tz, 0);
+      }
+      buildVillage();
+
+      for (let x = -6; x <= -1; x++) {
+        for (let z = 10; z <= 15; z++) addBlock(x, 1, z, (x + z) % 2 === 0 ? 'screenshot1' : 'screenshot3');
+      }
+      addBlock(-8, 1, 14, 'image1');
+      addBlock(-9, 1, 14, 'image2');
+    }
+
+    const player = {
+      pos: new THREE.Vector3(0, 4, 8),
+      vel: new THREE.Vector3(),
+      yaw: -Math.PI / 2,
+      pitch: -0.15,
+      speed: 7,
+      jump: 7.3,
+      onGround: false,
+      height: 1.7,
+      radius: 0.32
+    };
+
+    let pointerLocked = false;
+    let started = false;
+    const keys = {};
+    const touchMove = { x: 0, y: 0 };
+    let lookDrag = false;
+
+    function updateCamera() {
+      camera.position.copy(player.pos);
+      camera.rotation.order = 'YXZ';
+      camera.rotation.y = player.yaw;
+      camera.rotation.x = player.pitch;
+      posTextEl.textContent = `${player.pos.x.toFixed(1)}, ${player.pos.y.toFixed(1)}, ${player.pos.z.toFixed(1)}`;
+    }
+
+    function blockAt(x, y, z) {
+      return worldMap.has(key(Math.floor(x), Math.floor(y), Math.floor(z)));
+    }
+
+    function intersectsAt(pos) {
+      const minX = pos.x - player.radius;
+      const maxX = pos.x + player.radius;
+      const minY = pos.y - player.height;
+      const maxY = pos.y;
+      const minZ = pos.z - player.radius;
+      const maxZ = pos.z + player.radius;
+      for (let x = Math.floor(minX); x <= Math.floor(maxX); x++) {
+        for (let y = Math.floor(minY); y <= Math.floor(maxY); y++) {
+          for (let z = Math.floor(minZ); z <= Math.floor(maxZ); z++) {
+            if (worldMap.has(key(x, y, z))) return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function movePlayer(dt) {
+      const dir = new THREE.Vector3();
+      const forward = new THREE.Vector3(Math.cos(player.yaw), 0, Math.sin(player.yaw));
+      const right = new THREE.Vector3(-Math.sin(player.yaw), 0, Math.cos(player.yaw));
+      if (keys['KeyW']) dir.add(forward);
+      if (keys['KeyS']) dir.sub(forward);
+      if (keys['KeyA']) dir.sub(right);
+      if (keys['KeyD']) dir.add(right);
+      if (touchMove.y < -0.18) dir.add(forward);
+      if (touchMove.y > 0.18) dir.sub(forward);
+      if (touchMove.x < -0.18) dir.sub(right);
+      if (touchMove.x > 0.18) dir.add(right);
+      if (dir.lengthSq() > 0) dir.normalize().multiplyScalar(player.speed * dt);
+
+      player.vel.y -= 18 * dt;
+      if ((keys['Space'] || keys['KeyE']) && player.onGround) {
+        player.vel.y = player.jump;
+        player.onGround = false;
+      }
+      if (keys['ShiftLeft'] || keys['ShiftRight'] || keys['KeyQ']) {
+        player.vel.y -= 10 * dt;
+      }
+
+      let tryPos = player.pos.clone();
+      tryPos.x += dir.x;
+      if (!intersectsAt(tryPos)) player.pos.x = tryPos.x;
+
+      tryPos = player.pos.clone();
+      tryPos.z += dir.z;
+      if (!intersectsAt(tryPos)) player.pos.z = tryPos.z;
+
+      tryPos = player.pos.clone();
+      tryPos.y += player.vel.y * dt;
+      if (!intersectsAt(tryPos)) {
+        player.pos.y = tryPos.y;
+        player.onGround = false;
+      } else {
+        if (player.vel.y < 0) player.onGround = true;
+        player.vel.y = 0;
+      }
+
+      if (player.pos.y < -20) {
+        player.pos.set(0, 5, 8);
+        player.vel.set(0, 0, 0);
+      }
+    }
+
+    function getTarget() {
+      raycaster.setFromCamera(mouseCenter, camera);
+      const hits = raycaster.intersectObjects(blockMeshes, false);
+      if (!hits.length) return null;
+      const hit = hits[0];
+      const normal = hit.face.normal.clone();
+      normal.applyMatrix3(new THREE.Matrix3().getNormalMatrix(hit.object.matrixWorld)).round();
+      return { hit, object: hit.object, normal };
+    }
+
+    function breakBlock() {
+      const t = getTarget();
+      if (!t) return;
+      const { x, y, z } = t.object.userData;
+      if (y < -2) return;
+      removeBlock(x, y, z);
+    }
+
+    function placeBlock() {
+      const t = getTarget();
+      if (!t) return;
+      const p = t.object.position.clone().add(t.normal);
+      const x = Math.round(p.x), y = Math.round(p.y), z = Math.round(p.z);
+      const tempPos = player.pos.clone();
+      const inPlayer = (x + half > tempPos.x - player.radius && x - half < tempPos.x + player.radius &&
+        y + half > tempPos.y - player.height && y - half < tempPos.y &&
+        z + half > tempPos.z - player.radius && z - half < tempPos.z + player.radius);
+      if (inPlayer) return;
+      addBlock(x, y, z, blockTypes[selectedBlock].key);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      keys[e.code] = true;
+      const idx = Number(e.key) - 1;
+      if (idx >= 0 && idx < blockTypes.length) { selectedBlock = idx; refreshHotbar(); }
+    });
+    document.addEventListener('keyup', (e) => { keys[e.code] = false; });
+
+    renderer.domElement.addEventListener('click', () => {
+      if (!started) return;
+      if (!isTouch) renderer.domElement.requestPointerLock();
+    });
+    document.addEventListener('pointerlockchange', () => {
+      pointerLocked = document.pointerLockElement === renderer.domElement;
+    });
+    document.addEventListener('mousemove', (e) => {
+      if (!pointerLocked) return;
+      player.yaw -= e.movementX * 0.0022;
+      player.pitch -= e.movementY * 0.0022;
+      player.pitch = Math.max(-1.45, Math.min(1.45, player.pitch));
+    });
+
+    renderer.domElement.addEventListener('mousedown', (e) => {
+      if (!started || isTouch) return;
+      if (e.button === 0) breakBlock();
+      if (e.button === 2) placeBlock();
+    });
+    renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    // Touch controls
+    const touchPad = document.getElementById('touchPad');
+    const touchKnob = document.getElementById('touchKnob');
+    const lookBtn = document.getElementById('lookBtn');
+    const jumpBtn = document.getElementById('jumpBtn');
+    const breakBtn = document.getElementById('breakBtn');
+    const placeBtn = document.getElementById('placeBtn');
+
+    let padActive = false;
+    let lookActive = false;
+    let lookPrev = null;
+
+    function setPad(clientX, clientY) {
+      const rect = touchPad.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      let dx = clientX - cx;
+      let dy = clientY - cy;
+      const len = Math.hypot(dx, dy);
+      const max = 42;
+      if (len > max) { dx = dx / len * max; dy = dy / len * max; }
+      touchMove.x = dx / max;
+      touchMove.y = dy / max;
+      touchKnob.style.left = `${50 + dx}px`;
+      touchKnob.style.top = `${50 + dy}px`;
+    }
+    function resetPad() {
+      padActive = false;
+      touchMove.x = 0; touchMove.y = 0;
+      touchKnob.style.left = '50px';
+      touchKnob.style.top = '50px';
+    }
+    touchPad.addEventListener('pointerdown', (e) => { padActive = true; setPad(e.clientX, e.clientY); });
+    window.addEventListener('pointermove', (e) => { if (padActive) setPad(e.clientX, e.clientY); });
+    window.addEventListener('pointerup', () => resetPad());
+
+    lookBtn.addEventListener('pointerdown', (e) => { lookActive = true; lookPrev = { x: e.clientX, y: e.clientY }; });
+    window.addEventListener('pointermove', (e) => {
+      if (!lookActive || !lookPrev) return;
+      const dx = e.clientX - lookPrev.x;
+      const dy = e.clientY - lookPrev.y;
+      lookPrev = { x: e.clientX, y: e.clientY };
+      player.yaw -= dx * 0.01;
+      player.pitch -= dy * 0.01;
+      player.pitch = Math.max(-1.45, Math.min(1.45, player.pitch));
+    });
+    window.addEventListener('pointerup', () => { lookActive = false; lookPrev = null; });
+
+    jumpBtn.onclick = () => { keys['Space'] = true; setTimeout(() => keys['Space'] = false, 80); };
+    breakBtn.onclick = () => breakBlock();
+    placeBtn.onclick = () => placeBlock();
+
+    startBtn.onclick = () => {
+      started = true;
+      startScreen.style.display = 'none';
+      if (!isTouch) renderer.domElement.requestPointerLock();
+    };
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    buildHotbar();
+    generateWorld();
+    updateCamera();
+
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = Math.min(clock.getDelta(), 0.033);
+      if (started) movePlayer(dt);
+      updateCamera();
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>
