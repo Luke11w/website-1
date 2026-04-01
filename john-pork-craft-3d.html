@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>John Pork Craft 3D Ultra</title>
+  <title>John Pork Craft 3D Ultra Plus</title>
   <style>
     * { box-sizing: border-box; }
     html, body { margin: 0; height: 100%; overflow: hidden; font-family: Arial, sans-serif; }
@@ -125,7 +125,7 @@
   <div id="hud">
     <div class="topbar">
       <div class="panel">
-        <div class="title">⛏️ John Pork Craft 3D Ultra</div>
+        <div class="title">⛏️ John Pork Craft 3D Ultra Plus</div>
       </div>
       <div class="panel stats">
         <div class="stat"><div class="label">Block</div><div class="value" id="blockName">Grass</div></div>
@@ -133,6 +133,7 @@
         <div class="stat"><div class="label">Zeit</div><div class="value" id="timeText">Tag</div></div>
         <div class="stat"><div class="label">Mobs</div><div class="value" id="mobText">0</div></div>
         <div class="stat"><div class="label">HP</div><div class="value" id="hpText">100</div></div>
+        <div class="stat"><div class="label">Modus</div><div class="value" id="modeText">Creative</div></div>
       </div>
     </div>
 
@@ -157,11 +158,12 @@
 
   <div id="startScreen">
     <div class="startBox">
-      <h1>🐷 John Pork Craft 3D Ultra</h1>
+      <h1>🐷 John Pork Craft 3D Ultra Plus</h1>
       <p>Jetzt mit <b>größerer Welt, besserer Steuerung, mehr Blöcken, Tag/Nacht, Dorf, NPCs, Pork-Monstern, HP und Angriff</b>.</p>
       <p class="warn">Es ist weiter eine Browser-Version für GitHub Pages. Nicht das originale Minecraft Java, aber jetzt deutlich näher an einem richtigen kleinen Craft-Spiel.</p>
       <div class="row">
-        <button id="startBtn">🎮 Spiel starten</button>
+        <button id="survivalBtn">⚔️ Survival starten</button>
+        <button id="creativeBtn">🧱 Creative starten</button>
       </div>
     </div>
   </div>
@@ -178,6 +180,9 @@
     const timeTextEl = document.getElementById('timeText');
     const mobTextEl = document.getElementById('mobText');
     const hpTextEl = document.getElementById('hpText');
+    const modeTextEl = document.getElementById('modeText');
+    const survivalBtn = document.getElementById('survivalBtn');
+    const creativeBtn = document.getElementById('creativeBtn');
     const toast = document.getElementById('toast');
 
     const isTouch = ('ontouchstart' in window) || window.matchMedia('(max-width: 900px)').matches;
@@ -269,12 +274,21 @@
       { key: 'image1', label: 'Image 1', mat: materials.image1 },
       { key: 'image2', label: 'Image 10', mat: materials.image2 },
       { key: 'bala', label: 'Bala', mat: materials.bala },
-      { key: 'janis', label: 'Janis', mat: materials.janis }
+      { key: 'janis', label: 'Janis', mat: materials.janis },
+      { key: 'grass2', label: 'Moss', mat: colorMat(0x3f8f3a) },
+      { key: 'snow', label: 'Snow', mat: colorMat(0xf4f8ff) },
+      { key: 'lava', label: 'Lava', mat: colorMat(0xff5a00) },
+      { key: 'emerald', label: 'Emerald', mat: colorMat(0x00d26a) },
+      { key: 'ice', label: 'Ice', mat: colorMat(0xa8ecff) },
+      { key: 'darkwood', label: 'Dark Wood', mat: colorMat(0x4f2f19) },
+      { key: 'clay', label: 'Clay', mat: colorMat(0x9ab0bf) },
+      { key: 'porkcore', label: 'Pork Core', mat: colorMat(0xff80aa) }
     ];
 
     let selectedBlock = 0;
     let worldTime = 0;
     let hp = 100;
+    let gameMode = 'creative';
 
     function showToast(text) {
       toast.textContent = text;
@@ -284,15 +298,22 @@
     }
 
     function updateHud() {
-      blockNameEl.textContent = blockTypes[selectedBlock].label;
-      hpTextEl.textContent = String(Math.max(0, Math.round(hp)));
+      const list = getCurrentBlockList();
+      blockNameEl.textContent = list[selectedBlock]?.label || blockTypes[0].label;
+      hpTextEl.textContent = gameMode === 'creative' ? '∞' : String(Math.max(0, Math.round(hp)));
+      modeTextEl.textContent = gameMode === 'creative' ? 'Creative' : 'Survival';
       posTextEl.textContent = `${player.pos.x.toFixed(1)}, ${player.pos.y.toFixed(1)}, ${player.pos.z.toFixed(1)}`;
-      mobTextEl.textContent = String(mobs.length);
+      mobTextEl.textContent = String(mobs.filter(m => m.parent).length);
+    }
+
+    function getCurrentBlockList() {
+      return gameMode === 'creative' ? blockTypes : blockTypes.slice(0, 12);
     }
 
     function buildHotbar() {
       hotbar.innerHTML = '';
-      blockTypes.forEach((b, i) => {
+      const visibleBlocks = getCurrentBlockList();
+      visibleBlocks.forEach((b, i) => {
         const slot = document.createElement('div');
         slot.className = 'slot' + (i === selectedBlock ? ' active' : '');
         const img = document.createElement('img');
@@ -318,6 +339,10 @@
         span.textContent = i < 9 ? i + 1 : '';
         slot.appendChild(span);
         slot.onclick = () => { selectedBlock = i; refreshHotbar(); };
+        hotbar.appendChild(slot);
+      });
+      refreshHotbar();
+    };
         hotbar.appendChild(slot);
       });
       refreshHotbar();
@@ -420,27 +445,39 @@
     }
 
     function generateWorld() {
-      const size = 84;
+      const size = 120;
       for (let x = -size/2; x < size/2; x++) {
         for (let z = -size/2; z < size/2; z++) {
-          const wave = Math.round(Math.sin(x * 0.14) * 2 + Math.cos(z * 0.16) * 2 + Math.sin((x+z) * 0.08));
-          const y = Math.max(-3, Math.min(5, wave));
-          for (let yy = -5; yy < y; yy++) {
-            let type = yy === y - 1 ? 'grass' : yy > y - 4 ? 'dirt' : 'stone';
-            if (y <= -1 && yy === y - 1) type = 'sand';
+          const n1 = Math.sin(x * 0.08) * 3;
+          const n2 = Math.cos(z * 0.07) * 3;
+          const n3 = Math.sin((x + z) * 0.05) * 2;
+          const y = Math.max(-4, Math.min(8, Math.round(n1 + n2 + n3)));
+          let topType = 'grass';
+          if (y <= -1) topType = 'sand';
+          if (y >= 6) topType = 'snow';
+          if (x > -50 && x < -25 && z > -50 && z < -25) topType = 'sand';
+          if (x > 35 && x < 58 && z > -48 && z < -25) topType = 'snow';
+          for (let yy = -6; yy < y; yy++) {
+            let type = yy === y - 1 ? topType : yy > y - 4 ? 'dirt' : 'stone';
+            if (topType === 'sand' && yy === y - 1) type = 'sand';
+            if (topType === 'snow' && yy === y - 1) type = 'snow';
             addBlock(x, yy, z, type);
           }
-          if (x > -26 && x < -12 && z > -26 && z < -12 && y <= 0) addBlock(x, y, z, 'water');
+          if (x > -28 && x < -10 && z > -28 && z < -10 && y <= 0) addBlock(x, y, z, 'water');
+          if (x > 44 && x < 52 && z > 40 && z < 48 && y >= 2) addBlock(x, y, z, 'lava');
         }
       }
-      for (let i = 0; i < 54; i++) {
-        const tx = Math.floor(Math.random() * 66) - 33;
-        const tz = Math.floor(Math.random() * 66) - 33;
-        if (tx > 14 && tx < 42 && tz > 10 && tz < 38) continue;
-        if (tx > -28 && tx < -10 && tz > -28 && tz < -10) continue;
+      for (let i = 0; i < 80; i++) {
+        const tx = Math.floor(Math.random() * 90) - 45;
+        const tz = Math.floor(Math.random() * 90) - 45;
+        if (tx > 14 && tx < 48 && tz > 10 && tz < 42) continue;
         buildTree(tx, tz, 0);
       }
       buildVillage();
+      buildTower(-30, 20);
+      buildTower(45, -32);
+      buildPorkTotem(-20, 30);
+      buildPorkTotem(30, -20);
       for (let x = -8; x <= -1; x++) for (let z = 12; z <= 19; z++) addBlock(x, 1, z, (x + z) % 2 === 0 ? 'screenshot1' : 'screenshot3');
       addBlock(-10, 1, 16, 'image1');
       addBlock(-11, 1, 16, 'image2');
@@ -448,6 +485,9 @@
       addBlock(-14, 1, 15, 'janis');
       addBlock(-18, 1, 18, 'brick');
       addBlock(-18, 2, 18, 'glow');
+      addBlock(40, 3, -35, 'emerald');
+      addBlock(41, 3, -35, 'emerald');
+      addBlock(40, 4, -35, 'glow');
     }
 
     function createNpc(x, z, type = 'pork', hostile = false) {
@@ -480,11 +520,12 @@
     }
 
     function maybeSpawnNightMonster() {
+      if (gameMode === 'creative') return;
       const cycle = (Math.sin(worldTime) + 1) / 2;
       if (cycle > 0.32) return;
-      const hostileCount = mobs.filter(m => m.userData.hostile).length;
-      if (hostileCount >= 6) return;
-      const spawnDist = 10 + Math.random() * 10;
+      const hostileCount = mobs.filter(m => m.userData.hostile && m.parent).length;
+      if (hostileCount >= 8) return;
+      const spawnDist = 10 + Math.random() * 14;
       const ang = Math.random() * Math.PI * 2;
       const x = Math.round(player.pos.x + Math.cos(ang) * spawnDist);
       const z = Math.round(player.pos.z + Math.sin(ang) * spawnDist);
@@ -639,7 +680,7 @@
         if (!m.parent) return;
         if (m.userData.cooldown > 0) m.userData.cooldown -= dt;
 
-        if (m.userData.hostile && cycle < 0.32) {
+        if (m.userData.hostile && cycle < 0.32 && gameMode === 'survival') {
           const toPlayer = player.pos.clone().sub(m.position);
           toPlayer.y = 0;
           const dist = toPlayer.length();
@@ -711,7 +752,8 @@
         y + half > tempPos.y - player.height && y - half < tempPos.y &&
         z + half > tempPos.z - player.radius && z - half < tempPos.z + player.radius);
       if (inPlayer) return;
-      addBlock(x, y, z, blockTypes[selectedBlock].key);
+      const list = getCurrentBlockList();
+      addBlock(x, y, z, list[selectedBlock].key);
     }
 
     function attack() {
@@ -746,9 +788,9 @@
 
     document.addEventListener('keydown', (e) => {
       keys[e.code] = true;
-      if (['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+      if (['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
       const idx = Number(e.key) - 1;
-      if (idx >= 0 && idx < Math.min(blockTypes.length, 9)) { selectedBlock = idx; refreshHotbar(); }
+      if (idx >= 0 && idx < Math.min(getCurrentBlockList().length, 9)) { selectedBlock = idx; refreshHotbar(); }
       if (e.code === 'KeyF') attack();
     }, { passive: false });
     document.addEventListener('keyup', (e) => { keys[e.code] = false; });
@@ -825,10 +867,25 @@
     placeBtn.onclick = () => placeBlock();
     lookBtn.ondblclick = () => attack();
 
-    startBtn.onclick = () => {
+    survivalBtn.onclick = () => {
+      gameMode = 'survival';
+      hp = 100;
+      selectedBlock = 0;
+      buildHotbar();
       started = true;
       startScreen.style.display = 'none';
-      showToast('Willkommen in John Pork Craft');
+      showToast('Survival gestartet');
+      if (!isTouch) renderer.domElement.requestPointerLock();
+    };
+
+    creativeBtn.onclick = () => {
+      gameMode = 'creative';
+      hp = 100;
+      selectedBlock = 0;
+      buildHotbar();
+      started = true;
+      startScreen.style.display = 'none';
+      showToast('Creative gestartet');
       if (!isTouch) renderer.domElement.requestPointerLock();
     };
 
