@@ -9,7 +9,6 @@
     html, body { margin: 0; height: 100%; overflow: hidden; font-family: Arial, sans-serif; }
     body { background: #87ceeb; color: white; }
     #game { position: fixed; inset: 0; }
-
     #crosshair {
       position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
       width: 24px; height: 24px; z-index: 12; pointer-events: none;
@@ -19,7 +18,6 @@
     }
     #crosshair::before { width: 2px; height: 24px; left: 11px; top: 0; }
     #crosshair::after { width: 24px; height: 2px; left: 0; top: 11px; }
-
     #hud {
       position: fixed; inset: 0; z-index: 10; pointer-events: none;
       display: flex; flex-direction: column; justify-content: space-between; padding: 12px;
@@ -37,7 +35,8 @@
     .stat { min-width: 90px; }
     .label { font-size: 11px; opacity: 0.8; }
     .value { font-size: 18px; font-weight: 700; color: #ffe76a; }
-
+    .home-btn-wrap { margin-left: auto; }
+    #topHomeBtn { min-width: 110px; }
     #hotbar {
       display: flex; gap: 8px; background: rgba(0,0,0,0.45); border-radius: 16px; padding: 8px;
       border: 1px solid rgba(255,255,255,0.15); flex-wrap: wrap; max-width: min(100%, 920px);
@@ -50,9 +49,7 @@
     .slot.active { border-color: #ffe76a; box-shadow: 0 0 14px rgba(255,231,106,0.6); }
     .slot img { width: 100%; height: 100%; object-fit: cover; }
     .slot span { position: absolute; right: 4px; bottom: 3px; font-size: 10px; font-weight: 700; }
-
     #help { max-width: 470px; font-size: 13px; line-height: 1.45; }
-
     #startScreen, #inventoryScreen {
       position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center;
       background: rgba(0,0,0,0.78); padding: 16px;
@@ -71,7 +68,6 @@
       font-size: 15px; cursor: pointer;
     }
     .warn { color: #ffd6d6; font-size: 13px; }
-
     #toast {
       position: fixed; left: 50%; top: 84px; transform: translateX(-50%); z-index: 16;
       background: rgba(0,0,0,0.7); color: white; padding: 10px 14px; border-radius: 14px;
@@ -79,23 +75,19 @@
       transition: opacity 0.2s ease; max-width: min(90vw, 460px); text-align: center;
     }
     #toast.show { opacity: 1; }
-
     .inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 10px; margin-top: 14px; }
     .inv-item { background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.14); border-radius: 16px; padding: 8px; text-align: center; cursor: pointer; }
     .inv-item.active { border-color: #ffe76a; box-shadow: 0 0 12px rgba(255,231,106,0.5); }
     .inv-item img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 10px; }
     .inv-name { font-size: 12px; margin-top: 6px; }
-
     #damageFlash {
       position: fixed; inset: 0; background: rgba(255,0,0,0.22); z-index: 13; pointer-events: none;
       opacity: 0; transition: opacity 0.12s ease;
     }
     #damageFlash.show { opacity: 1; }
-
     #heldItem {
       position: fixed; right: 10px; bottom: 8px; width: 220px; height: 220px; z-index: 11; pointer-events: none;
-      transform-origin: 84% 88%; transition: transform 0.08s ease;
-      opacity: 0.98;
+      transform-origin: 84% 88%; transition: transform 0.08s ease; opacity: 0.98;
     }
     #heldItem.swing { transform: rotate(-18deg) translate(-16px, -8px); }
     #heldArm {
@@ -105,11 +97,10 @@
     }
     #heldBlock {
       position: absolute; right: 76px; bottom: 56px; width: 72px; height: 72px; border-radius: 12px;
-      background: #4caf50; border: 3px solid rgba(255,255,255,0.25);
-      box-shadow: 0 0 14px rgba(0,0,0,0.2); overflow: hidden;
+      background: #4caf50; border: 3px solid rgba(255,255,255,0.25); overflow: hidden;
+      box-shadow: 0 0 14px rgba(0,0,0,0.2);
     }
     #heldBlock img { width: 100%; height: 100%; object-fit: cover; display: none; }
-
     #touchControls { position: fixed; inset: 0; z-index: 14; pointer-events: none; display: none; }
     .touchPad, .touchActions { position: absolute; bottom: 14px; pointer-events: auto; }
     .touchPad { left: 14px; width: 150px; height: 150px; border-radius: 50%; background: rgba(0,0,0,0.22); }
@@ -120,7 +111,6 @@
       border: 1px solid rgba(255,255,255,0.18); color: white; font-weight: 700;
       display: flex; align-items: center; justify-content: center; text-align: center; padding: 6px;
     }
-
     @media (max-width: 900px) {
       #touchControls { display: block; }
       #help { max-width: 100%; }
@@ -128,6 +118,7 @@
       #heldItem { width: 150px; height: 150px; }
       #heldArm { width: 88px; height: 38px; }
       #heldBlock { width: 50px; height: 50px; right: 56px; bottom: 42px; }
+      .home-btn-wrap { width: 100%; display: flex; justify-content: flex-end; }
     }
   </style>
 </head>
@@ -136,7 +127,6 @@
   <div id="crosshair"></div>
   <div id="toast"></div>
   <div id="damageFlash"></div>
-
   <div id="heldItem">
     <div id="heldArm"></div>
     <div id="heldBlock"><img id="heldBlockImg" alt=""></div>
@@ -155,12 +145,13 @@
         <div class="stat"><div class="label">Welt</div><div class="value" id="dimensionText">Overworld</div></div>
         <div class="stat"><div class="label">Schwierigkeit</div><div class="value" id="difficultyText">Peaceful</div></div>
       </div>
+      <div class="home-btn-wrap panel"><button id="topHomeBtn">🏠 Home</button></div>
     </div>
     <div class="bottom">
       <div id="hotbar"></div>
       <div class="panel" id="help">
         <b>Tasten:</b> W/A/S/D und Pfeiltasten laufen nach Blickrichtung, Linksklick abbauen <b>oder</b> Monster schlagen, Rechtsklick setzen, F schlagen, E Inventar, K speichern, L laden.<br>
-        <b>Portal:</b> Bau einen Obsidian-Rahmen 4 breit / 5 hoch. Wenn du durch die Mitte läufst, geht's in den Nether.
+        <b>Portale:</b> Obsidian-Rahmen 4 breit / 5 hoch. Mit normalen Blöcken geht's in den Nether. Wenn ein <b>Janis</b>, <b>Bala</b> oder <b>Cem</b>-Block am Portal steht, kommst du in deren Spezialwelt.
       </div>
     </div>
   </div>
@@ -178,8 +169,8 @@
   <div id="startScreen">
     <div class="box">
       <h1>🐷 John Pork Craft 3D Phase 3</h1>
-      <p>Komplett neu aufgebaut mit stabilerer Basis: <b>Chunks, Difficulty, Survival/Creative, Combat, Portal-Erkennung und Nether</b>.</p>
-      <p class="warn">Das ist weiter eine Browser-Version für GitHub Pages. Aber jetzt sauberer strukturiert und deutlich besser erweiterbar.</p>
+      <p>Komplett neu aufgebaut mit stabilerer Basis: <b>Chunks, Difficulty, Survival/Creative, Combat, Portal-Erkennung, Nether und Spezial-Portale</b>.</p>
+      <p class="warn">Janis-, Bala- und Cem-Portale führen in eigene Welten, deren Boden aus ihren Blöcken besteht.</p>
       <div class="row">
         <button id="peacefulSurvivalBtn">☮️ Peaceful Survival</button>
         <button id="hardSurvivalBtn">💀 Hard Survival</button>
@@ -204,7 +195,7 @@
   <script type="module">
     import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
-    const SAVE_KEY = 'johnPorkCraftPhase3V1';
+    const SAVE_KEY = 'johnPorkCraftPhase3V2';
     const CHUNK_SIZE = 16;
     const RENDER_DISTANCE = 2;
     const PORTAL_INNER_WIDTH = 2;
@@ -232,6 +223,7 @@
     const peacefulSurvivalBtn = document.getElementById('peacefulSurvivalBtn');
     const hardSurvivalBtn = document.getElementById('hardSurvivalBtn');
     const creativeBtn = document.getElementById('creativeBtn');
+    const topHomeBtn = document.getElementById('topHomeBtn');
     const heldItem = document.getElementById('heldItem');
     const heldBlock = document.getElementById('heldBlock');
     const heldBlockImg = document.getElementById('heldBlockImg');
@@ -282,28 +274,8 @@
     }
 
     const materials = {
-      grass: colorMat(0x4caf50),
-      dirt: colorMat(0x7a4a24),
-      stone: colorMat(0x888888),
-      wood: colorMat(0x8d5a2b),
-      leaves: colorMat(0x2e8b57),
-      plank: colorMat(0xc99a5f),
-      roof: colorMat(0xb63a2b),
-      water: colorMat(0x3aa7ff),
-      sand: colorMat(0xe7d28a),
-      snow: colorMat(0xf4f8ff),
-      glow: colorMat(0xb8fff5, 0x335555),
-      brick: colorMat(0xb2442f),
-      obsidian: colorMat(0x180b33),
-      netherrack: colorMat(0x7a1c17),
-      soul: colorMat(0x4b5b6a),
-      lava: colorMat(0xff5a00, 0x661100),
-      portal: colorMat(0x4a1a7f, 0x2d0055),
-      screenshot1: loadTex('Screenshot 2026-03-20 125829.png'),
-      screenshot2: loadTex('Screenshot 2026-03-20 155545.png'),
-      screenshot3: loadTex('Screenshot 2026-03-20 181111.png'),
-      bala: loadTex('Image (40).jpg'),
-      janis: loadTex('Image (41).jpg')
+      grass: colorMat(0x4caf50), dirt: colorMat(0x7a4a24), stone: colorMat(0x888888), wood: colorMat(0x8d5a2b), leaves: colorMat(0x2e8b57), plank: colorMat(0xc99a5f), roof: colorMat(0xb63a2b), water: colorMat(0x3aa7ff), sand: colorMat(0xe7d28a), snow: colorMat(0xf4f8ff), brick: colorMat(0xb2442f), glow: colorMat(0xb8fff5, 0x335555), obsidian: colorMat(0x180b33), netherrack: colorMat(0x7a1c17), soul: colorMat(0x4b5b6a), lava: colorMat(0xff5a00, 0x661100), portal: colorMat(0x4a1a7f, 0x2d0055), janis_portal: colorMat(0x5b2b93, 0x2c1450), bala_portal: colorMat(0x176a5d, 0x0a332c), cem_portal: colorMat(0x7b2a18, 0x3b120a),
+      screenshot1: loadTex('Screenshot 2026-03-20 125829.png'), screenshot2: loadTex('Screenshot 2026-03-20 155545.png'), screenshot3: loadTex('Screenshot 2026-03-20 181111.png'), bala: loadTex('Image (40).jpg'), janis: loadTex('Image (41).jpg'), cem: loadTex('Screenshot 2026-03-20 155545.png')
     };
 
     const blockTypes = [
@@ -324,35 +296,14 @@
       { key: 'screenshot2', label: 'Screenshot 2', mat: materials.screenshot2, held: 'Screenshot 2026-03-20 155545.png' },
       { key: 'screenshot3', label: 'Screenshot 3', mat: materials.screenshot3, held: 'Screenshot 2026-03-20 181111.png' },
       { key: 'bala', label: 'Bala', mat: materials.bala, held: 'Image (40).jpg' },
-      { key: 'janis', label: 'Janis', mat: materials.janis, held: 'Image (41).jpg' }
+      { key: 'janis', label: 'Janis', mat: materials.janis, held: 'Image (41).jpg' },
+      { key: 'cem', label: 'Cem', mat: materials.cem, held: 'Screenshot 2026-03-20 155545.png' }
     ];
 
-    let selectedBlock = 0;
-    let hp = 100;
-    let gameMode = 'creative';
-    let difficulty = 'peaceful';
-    let started = false;
-    let dimension = 'overworld';
-    let portalCooldown = 0;
-
-    const player = {
-      pos: new THREE.Vector3(0, 8, 0),
-      vel: new THREE.Vector3(),
-      yaw: -Math.PI / 2,
-      pitch: -0.15,
-      speed: 7.2,
-      jump: 7.8,
-      onGround: false,
-      height: 1.75,
-      radius: 0.34,
-      attackCooldown: 0
-    };
-
-    const keys = {};
-    const touchMove = { x: 0, y: 0 };
-    let pointerLocked = false;
-    let lookActive = false;
-    let lookPrev = null;
+    let selectedBlock = 0, hp = 100, gameMode = 'creative', difficulty = 'peaceful', started = false, dimension = 'overworld', portalCooldown = 0;
+    const player = { pos: new THREE.Vector3(0, 8, 0), vel: new THREE.Vector3(), yaw: -Math.PI / 2, pitch: -0.15, speed: 7.2, jump: 7.8, onGround: false, height: 1.75, radius: 0.34, attackCooldown: 0 };
+    const keys = {}, touchMove = { x: 0, y: 0 };
+    let pointerLocked = false, lookActive = false, lookPrev = null;
 
     function showToast(text) {
       toast.textContent = text;
@@ -362,18 +313,14 @@
     }
 
     function updateHeldItem() {
-      const list = getCurrentBlockList();
-      const block = list[selectedBlock] || list[0];
+      const block = getCurrentBlockList()[selectedBlock] || getCurrentBlockList()[0];
       const isImage = typeof block.held === 'string' && (block.held.endsWith('.png') || block.held.endsWith('.jpg'));
       heldBlock.style.background = isImage ? '#111' : block.held;
       heldBlockImg.style.display = isImage ? 'block' : 'none';
       if (isImage) heldBlockImg.src = encodeURI(block.held);
     }
 
-    function getCurrentBlockList() {
-      return gameMode === 'creative' ? blockTypes : blockTypes.slice(0, 13);
-    }
-
+    function getCurrentBlockList() { return gameMode === 'creative' ? blockTypes : blockTypes.slice(0, 13); }
     function updateHud() {
       const list = getCurrentBlockList();
       blockNameEl.textContent = list[selectedBlock]?.label || 'Grass';
@@ -383,7 +330,7 @@
       hpTextEl.textContent = gameMode === 'creative' ? '∞' : String(Math.max(0, Math.round(hp)));
       modeTextEl.textContent = gameMode === 'creative' ? 'Creative' : 'Survival';
       difficultyTextEl.textContent = difficulty === 'hard' ? 'Hard' : 'Peaceful';
-      dimensionTextEl.textContent = dimension === 'nether' ? 'Nether' : 'Overworld';
+      dimensionTextEl.textContent = dimension.replace('_', ' ');
       updateHeldItem();
     }
 
@@ -393,24 +340,14 @@
         const slot = document.createElement('div');
         slot.className = 'slot' + (i === selectedBlock ? ' active' : '');
         const img = document.createElement('img');
-        if (typeof b.held === 'string' && (b.held.endsWith('.png') || b.held.endsWith('.jpg'))) {
-          img.src = encodeURI(b.held);
-        } else {
-          const canvas = document.createElement('canvas');
-          canvas.width = 48; canvas.height = 48;
-          const ctx = canvas.getContext('2d');
-          ctx.fillStyle = b.held;
-          ctx.fillRect(0, 0, 48, 48);
-          img.src = canvas.toDataURL();
+        if (typeof b.held === 'string' && (b.held.endsWith('.png') || b.held.endsWith('.jpg'))) img.src = encodeURI(b.held);
+        else {
+          const canvas = document.createElement('canvas'); canvas.width = 48; canvas.height = 48;
+          const ctx = canvas.getContext('2d'); ctx.fillStyle = b.held; ctx.fillRect(0,0,48,48); img.src = canvas.toDataURL();
         }
         slot.appendChild(img);
-        const n = document.createElement('span');
-        n.textContent = i < 9 ? i + 1 : '';
-        slot.appendChild(n);
-        slot.onclick = () => {
-          selectedBlock = i;
-          refreshHotbar();
-        };
+        const n = document.createElement('span'); n.textContent = i < 9 ? i + 1 : ''; slot.appendChild(n);
+        slot.onclick = () => { selectedBlock = i; refreshHotbar(); };
         hotbar.appendChild(slot);
       });
       refreshHotbar();
@@ -422,125 +359,70 @@
         const item = document.createElement('div');
         item.className = 'inv-item' + (i === selectedBlock ? ' active' : '');
         const img = document.createElement('img');
-        if (typeof b.held === 'string' && (b.held.endsWith('.png') || b.held.endsWith('.jpg'))) {
-          img.src = encodeURI(b.held);
-        } else {
-          const canvas = document.createElement('canvas');
-          canvas.width = 64; canvas.height = 64;
-          const ctx = canvas.getContext('2d');
-          ctx.fillStyle = b.held;
-          ctx.fillRect(0, 0, 64, 64);
-          img.src = canvas.toDataURL();
+        if (typeof b.held === 'string' && (b.held.endsWith('.png') || b.held.endsWith('.jpg'))) img.src = encodeURI(b.held);
+        else {
+          const canvas = document.createElement('canvas'); canvas.width = 64; canvas.height = 64;
+          const ctx = canvas.getContext('2d'); ctx.fillStyle = b.held; ctx.fillRect(0,0,64,64); img.src = canvas.toDataURL();
         }
-        const name = document.createElement('div');
-        name.className = 'inv-name';
-        name.textContent = b.label;
+        const name = document.createElement('div'); name.className = 'inv-name'; name.textContent = b.label;
         item.append(img, name);
-        item.onclick = () => {
-          selectedBlock = i;
-          refreshHotbar();
-          buildInventory();
-        };
+        item.onclick = () => { selectedBlock = i; refreshHotbar(); buildInventory(); };
         inventoryGrid.appendChild(item);
       });
     }
 
-    function refreshHotbar() {
-      [...hotbar.children].forEach((c, i) => c.classList.toggle('active', i === selectedBlock));
-      updateHud();
-    }
-
-    function openInventory() {
-      buildInventory();
-      inventoryScreen.style.display = 'flex';
-      if (document.pointerLockElement) document.exitPointerLock();
-    }
-
-    function closeInventory() {
-      inventoryScreen.style.display = 'none';
-      if (started && !isTouch) renderer.domElement.requestPointerLock();
-    }
+    function refreshHotbar() { [...hotbar.children].forEach((c, i) => c.classList.toggle('active', i === selectedBlock)); updateHud(); }
+    function openInventory() { buildInventory(); inventoryScreen.style.display = 'flex'; if (document.pointerLockElement) document.exitPointerLock(); }
+    function closeInventory() { inventoryScreen.style.display = 'none'; if (started && !isTouch) renderer.domElement.requestPointerLock(); }
     closeInvBtn.onclick = closeInventory;
+    topHomeBtn.onclick = () => { window.location.href = 'index.html'; };
 
-    function worldKey(x, y, z) {
-      return `${dimension}|${x},${y},${z}`;
-    }
-
-    function chunkKey(cx, cz) {
-      return `${dimension}|${cx},${cz}`;
-    }
-
-    function blockTypeByKey(typeKey) {
-      return blockTypes.find(b => b.key === typeKey) || blockTypes[0];
-    }
-
-    function customBlockKey(x, y, z) {
-      return `${dimension}|${x},${y},${z}`;
-    }
+    function worldKey(x, y, z) { return `${dimension}|${x},${y},${z}`; }
+    function chunkKey(cx, cz) { return `${dimension}|${cx},${cz}`; }
+    function customBlockKey(x, y, z) { return `${dimension}|${x},${y},${z}`; }
+    function blockTypeByKey(typeKey) { return blockTypes.find(b => b.key === typeKey) || { key: typeKey, mat: materials.portal }; }
 
     function addBlock(x, y, z, typeKey, source = 'custom') {
-      const k = worldKey(x, y, z);
-      if (worldMap.has(k)) return null;
+      const k = worldKey(x, y, z); if (worldMap.has(k)) return null;
       const type = blockTypeByKey(typeKey);
-      const mesh = new THREE.Mesh(cubeGeo, type.mat);
-      mesh.position.set(x, y, z);
-      mesh.userData = { x, y, z, type: typeKey, source };
-      worldGroup.add(mesh);
-      worldMap.set(k, mesh);
-      blockMeshes.push(mesh);
-      if (source === 'custom') {
-        customBlocks.set(customBlockKey(x, y, z), typeKey);
-        removedBlocks.delete(customBlockKey(x, y, z));
-      }
+      const mat = type.mat || materials[typeKey] || materials.portal;
+      const mesh = new THREE.Mesh(cubeGeo, mat);
+      mesh.position.set(x, y, z); mesh.userData = { x, y, z, type: typeKey, source };
+      worldGroup.add(mesh); worldMap.set(k, mesh); blockMeshes.push(mesh);
+      if (source === 'custom') { customBlocks.set(customBlockKey(x,y,z), typeKey); removedBlocks.delete(customBlockKey(x,y,z)); }
       return mesh;
     }
 
     function removeBlock(x, y, z) {
-      const key = worldKey(x, y, z);
-      const mesh = worldMap.get(key);
-      if (!mesh) return;
-      worldGroup.remove(mesh);
-      worldMap.delete(key);
-      const idx = blockMeshes.indexOf(mesh);
-      if (idx >= 0) blockMeshes.splice(idx, 1);
-      if (mesh.userData.source === 'world') {
-        removedBlocks.add(customBlockKey(x, y, z));
-      } else {
-        customBlocks.delete(customBlockKey(x, y, z));
-      }
+      const k = worldKey(x,y,z), mesh = worldMap.get(k); if (!mesh) return;
+      worldGroup.remove(mesh); worldMap.delete(k);
+      const idx = blockMeshes.indexOf(mesh); if (idx >= 0) blockMeshes.splice(idx, 1);
+      if (mesh.userData.source === 'world') removedBlocks.add(customBlockKey(x,y,z)); else customBlocks.delete(customBlockKey(x,y,z));
     }
 
     function clearWorld() {
-      while (blockMeshes.length) {
-        const mesh = blockMeshes.pop();
-        if (mesh.parent) mesh.parent.remove(mesh);
-      }
-      worldMap.clear();
-      loadedChunks.clear();
-      while (mobs.length) {
-        const mob = mobs.pop();
-        if (mob.parent) mob.parent.remove(mob);
-      }
+      while (blockMeshes.length) { const m = blockMeshes.pop(); if (m.parent) m.parent.remove(m); }
+      worldMap.clear(); loadedChunks.clear();
+      while (mobs.length) { const m = mobs.pop(); if (m.parent) m.parent.remove(m); }
     }
 
     function getHeight(wx, wz, dim = dimension) {
-      if (dim === 'nether') {
-        const n1 = Math.sin(wx * 0.09) * 3;
-        const n2 = Math.cos(wz * 0.08) * 3;
-        const n3 = Math.sin((wx - wz) * 0.04) * 2;
-        return Math.max(-2, Math.min(8, Math.round(n1 + n2 + n3)));
-      }
-      const n1 = Math.sin(wx * 0.07) * 3;
-      const n2 = Math.cos(wz * 0.06) * 3;
-      const n3 = Math.sin((wx + wz) * 0.035) * 2;
-      return Math.max(-3, Math.min(9, Math.round(n1 + n2 + n3)));
+      if (dim === 'nether') return Math.max(-2, Math.min(8, Math.round(Math.sin(wx * 0.09) * 3 + Math.cos(wz * 0.08) * 3 + Math.sin((wx - wz) * 0.04) * 2)));
+      if (dim === 'janis_world' || dim === 'bala_world' || dim === 'cem_world') return Math.max(0, Math.min(3, Math.round(Math.sin(wx * 0.05) + Math.cos(wz * 0.05))));
+      return Math.max(-3, Math.min(9, Math.round(Math.sin(wx * 0.07) * 3 + Math.cos(wz * 0.06) * 3 + Math.sin((wx + wz) * 0.035) * 2)));
+    }
+
+    function specialFloorForDimension(dim) {
+      if (dim === 'janis_world') return 'janis';
+      if (dim === 'bala_world') return 'bala';
+      if (dim === 'cem_world') return 'cem';
+      return null;
     }
 
     function maybeSpecialTop(wx, wz, y, dim = dimension) {
-      if (dim === 'nether') {
-        if ((wx + wz) % 13 === 0) return 'soul';
-        return 'netherrack';
-      }
+      const specialFloor = specialFloorForDimension(dim);
+      if (specialFloor) return specialFloor;
+      if (dim === 'nether') return (wx + wz) % 13 === 0 ? 'soul' : 'netherrack';
       if (y <= -1) return 'sand';
       if (y >= 6) return 'snow';
       if (wx > -50 && wx < -28 && wz > -48 && wz < -26) return 'sand';
@@ -551,206 +433,106 @@
     function buildTree(wx, wz, baseY) {
       const h = 3 + (Math.abs(wx + wz) % 3);
       for (let i = 1; i <= h; i++) addBlock(wx, baseY + i, wz, 'wood', 'world');
-      for (let lx = -2; lx <= 2; lx++) {
-        for (let lz = -2; lz <= 2; lz++) {
-          for (let ly = h - 1; ly <= h + 1; ly++) {
-            if (Math.abs(lx) + Math.abs(lz) < 4) addBlock(wx + lx, baseY + ly, wz + lz, 'leaves', 'world');
-          }
-        }
-      }
-    }
-
-    function generateHouse(startX, startZ) {
-      for (let dx = 0; dx < 5; dx++) for (let dz = 0; dz < 5; dz++) addBlock(startX + dx, 0, startZ + dz, 'plank', 'world');
-      for (let y = 1; y <= 3; y++) {
-        for (let dx = 0; dx < 5; dx++) {
-          for (let dz = 0; dz < 5; dz++) {
-            const edge = dx === 0 || dz === 0 || dx === 4 || dz === 4;
-            if (!edge) continue;
-            if (dx === 2 && dz === 0 && y <= 2) continue;
-            addBlock(startX + dx, y, startZ + dz, 'plank', 'world');
-          }
-        }
-      }
-      for (let dx = -1; dx <= 5; dx++) {
-        for (let dz = -1; dz <= 5; dz++) {
-          if (Math.abs(dx - 2) + Math.abs(dz - 2) <= 4) addBlock(startX + dx, 4, startZ + dz, 'roof', 'world');
-        }
-      }
-      addBlock(startX + 2, 1, startZ + 2, 'screenshot2', 'world');
-    }
-
-    function generateNetherTower(startX, startZ) {
-      for (let y = 0; y < 7; y++) {
-        for (let dx = -1; dx <= 1; dx++) {
-          for (let dz = -1; dz <= 1; dz++) {
-            if (Math.abs(dx) === 1 || Math.abs(dz) === 1) addBlock(startX + dx, y, startZ + dz, 'netherrack', 'world');
-          }
-        }
-      }
-      addBlock(startX, 7, startZ, 'lava', 'world');
+      for (let lx = -2; lx <= 2; lx++) for (let lz = -2; lz <= 2; lz++) for (let ly = h - 1; ly <= h + 1; ly++) if (Math.abs(lx) + Math.abs(lz) < 4) addBlock(wx + lx, baseY + ly, wz + lz, 'leaves', 'world');
     }
 
     function generateChunk(cx, cz) {
-      const ck = chunkKey(cx, cz);
-      if (loadedChunks.has(ck)) return;
-      loadedChunks.add(ck);
-
-      const startX = cx * CHUNK_SIZE;
-      const startZ = cz * CHUNK_SIZE;
-
+      const ck = chunkKey(cx, cz); if (loadedChunks.has(ck)) return; loadedChunks.add(ck);
+      const startX = cx * CHUNK_SIZE, startZ = cz * CHUNK_SIZE;
       for (let x = 0; x < CHUNK_SIZE; x++) {
         for (let z = 0; z < CHUNK_SIZE; z++) {
-          const wx = startX + x;
-          const wz = startZ + z;
-          const h = getHeight(wx, wz, dimension);
-          const top = maybeSpecialTop(wx, wz, h, dimension);
-          const bottom = dimension === 'nether' ? -3 : -5;
+          const wx = startX + x, wz = startZ + z, h = getHeight(wx, wz, dimension), top = maybeSpecialTop(wx, wz, h, dimension);
+          const bottom = dimension === 'nether' ? -3 : 0;
           for (let y = bottom; y < h; y++) {
-            let type = y === h - 1 ? top : y > h - 4 ? (dimension === 'nether' ? 'netherrack' : 'dirt') : (dimension === 'nether' ? 'netherrack' : 'stone');
+            let type = y === h - 1 ? top : y > h - 4 ? (dimension === 'nether' ? 'netherrack' : specialFloorForDimension(dimension) || 'dirt') : (dimension === 'nether' ? 'netherrack' : 'stone');
+            if (specialFloorForDimension(dimension) && y < h - 1) type = specialFloorForDimension(dimension);
             if (dimension === 'nether' && y < h - 5) type = 'obsidian';
-            const cKey = customBlockKey(wx, y, wz);
-            if (removedBlocks.has(cKey) || customBlocks.has(cKey)) continue;
-            addBlock(wx, y, wz, type, 'world');
+            const cKey = customBlockKey(wx,y,wz); if (removedBlocks.has(cKey) || customBlocks.has(cKey)) continue;
+            addBlock(wx,y,wz,type,'world');
           }
-
           if (dimension === 'overworld') {
-            if ((wx + wz) % 29 === 0 && top === 'grass' && h >= 0) buildTree(wx, wz, h - 1);
-            if (wx > -22 && wx < -8 && wz > -22 && wz < -8 && h <= 0) {
-              const cKey = customBlockKey(wx, h, wz);
-              if (!removedBlocks.has(cKey) && !customBlocks.has(cKey)) addBlock(wx, h, wz, 'water', 'world');
-            }
-          } else {
-            if ((wx * 7 + wz) % 37 === 0) {
-              const cKey = customBlockKey(wx, h, wz);
-              if (!removedBlocks.has(cKey) && !customBlocks.has(cKey)) addBlock(wx, h, wz, 'lava', 'world');
-            }
+            if ((wx + wz) % 29 === 0 && top === 'grass' && h >= 0) buildTree(wx,wz,h - 1);
+            if (wx > -22 && wx < -8 && wz > -22 && wz < -8 && h <= 0) { const cKey = customBlockKey(wx,h,wz); if (!removedBlocks.has(cKey) && !customBlocks.has(cKey)) addBlock(wx,h,wz,'water','world'); }
+          } else if (dimension === 'nether') {
+            if ((wx * 7 + wz) % 37 === 0) { const cKey = customBlockKey(wx,h,wz); if (!removedBlocks.has(cKey) && !customBlocks.has(cKey)) addBlock(wx,h,wz,'lava','world'); }
           }
         }
       }
-
       if (dimension === 'overworld' && cx === 1 && cz === 1) {
-        generateHouse(startX + 4, startZ + 4);
+        for (let dx = 0; dx < 5; dx++) for (let dz = 0; dz < 5; dz++) addBlock(startX + 4 + dx, 0, startZ + 4 + dz, 'plank', 'world');
+        addBlock(startX + 6, 1, startZ + 6, 'screenshot2', 'world');
         addBlock(startX + 9, 1, startZ + 6, 'bala', 'world');
         addBlock(startX + 6, 1, startZ + 9, 'janis', 'world');
+        addBlock(startX + 4, 1, startZ + 9, 'cem', 'world');
       }
-
-      if (dimension === 'nether' && cx === 0 && cz === 0) {
-        generateNetherTower(startX + 8, startZ + 8);
-      }
-
       customBlocks.forEach((type, key) => {
         if (!key.startsWith(`${dimension}|`)) return;
         const rest = key.slice(dimension.length + 1);
         const [sx, sy, sz] = rest.split(',').map(Number);
         if (sx >= startX && sx < startX + CHUNK_SIZE && sz >= startZ && sz < startZ + CHUNK_SIZE) {
-          const worldKeyStr = worldKey(sx, sy, sz);
-          if (!worldMap.has(worldKeyStr)) addBlock(sx, sy, sz, type, 'custom');
+          const wk = worldKey(sx, sy, sz); if (!worldMap.has(wk)) addBlock(sx, sy, sz, type, 'custom');
         }
       });
     }
 
     function ensureChunksAroundPlayer() {
-      const cx = Math.floor(player.pos.x / CHUNK_SIZE);
-      const cz = Math.floor(player.pos.z / CHUNK_SIZE);
-      for (let dx = -RENDER_DISTANCE; dx <= RENDER_DISTANCE; dx++) {
-        for (let dz = -RENDER_DISTANCE; dz <= RENDER_DISTANCE; dz++) {
-          generateChunk(cx + dx, cz + dz);
-        }
-      }
+      const cx = Math.floor(player.pos.x / CHUNK_SIZE), cz = Math.floor(player.pos.z / CHUNK_SIZE);
+      for (let dx = -RENDER_DISTANCE; dx <= RENDER_DISTANCE; dx++) for (let dz = -RENDER_DISTANCE; dz <= RENDER_DISTANCE; dz++) generateChunk(cx + dx, cz + dz);
     }
 
     function createNpc(x, z, hostile = false) {
       const g = new THREE.Group();
       const bodyMat = hostile ? materials.screenshot1 : materials.screenshot2;
       const headMat = hostile ? materials.screenshot3 : materials.bala;
-      const body = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.2, 0.45), bodyMat);
-      body.position.y = 1.1;
-      const head = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.75, 0.75), headMat);
-      head.position.y = 2.05;
+      const body = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.2, 0.45), bodyMat); body.position.y = 1.1;
+      const head = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.75, 0.75), headMat); head.position.y = 2.05;
       g.add(body, head);
       g.position.set(x, getHeight(x, z, dimension) + 0.1, z);
-      g.userData = {
-        homeX: x,
-        homeZ: z,
-        t: Math.random() * Math.PI * 2,
-        hostile,
-        hp: difficulty === 'hard' ? 3 : 1,
-        cooldown: 0,
-        dimension
-      };
-      mobGroup.add(g);
-      mobs.push(g);
+      g.userData = { homeX: x, homeZ: z, t: Math.random() * Math.PI * 2, hostile, hp: difficulty === 'hard' ? 3 : 1, cooldown: 0, dimension };
+      mobGroup.add(g); mobs.push(g);
     }
 
-    function clearMobs() {
-      while (mobs.length) {
-        const m = mobs.pop();
-        if (m.parent) m.parent.remove(m);
-      }
-    }
-
+    function clearMobs() { while (mobs.length) { const m = mobs.pop(); if (m.parent) m.parent.remove(m); } }
     function spawnInitialNpcs() {
       clearMobs();
       if (dimension === 'overworld') {
-        createNpc(12, 12, false);
-        createNpc(18, 8, false);
-        if (difficulty === 'hard' && gameMode === 'survival') createNpc(-10, -10, true);
+        createNpc(12,12,false); createNpc(18,8,false); if (difficulty === 'hard' && gameMode === 'survival') createNpc(-10,-10,true);
+      } else if (dimension === 'nether') {
+        if (gameMode === 'survival') { createNpc(6,6,true); createNpc(12,-4,true); }
       } else {
-        if (gameMode === 'survival') {
-          createNpc(6, 6, true);
-          createNpc(12, -4, true);
-        }
+        createNpc(5,5,false); if (difficulty === 'hard' && gameMode === 'survival') createNpc(10,10,true);
       }
     }
 
     function maybeSpawnNightMonster() {
       if (gameMode === 'creative' || difficulty === 'peaceful') return;
-      const hostileCount = mobs.filter(m => m.userData.hostile && m.parent).length;
-      if (hostileCount >= 6) return;
-      const ang = Math.random() * Math.PI * 2;
-      const dist = 12 + Math.random() * 10;
+      const hostileCount = mobs.filter(m => m.userData.hostile && m.parent).length; if (hostileCount >= 6) return;
+      const ang = Math.random() * Math.PI * 2, dist = 12 + Math.random() * 10;
       createNpc(Math.round(player.pos.x + Math.cos(ang) * dist), Math.round(player.pos.z + Math.sin(ang) * dist), true);
     }
 
+    function isPortalType(type) { return ['portal','janis_portal','bala_portal','cem_portal'].includes(type); }
+    function isPortalAt(x,y,z) { const m = worldMap.get(worldKey(x,y,z)); return !!(m && isPortalType(m.userData.type)); }
+    function isObsidianAt(x,y,z) { const m = worldMap.get(worldKey(x,y,z)); return !!(m && m.userData.type === 'obsidian'); }
+
     function intersectsAt(pos) {
-      const minX = pos.x - player.radius, maxX = pos.x + player.radius;
-      const minY = pos.y - player.height, maxY = pos.y;
-      const minZ = pos.z - player.radius, maxZ = pos.z + player.radius;
-      for (let x = Math.floor(minX); x <= Math.floor(maxX); x++) {
-        for (let y = Math.floor(minY); y <= Math.floor(maxY); y++) {
-          for (let z = Math.floor(minZ); z <= Math.floor(maxZ); z++) {
-            const mesh = worldMap.get(worldKey(x, y, z));
-            if (mesh && mesh.userData.type !== 'portal') return true;
-          }
-        }
-      }
+      const minX = pos.x - player.radius, maxX = pos.x + player.radius, minY = pos.y - player.height, maxY = pos.y, minZ = pos.z - player.radius, maxZ = pos.z + player.radius;
+      for (let x = Math.floor(minX); x <= Math.floor(maxX); x++) for (let y = Math.floor(minY); y <= Math.floor(maxY); y++) for (let z = Math.floor(minZ); z <= Math.floor(maxZ); z++) { const m = worldMap.get(worldKey(x,y,z)); if (m && !isPortalType(m.userData.type)) return true; }
       return false;
     }
 
     function tryStepUp(basePos, moveX, moveZ) {
       for (const step of [0.6, 1.0, 1.2]) {
-        const stepped = basePos.clone();
-        stepped.y += step;
-        if (intersectsAt(stepped)) continue;
-        const moved = stepped.clone();
-        moved.x += moveX;
-        moved.z += moveZ;
-        if (intersectsAt(moved)) continue;
-        return moved;
+        const stepped = basePos.clone(); stepped.y += step; if (intersectsAt(stepped)) continue;
+        const moved = stepped.clone(); moved.x += moveX; moved.z += moveZ; if (intersectsAt(moved)) continue; return moved;
       }
       return null;
     }
 
     function movePlayer(dt) {
-      const forward = new THREE.Vector3();
-      camera.getWorldDirection(forward);
-      forward.y = 0;
-      if (forward.lengthSq() === 0) forward.set(Math.cos(player.yaw), 0, Math.sin(player.yaw));
-      forward.normalize();
-      const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
+      const forward = new THREE.Vector3(); camera.getWorldDirection(forward); forward.y = 0; if (forward.lengthSq() === 0) forward.set(Math.cos(player.yaw), 0, Math.sin(player.yaw)); forward.normalize();
+      const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0,1,0)).normalize();
       const move = new THREE.Vector3();
-
       if (keys['KeyW'] || keys['ArrowUp']) move.add(forward);
       if (keys['KeyS'] || keys['ArrowDown']) move.sub(forward);
       if (keys['KeyA'] || keys['ArrowLeft']) move.sub(right);
@@ -759,107 +541,37 @@
       if (touchMove.y > 0.18) move.sub(forward);
       if (touchMove.x < -0.18) move.sub(right);
       if (touchMove.x > 0.18) move.add(right);
-
       let moveX = 0, moveZ = 0;
-      if (move.lengthSq() > 0) {
-        move.normalize().multiplyScalar(player.speed * dt);
-        moveX = move.x;
-        moveZ = move.z;
-      }
-
+      if (move.lengthSq() > 0) { move.normalize().multiplyScalar(player.speed * dt); moveX = move.x; moveZ = move.z; }
       player.vel.y -= 18 * dt;
-      if ((keys['Space'] || keys['KeyQ']) && player.onGround) {
-        player.vel.y = player.jump;
-        player.onGround = false;
-      }
-
+      if ((keys['Space'] || keys['KeyQ']) && player.onGround) { player.vel.y = player.jump; player.onGround = false; }
       if (moveX !== 0 || moveZ !== 0) {
-        let p = player.pos.clone();
-        p.x += moveX;
-        p.z += moveZ;
-        if (!intersectsAt(p)) {
-          player.pos.copy(p);
-        } else {
-          const px = player.pos.clone();
-          px.x += moveX;
-          if (!intersectsAt(px)) player.pos.x = px.x;
-          else {
-            const s = tryStepUp(player.pos, moveX, 0);
-            if (s) player.pos.copy(s);
-          }
-
-          const pz = player.pos.clone();
-          pz.z += moveZ;
-          if (!intersectsAt(pz)) player.pos.z = pz.z;
-          else {
-            const s = tryStepUp(player.pos, 0, moveZ);
-            if (s) player.pos.copy(s);
-          }
+        let p = player.pos.clone(); p.x += moveX; p.z += moveZ;
+        if (!intersectsAt(p)) player.pos.copy(p);
+        else {
+          const px = player.pos.clone(); px.x += moveX; if (!intersectsAt(px)) player.pos.x = px.x; else { const s = tryStepUp(player.pos, moveX, 0); if (s) player.pos.copy(s); }
+          const pz = player.pos.clone(); pz.z += moveZ; if (!intersectsAt(pz)) player.pos.z = pz.z; else { const s = tryStepUp(player.pos, 0, moveZ); if (s) player.pos.copy(s); }
         }
       }
-
-      const py = player.pos.clone();
-      py.y += player.vel.y * dt;
-      if (!intersectsAt(py)) {
-        player.pos.y = py.y;
-        player.onGround = false;
-      } else {
-        if (player.vel.y < 0) player.onGround = true;
-        player.vel.y = 0;
-      }
-
-      const groundProbe = player.pos.clone();
-      groundProbe.y -= 0.08;
-      if (player.onGround && !intersectsAt(groundProbe)) player.onGround = false;
-
-      if (player.pos.y < -20) {
-        player.pos.set(0, 8, 0);
-        player.vel.set(0, 0, 0);
-        if (gameMode === 'survival') hp = Math.max(10, hp - 10);
-        showToast('Du bist gefallen');
-      }
+      const py = player.pos.clone(); py.y += player.vel.y * dt;
+      if (!intersectsAt(py)) { player.pos.y = py.y; player.onGround = false; } else { if (player.vel.y < 0) player.onGround = true; player.vel.y = 0; }
+      const groundProbe = player.pos.clone(); groundProbe.y -= 0.08; if (player.onGround && !intersectsAt(groundProbe)) player.onGround = false;
+      if (player.pos.y < -20) { player.pos.set(0, 8, 0); player.vel.set(0,0,0); if (gameMode === 'survival') hp = Math.max(10, hp - 10); showToast('Du bist gefallen'); }
     }
 
-    function updateCamera() {
-      camera.position.copy(player.pos);
-      camera.rotation.order = 'YXZ';
-      camera.rotation.y = player.yaw;
-      camera.rotation.x = player.pitch;
-      updateHud();
-    }
-
-    function flashDamage() {
-      damageFlash.classList.add('show');
-      setTimeout(() => damageFlash.classList.remove('show'), 120);
-    }
+    function updateCamera() { camera.position.copy(player.pos); camera.rotation.order = 'YXZ'; camera.rotation.y = player.yaw; camera.rotation.x = player.pitch; updateHud(); }
+    function flashDamage() { damageFlash.classList.add('show'); setTimeout(() => damageFlash.classList.remove('show'), 120); }
 
     function updateMobs(dt) {
       mobs.forEach((m, i) => {
         if (!m.parent || m.userData.dimension !== dimension) return;
         if (m.userData.cooldown > 0) m.userData.cooldown -= dt;
         if (m.userData.hostile && gameMode === 'survival' && difficulty === 'hard') {
-          const toPlayer = player.pos.clone().sub(m.position);
-          toPlayer.y = 0;
-          const dist = toPlayer.length();
-          if (dist > 0.001) {
-            toPlayer.normalize();
-            m.position.addScaledVector(toPlayer, dt * (dimension === 'nether' ? 2.5 : 2.0));
-          }
-          if (dist < 1.4 && m.userData.cooldown <= 0) {
-            hp -= dimension === 'nether' ? 10 : 8;
-            m.userData.cooldown = 1.0;
-            flashDamage();
-            showToast('Monster trifft dich');
-            if (hp <= 0) {
-              hp = 100;
-              player.pos.set(0, 8, 0);
-              showToast('Du wurdest besiegt');
-            }
-          }
+          const toPlayer = player.pos.clone().sub(m.position); toPlayer.y = 0; const dist = toPlayer.length();
+          if (dist > 0.001) { toPlayer.normalize(); m.position.addScaledVector(toPlayer, dt * (dimension === 'nether' ? 2.5 : 2.0)); }
+          if (dist < 1.4 && m.userData.cooldown <= 0) { hp -= dimension === 'nether' ? 10 : 8; m.userData.cooldown = 1.0; flashDamage(); showToast('Monster trifft dich'); if (hp <= 0) { hp = 100; player.pos.set(0,8,0); showToast('Du wurdest besiegt'); } }
         } else {
-          m.userData.t += dt * (0.6 + i * 0.03);
-          m.position.x = m.userData.homeX + Math.sin(m.userData.t) * 1.4;
-          m.position.z = m.userData.homeZ + Math.cos(m.userData.t * 0.8) * 1.4;
+          m.userData.t += dt * (0.6 + i * 0.03); m.position.x = m.userData.homeX + Math.sin(m.userData.t) * 1.4; m.position.z = m.userData.homeZ + Math.cos(m.userData.t * 0.8) * 1.4;
         }
       });
     }
@@ -868,394 +580,205 @@
     function updateDayNight(dt) {
       worldTime += dt * 0.03;
       if (dimension === 'nether') {
-        hemiLight.intensity = 0.35;
-        dirLight.intensity = 0.45;
-        dirLight.position.set(10, 16, 5);
-        const sky = new THREE.Color(0x4a0f0f);
-        scene.background = sky;
-        scene.fog.color = sky;
+        hemiLight.intensity = 0.35; dirLight.intensity = 0.45; dirLight.position.set(10,16,5); const sky = new THREE.Color(0x4a0f0f); scene.background = sky; scene.fog.color = sky;
+      } else if (dimension === 'janis_world') {
+        hemiLight.intensity = 0.7; dirLight.intensity = 0.75; const sky = new THREE.Color(0x6a3fb8); scene.background = sky; scene.fog.color = sky;
+      } else if (dimension === 'bala_world') {
+        hemiLight.intensity = 0.7; dirLight.intensity = 0.75; const sky = new THREE.Color(0x1f7c6d); scene.background = sky; scene.fog.color = sky;
+      } else if (dimension === 'cem_world') {
+        hemiLight.intensity = 0.7; dirLight.intensity = 0.75; const sky = new THREE.Color(0x8b3c22); scene.background = sky; scene.fog.color = sky;
       } else {
-        const cycle = (Math.sin(worldTime) + 1) / 2;
-        hemiLight.intensity = 0.22 + cycle * 0.98;
-        dirLight.intensity = 0.12 + cycle * 1.05;
-        dirLight.position.set(Math.cos(worldTime) * 40, 12 + cycle * 28, Math.sin(worldTime) * 24);
-        const sky = new THREE.Color().lerpColors(new THREE.Color(0x0d1630), new THREE.Color(0x87ceeb), cycle);
-        scene.background = sky;
-        scene.fog.color = sky;
-        if (Math.random() < 0.0025 && cycle < 0.3) maybeSpawnNightMonster();
+        const cycle = (Math.sin(worldTime) + 1) / 2; hemiLight.intensity = 0.22 + cycle * 0.98; dirLight.intensity = 0.12 + cycle * 1.05; dirLight.position.set(Math.cos(worldTime) * 40, 12 + cycle * 28, Math.sin(worldTime) * 24); const sky = new THREE.Color().lerpColors(new THREE.Color(0x0d1630), new THREE.Color(0x87ceeb), cycle); scene.background = sky; scene.fog.color = sky; if (Math.random() < 0.0025 && cycle < 0.3) maybeSpawnNightMonster();
       }
     }
 
     function getTargetBlock() {
-      raycaster.setFromCamera(mouseCenter, camera);
-      const hits = raycaster.intersectObjects(blockMeshes, false);
-      if (!hits.length) return null;
-      const hit = hits[0];
-      const normal = hit.face.normal.clone();
-      normal.applyMatrix3(new THREE.Matrix3().getNormalMatrix(hit.object.matrixWorld)).round();
-      return { object: hit.object, normal };
+      raycaster.setFromCamera(mouseCenter, camera); const hits = raycaster.intersectObjects(blockMeshes, false); if (!hits.length) return null;
+      const hit = hits[0]; const normal = hit.face.normal.clone(); normal.applyMatrix3(new THREE.Matrix3().getNormalMatrix(hit.object.matrixWorld)).round(); return { object: hit.object, normal };
     }
-
     function getTargetMob() {
-      const origin = camera.position.clone();
-      const dir = new THREE.Vector3();
-      camera.getWorldDirection(dir);
-      let best = null;
-      let bestDist = 3.2;
-      mobs.forEach(m => {
-        if (!m.parent || m.userData.dimension !== dimension) return;
-        const to = m.position.clone().sub(origin);
-        const dist = to.length();
-        if (dist > bestDist) return;
-        to.normalize();
-        if (dir.dot(to) > 0.84) {
-          best = m;
-          bestDist = dist;
-        }
-      });
+      const origin = camera.position.clone(), dir = new THREE.Vector3(); camera.getWorldDirection(dir); let best = null, bestDist = 3.2;
+      mobs.forEach(m => { if (!m.parent || m.userData.dimension !== dimension) return; const to = m.position.clone().sub(origin); const dist = to.length(); if (dist > bestDist) return; to.normalize(); if (dir.dot(to) > 0.84) { best = m; bestDist = dist; } });
       return best;
     }
 
-    function swingHand() {
-      heldItem.classList.remove('swing');
-      void heldItem.offsetWidth;
-      heldItem.classList.add('swing');
-      setTimeout(() => heldItem.classList.remove('swing'), 90);
-    }
+    function swingHand() { heldItem.classList.remove('swing'); void heldItem.offsetWidth; heldItem.classList.add('swing'); setTimeout(() => heldItem.classList.remove('swing'), 90); }
 
     function breakBlockOrAttack() {
       const mob = getTargetMob();
-      if (mob && mob.userData.hostile) {
-        attack();
-        return;
-      }
-      const t = getTargetBlock();
-      if (!t) return;
-      const { x, y, z, type } = t.object.userData;
-      if (y < -4 || type === 'portal') return;
-      swingHand();
-      removeBlock(x, y, z);
-      hitSound.currentTime = 0;
-      hitSound.play().catch(() => {});
+      if (mob && mob.userData.hostile) { attack(); return; }
+      const t = getTargetBlock(); if (!t) return;
+      const { x, y, z, type } = t.object.userData; if (y < 0 || isPortalType(type)) return;
+      swingHand(); removeBlock(x,y,z); hitSound.currentTime = 0; hitSound.play().catch(() => {});
     }
 
     function placeBlock() {
-      const t = getTargetBlock();
-      if (!t) return;
-      const p = t.object.position.clone().add(t.normal);
-      const x = Math.round(p.x), y = Math.round(p.y), z = Math.round(p.z);
-      const list = getCurrentBlockList();
-      swingHand();
-      addBlock(x, y, z, list[selectedBlock].key, 'custom');
-      placeSound.currentTime = 0;
-      placeSound.play().catch(() => {});
-      maybeActivatePortalAround(x, y, z);
+      const t = getTargetBlock(); if (!t) return;
+      const p = t.object.position.clone().add(t.normal); const x = Math.round(p.x), y = Math.round(p.y), z = Math.round(p.z);
+      const list = getCurrentBlockList(); swingHand(); addBlock(x,y,z,list[selectedBlock].key,'custom'); placeSound.currentTime = 0; placeSound.play().catch(() => {}); maybeActivatePortalAround(x,y,z);
     }
 
     function attack() {
-      if (player.attackCooldown > 0) return;
-      player.attackCooldown = 0.35;
-      swingHand();
-      hitSound.currentTime = 0;
-      hitSound.play().catch(() => {});
-      const mob = getTargetMob();
-      if (!mob || !mob.userData.hostile) {
-        showToast('Daneben');
-        return;
-      }
-      mob.userData.hp -= 1;
-      showToast('Treffer!');
-      if (mob.userData.hp <= 0) {
-        mobGroup.remove(mob);
-        showToast('Monster besiegt');
-      }
+      if (player.attackCooldown > 0) return; player.attackCooldown = 0.35; swingHand(); hitSound.currentTime = 0; hitSound.play().catch(() => {});
+      const mob = getTargetMob(); if (!mob || !mob.userData.hostile) { showToast('Daneben'); return; }
+      mob.userData.hp -= 1; showToast('Treffer!'); if (mob.userData.hp <= 0) { mobGroup.remove(mob); showToast('Monster besiegt'); }
     }
 
-    function isObsidianAt(x, y, z) {
-      const mesh = worldMap.get(worldKey(x, y, z));
-      return mesh && mesh.userData.type === 'obsidian';
+    function frameLooksValid(baseX, baseY, baseZ) {
+      let zOk = true;
+      for (let ix = 0; ix < PORTAL_INNER_WIDTH + 2; ix++) { if (!isObsidianAt(baseX + ix, baseY, baseZ)) zOk = false; if (!isObsidianAt(baseX + ix, baseY + PORTAL_INNER_HEIGHT + 1, baseZ)) zOk = false; }
+      for (let iy = 0; iy < PORTAL_INNER_HEIGHT + 2; iy++) { if (!isObsidianAt(baseX, baseY + iy, baseZ)) zOk = false; if (!isObsidianAt(baseX + PORTAL_INNER_WIDTH + 1, baseY + iy, baseZ)) zOk = false; }
+      if (zOk) return { axis: 'z' };
+      let xOk = true;
+      for (let iz = 0; iz < PORTAL_INNER_WIDTH + 2; iz++) { if (!isObsidianAt(baseX, baseY, baseZ + iz)) xOk = false; if (!isObsidianAt(baseX, baseY + PORTAL_INNER_HEIGHT + 1, baseZ + iz)) xOk = false; }
+      for (let iy = 0; iy < PORTAL_INNER_HEIGHT + 2; iy++) { if (!isObsidianAt(baseX, baseY + iy, baseZ)) xOk = false; if (!isObsidianAt(baseX, baseY + iy, baseZ + PORTAL_INNER_WIDTH + 1)) xOk = false; }
+      if (xOk) return { axis: 'x' };
+      return null;
     }
 
-    function isPortalAt(x, y, z) {
-      const mesh = worldMap.get(worldKey(x, y, z));
-      return mesh && mesh.userData.type === 'portal';
-    }
-
-    function fillPortalInterior(baseX, baseY, baseZ) {
+    function fillPortalInterior(baseX, baseY, baseZ, axis, portalType = 'portal') {
       for (let iy = 1; iy <= PORTAL_INNER_HEIGHT; iy++) {
-        for (let ix = 1; ix <= PORTAL_INNER_WIDTH; ix++) {
-          const x = baseX + ix;
+        for (let ii = 1; ii <= PORTAL_INNER_WIDTH; ii++) {
+          const x = axis === 'z' ? baseX + ii : baseX;
           const y = baseY + iy;
-          const z = baseZ;
-          const existing = worldMap.get(worldKey(x, y, z));
-          if (existing && existing.userData.type === 'portal') continue;
-          if (existing && existing.userData.type !== 'portal') return;
-          addBlock(x, y, z, 'portal', 'custom');
+          const z = axis === 'z' ? baseZ : baseZ + ii;
+          const existing = worldMap.get(worldKey(x,y,z));
+          if (existing && existing.userData.type === portalType) continue;
+          if (existing && !isPortalType(existing.userData.type)) return;
+          addBlock(x,y,z,portalType,'custom');
         }
       }
     }
 
-    function frameLooksValid(baseX, baseY, baseZ) {
-      for (let ix = 0; ix < PORTAL_INNER_WIDTH + 2; ix++) {
-        if (!isObsidianAt(baseX + ix, baseY, baseZ)) return false;
-        if (!isObsidianAt(baseX + ix, baseY + PORTAL_INNER_HEIGHT + 1, baseZ)) return false;
-      }
-      for (let iy = 0; iy < PORTAL_INNER_HEIGHT + 2; iy++) {
-        if (!isObsidianAt(baseX, baseY + iy, baseZ)) return false;
-        if (!isObsidianAt(baseX + PORTAL_INNER_WIDTH + 1, baseY + iy, baseZ)) return false;
-      }
-      return true;
+    function getPortalTypeFromNearbyBlock(x, y, z) {
+      const around = [];
+      for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) for (let dz = -1; dz <= 1; dz++) { const mesh = worldMap.get(worldKey(x + dx, y + dy, z + dz)); if (mesh) around.push(mesh.userData.type); }
+      if (around.includes('janis')) return 'janis_portal';
+      if (around.includes('bala')) return 'bala_portal';
+      if (around.includes('cem')) return 'cem_portal';
+      return 'portal';
     }
 
     function maybeActivatePortalAround(x, y, z) {
-      for (let bx = x - 3; bx <= x; bx++) {
-        for (let by = y - 4; by <= y; by++) {
-          for (let bz = z - 1; bz <= z + 1; bz++) {
-            if (frameLooksValid(bx, by, bz)) {
-              fillPortalInterior(bx, by, bz);
-              showToast('Portal aktiviert');
-              portalSound.currentTime = 0;
-              portalSound.play().catch(() => {});
-              return;
+      for (let bx = x - 4; bx <= x; bx++) {
+        for (let by = y - 5; by <= y; by++) {
+          for (let bz = z - 4; bz <= z + 1; bz++) {
+            const valid = frameLooksValid(bx, by, bz);
+            if (valid) {
+              const portalType = getPortalTypeFromNearbyBlock(x, y, z);
+              fillPortalInterior(bx, by, bz, valid.axis, portalType);
+              showToast(portalType === 'portal' ? 'Nether-Portal aktiviert' : 'Spezial-Portal aktiviert');
+              portalSound.currentTime = 0; portalSound.play().catch(() => {});
+              return true;
             }
           }
         }
       }
+      return false;
     }
 
-    function playerInsidePortal() {
-      const px = Math.round(player.pos.x);
-      const pyTop = Math.floor(player.pos.y - 0.2);
-      const pyBottom = Math.floor(player.pos.y - player.height + 0.4);
-      const pz = Math.round(player.pos.z);
+    function getPortalAtPlayer() {
+      const px = Math.round(player.pos.x), pz = Math.round(player.pos.z), pyTop = Math.floor(player.pos.y - 0.2), pyBottom = Math.floor(player.pos.y - player.height + 0.4);
       for (let y = pyBottom; y <= pyTop; y++) {
-        if (isPortalAt(px, y, pz)) return true;
+        const coords = [[px,y,pz],[px+1,y,pz],[px-1,y,pz],[px,y,pz+1],[px,y,pz-1]];
+        for (const [x, yy, z] of coords) {
+          const mesh = worldMap.get(worldKey(x,yy,z));
+          if (mesh && isPortalType(mesh.userData.type)) return mesh.userData.type;
+        }
       }
-      return false;
+      return null;
+    }
+
+    function portalTypeToDimension(type) {
+      if (type === 'janis_portal') return 'janis_world';
+      if (type === 'bala_portal') return 'bala_world';
+      if (type === 'cem_portal') return 'cem_world';
+      return 'nether';
     }
 
     function switchDimension(newDimension) {
       if (dimension === newDimension) return;
-      dimension = newDimension;
-      clearWorld();
-      if (dimension === 'nether') {
-        player.pos.set(8, 8, 8);
-      } else {
-        player.pos.set(0, 8, 0);
-      }
-      player.vel.set(0, 0, 0);
-      spawnInitialNpcs();
-      ensureChunksAroundPlayer();
-      updateDayNight(0);
-      showToast(dimension === 'nether' ? 'Willkommen im Nether' : 'Zurück im Overworld');
-      portalSound.currentTime = 0;
-      portalSound.play().catch(() => {});
+      dimension = newDimension; clearWorld();
+      player.pos.set(0, 8, 0); player.vel.set(0,0,0);
+      spawnInitialNpcs(); ensureChunksAroundPlayer(); updateDayNight(0);
+      showToast(`Willkommen in ${newDimension.replace('_', ' ')}`); portalSound.currentTime = 0; portalSound.play().catch(() => {});
     }
 
     function checkPortalTravel(dt) {
-      if (portalCooldown > 0) {
-        portalCooldown -= dt;
-        return;
-      }
-      if (playerInsidePortal()) {
+      if (portalCooldown > 0) { portalCooldown -= dt; return; }
+      const portalType = getPortalAtPlayer();
+      if (portalType) {
         portalCooldown = 2.0;
-        switchDimension(dimension === 'nether' ? 'overworld' : 'nether');
+        if (dimension === 'overworld') switchDimension(portalTypeToDimension(portalType));
+        else switchDimension('overworld');
       }
     }
 
     function saveWorld() {
-      const blocks = [];
-      customBlocks.forEach((type, key) => blocks.push({ key, type }));
-      const removed = [...removedBlocks];
-      localStorage.setItem(SAVE_KEY, JSON.stringify({
-        blocks,
-        removed,
-        player: { x: player.pos.x, y: player.pos.y, z: player.pos.z, yaw: player.yaw, pitch: player.pitch },
-        mode: gameMode,
-        hp,
-        worldTime,
-        difficulty,
-        dimension
-      }));
+      const blocks = []; customBlocks.forEach((type, key) => blocks.push({ key, type })); const removed = [...removedBlocks];
+      localStorage.setItem(SAVE_KEY, JSON.stringify({ blocks, removed, player: { x: player.pos.x, y: player.pos.y, z: player.pos.z, yaw: player.yaw, pitch: player.pitch }, mode: gameMode, hp, worldTime, difficulty, dimension }));
       showToast('Welt gespeichert');
     }
 
     function loadWorld() {
-      const raw = localStorage.getItem(SAVE_KEY);
-      if (!raw) return showToast('Kein Save gefunden');
+      const raw = localStorage.getItem(SAVE_KEY); if (!raw) return showToast('Kein Save gefunden');
       try {
-        const data = JSON.parse(raw);
-        clearWorld();
-        customBlocks.clear();
-        removedBlocks.clear();
-        (data.blocks || []).forEach(b => customBlocks.set(b.key, b.type));
-        (data.removed || []).forEach(r => removedBlocks.add(r));
-        dimension = data.dimension || 'overworld';
-        player.pos.set(data.player.x, data.player.y, data.player.z);
-        player.yaw = data.player.yaw;
-        player.pitch = data.player.pitch;
-        gameMode = data.mode || 'creative';
-        hp = data.hp ?? 100;
-        worldTime = data.worldTime ?? 0;
-        difficulty = data.difficulty || 'peaceful';
-        selectedBlock = 0;
-        buildHotbar();
-        buildInventory();
-        ensureChunksAroundPlayer();
-        spawnInitialNpcs();
-        updateDayNight(0);
-        showToast('Welt geladen');
-      } catch {
-        showToast('Fehler beim Laden');
-      }
+        const data = JSON.parse(raw); clearWorld(); customBlocks.clear(); removedBlocks.clear();
+        (data.blocks || []).forEach(b => customBlocks.set(b.key, b.type)); (data.removed || []).forEach(r => removedBlocks.add(r));
+        dimension = data.dimension || 'overworld'; player.pos.set(data.player.x, data.player.y, data.player.z); player.yaw = data.player.yaw; player.pitch = data.player.pitch; gameMode = data.mode || 'creative'; hp = data.hp ?? 100; worldTime = data.worldTime ?? 0; difficulty = data.difficulty || 'peaceful'; selectedBlock = 0;
+        buildHotbar(); buildInventory(); ensureChunksAroundPlayer(); spawnInitialNpcs(); updateDayNight(0); showToast('Welt geladen');
+      } catch { showToast('Fehler beim Laden'); }
     }
 
     document.addEventListener('keydown', (e) => {
       if (inventoryScreen.style.display === 'flex' && e.code !== 'KeyE') return;
       keys[e.code] = true;
       if (['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
-      const idx = Number(e.key) - 1;
-      if (idx >= 0 && idx < Math.min(getCurrentBlockList().length, 9)) {
-        selectedBlock = idx;
-        refreshHotbar();
-      }
+      const idx = Number(e.key) - 1; if (idx >= 0 && idx < Math.min(getCurrentBlockList().length, 9)) { selectedBlock = idx; refreshHotbar(); }
       if (e.code === 'KeyF') attack();
-      if (e.code === 'KeyE') {
-        e.preventDefault();
-        inventoryScreen.style.display === 'flex' ? closeInventory() : openInventory();
-      }
-      if (e.code === 'KeyK') saveWorld();
-      if (e.code === 'KeyL') loadWorld();
+      if (e.code === 'KeyE') { e.preventDefault(); inventoryScreen.style.display === 'flex' ? closeInventory() : openInventory(); }
+      if (e.code === 'KeyK') saveWorld(); if (e.code === 'KeyL') loadWorld();
     }, { passive: false });
+    document.addEventListener('keyup', (e) => { keys[e.code] = false; });
 
-    document.addEventListener('keyup', (e) => {
-      keys[e.code] = false;
-    });
-
-    renderer.domElement.addEventListener('click', () => {
-      if (started && inventoryScreen.style.display !== 'flex' && !isTouch) renderer.domElement.requestPointerLock();
-    });
-
-    document.addEventListener('pointerlockchange', () => {
-      pointerLocked = document.pointerLockElement === renderer.domElement;
-    });
-
-    document.addEventListener('mousemove', (e) => {
-      if (!pointerLocked || inventoryScreen.style.display === 'flex') return;
-      player.yaw -= e.movementX * 0.0022;
-      player.pitch -= e.movementY * 0.0022;
-      player.pitch = Math.max(-1.45, Math.min(1.45, player.pitch));
-    });
-
-    renderer.domElement.addEventListener('mousedown', (e) => {
-      if (!started || isTouch || inventoryScreen.style.display === 'flex') return;
-      if (e.button === 0) breakBlockOrAttack();
-      if (e.button === 2) placeBlock();
-      if (e.button === 1) attack();
-    });
+    renderer.domElement.addEventListener('click', () => { if (started && inventoryScreen.style.display !== 'flex' && !isTouch) renderer.domElement.requestPointerLock(); });
+    document.addEventListener('pointerlockchange', () => { pointerLocked = document.pointerLockElement === renderer.domElement; });
+    document.addEventListener('mousemove', (e) => { if (!pointerLocked || inventoryScreen.style.display === 'flex') return; player.yaw -= e.movementX * 0.0022; player.pitch -= e.movementY * 0.0022; player.pitch = Math.max(-1.45, Math.min(1.45, player.pitch)); });
+    renderer.domElement.addEventListener('mousedown', (e) => { if (!started || isTouch || inventoryScreen.style.display === 'flex') return; if (e.button === 0) breakBlockOrAttack(); if (e.button === 2) placeBlock(); if (e.button === 1) attack(); });
     renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
 
-    const touchPad = document.getElementById('touchPad');
-    const touchKnob = document.getElementById('touchKnob');
-    const lookBtn = document.getElementById('lookBtn');
-    const jumpBtn = document.getElementById('jumpBtn');
-    const breakBtn = document.getElementById('breakBtn');
-    const placeBtn = document.getElementById('placeBtn');
-    let padActive = false;
-
+    const touchPad = document.getElementById('touchPad'); const touchKnob = document.getElementById('touchKnob'); const lookBtn = document.getElementById('lookBtn'); const jumpBtn = document.getElementById('jumpBtn'); const breakBtn = document.getElementById('breakBtn'); const placeBtn = document.getElementById('placeBtn'); let padActive = false;
     function setPad(clientX, clientY) {
-      const rect = touchPad.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      let dx = clientX - cx, dy = clientY - cy;
-      const len = Math.hypot(dx, dy), max = 42;
-      if (len > max) { dx = dx / len * max; dy = dy / len * max; }
-      touchMove.x = dx / max;
-      touchMove.y = dy / max;
-      touchKnob.style.left = `${50 + dx}px`;
-      touchKnob.style.top = `${50 + dy}px`;
+      const rect = touchPad.getBoundingClientRect(); const cx = rect.left + rect.width / 2; const cy = rect.top + rect.height / 2; let dx = clientX - cx, dy = clientY - cy; const len = Math.hypot(dx, dy), max = 42; if (len > max) { dx = dx / len * max; dy = dy / len * max; } touchMove.x = dx / max; touchMove.y = dy / max; touchKnob.style.left = `${50 + dx}px`; touchKnob.style.top = `${50 + dy}px`;
     }
-
-    function resetPad() {
-      padActive = false;
-      touchMove.x = 0;
-      touchMove.y = 0;
-      touchKnob.style.left = '50px';
-      touchKnob.style.top = '50px';
-    }
-
+    function resetPad() { padActive = false; touchMove.x = 0; touchMove.y = 0; touchKnob.style.left = '50px'; touchKnob.style.top = '50px'; }
     touchPad.addEventListener('pointerdown', (e) => { padActive = true; setPad(e.clientX, e.clientY); });
-    window.addEventListener('pointermove', (e) => {
-      if (padActive) setPad(e.clientX, e.clientY);
-      if (lookActive && lookPrev) {
-        const dx = e.clientX - lookPrev.x;
-        const dy = e.clientY - lookPrev.y;
-        lookPrev = { x: e.clientX, y: e.clientY };
-        player.yaw -= dx * 0.01;
-        player.pitch -= dy * 0.01;
-        player.pitch = Math.max(-1.45, Math.min(1.45, player.pitch));
-      }
-    });
-    window.addEventListener('pointerup', () => {
-      resetPad();
-      lookActive = false;
-      lookPrev = null;
-    });
+    window.addEventListener('pointermove', (e) => { if (padActive) setPad(e.clientX, e.clientY); if (lookActive && lookPrev) { const dx = e.clientX - lookPrev.x, dy = e.clientY - lookPrev.y; lookPrev = { x: e.clientX, y: e.clientY }; player.yaw -= dx * 0.01; player.pitch -= dy * 0.01; player.pitch = Math.max(-1.45, Math.min(1.45, player.pitch)); } });
+    window.addEventListener('pointerup', () => { resetPad(); lookActive = false; lookPrev = null; });
     lookBtn.addEventListener('pointerdown', (e) => { lookActive = true; lookPrev = { x: e.clientX, y: e.clientY }; });
     jumpBtn.onclick = () => { keys['Space'] = true; setTimeout(() => keys['Space'] = false, 80); };
-    breakBtn.onclick = () => breakBlockOrAttack();
-    placeBtn.onclick = () => placeBlock();
-    lookBtn.ondblclick = () => attack();
+    breakBtn.onclick = () => breakBlockOrAttack(); placeBtn.onclick = () => placeBlock(); lookBtn.ondblclick = () => attack();
 
     function startGame(mode, diff) {
-      gameMode = mode;
-      difficulty = diff;
-      hp = 100;
-      selectedBlock = 0;
-      started = true;
-      dimension = 'overworld';
-      portalCooldown = 0;
-      clearWorld();
-      buildHotbar();
-      buildInventory();
-      ensureChunksAroundPlayer();
-      spawnInitialNpcs();
-      startScreen.style.display = 'none';
-      showToast(`${mode === 'creative' ? 'Creative' : diff === 'hard' ? 'Hard Survival' : 'Peaceful Survival'} gestartet`);
-      if (!isTouch) renderer.domElement.requestPointerLock();
+      gameMode = mode; difficulty = diff; hp = 100; selectedBlock = 0; started = true; dimension = 'overworld'; portalCooldown = 0; clearWorld(); buildHotbar(); buildInventory(); ensureChunksAroundPlayer(); spawnInitialNpcs(); startScreen.style.display = 'none'; showToast(`${mode === 'creative' ? 'Creative' : diff === 'hard' ? 'Hard Survival' : 'Peaceful Survival'} gestartet`); if (!isTouch) renderer.domElement.requestPointerLock();
     }
 
     peacefulSurvivalBtn.onclick = () => startGame('survival', 'peaceful');
     hardSurvivalBtn.onclick = () => startGame('survival', 'hard');
     creativeBtn.onclick = () => startGame('creative', 'peaceful');
 
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
+    window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
 
-    buildHotbar();
-    buildInventory();
-    ensureChunksAroundPlayer();
-    updateCamera();
-    updateHud();
-    updateDayNight(0);
+    buildHotbar(); buildInventory(); ensureChunksAroundPlayer(); updateCamera(); updateHud(); updateDayNight(0);
 
     const clock = new THREE.Clock();
     function animate() {
       requestAnimationFrame(animate);
       const dt = Math.min(clock.getDelta(), 0.033);
       if (started) {
-        movePlayer(dt);
-        updateMobs(dt);
-        updateDayNight(dt);
-        ensureChunksAroundPlayer();
-        checkPortalTravel(dt);
-        if (player.attackCooldown > 0) player.attackCooldown -= dt;
+        movePlayer(dt); updateMobs(dt); updateDayNight(dt); ensureChunksAroundPlayer(); checkPortalTravel(dt); if (player.attackCooldown > 0) player.attackCooldown -= dt;
       }
-      updateCamera();
-      renderer.render(scene, camera);
+      updateCamera(); renderer.render(scene, camera);
     }
     animate();
   </script>
