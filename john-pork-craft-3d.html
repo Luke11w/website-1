@@ -120,6 +120,20 @@
     .inv-item.active { border-color: #ffe76a; box-shadow: 0 0 12px rgba(255,231,106,0.5); }
     .inv-item img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 10px; display: block; }
     .inv-name { font-size: 12px; margin-top: 6px; }
+    #armOverlay {
+      position: fixed; right: 8px; bottom: 18px; width: 210px; height: 210px; z-index: 10; pointer-events: none;
+      opacity: 0.95; display: none;
+    }
+    #armOverlay.show { display: block; }
+    #armOverlay .arm {
+      position: absolute; right: 14px; bottom: 8px; width: 120px; height: 54px; border-radius: 22px;
+      background: linear-gradient(180deg, #f2c29a, #d79872); transform: rotate(-24deg);
+      box-shadow: 0 0 20px rgba(0,0,0,0.25);
+    }
+    #armOverlay .hand {
+      position: absolute; right: 92px; bottom: 62px; width: 44px; height: 44px; border-radius: 18px;
+      background: linear-gradient(180deg, #f7caa3, #de9f79); box-shadow: 0 0 12px rgba(0,0,0,0.22);
+    }
     #swordOverlay {
       position: fixed; right: 24px; bottom: 92px; width: 180px; height: 180px; z-index: 11; pointer-events: none;
       opacity: 0.95; transform-origin: 80% 90%; transition: transform 0.12s ease;
@@ -160,6 +174,10 @@
   <div id="crosshair"></div>
   <div id="toast"></div>
   <div id="damageFlash"></div>
+  <div id="armOverlay">
+    <div class="arm"></div>
+    <div class="hand"></div>
+  </div>
   <div id="swordOverlay">
     <div class="blade"></div>
     <div class="guard"></div>
@@ -248,6 +266,7 @@
     const hpTextEl = document.getElementById('hpText');
     const modeTextEl = document.getElementById('modeText');
     const toast = document.getElementById('toast');
+    const armOverlay = document.getElementById('armOverlay');
     const damageFlash = document.getElementById('damageFlash');
     const swordOverlay = document.getElementById('swordOverlay');
     const hitSound = document.getElementById('hitSound');
@@ -571,36 +590,75 @@
       buildPorkTotem(baseX + 14, baseZ + 14);
     }
 
+    function buildRuin(x, z) {
+      for (let dx = 0; dx < 7; dx++) {
+        for (let dz = 0; dz < 7; dz++) {
+          if (dx === 0 || dz === 0 || dx === 6 || dz === 6) addBlock(x + dx, 0, z + dz, 'stone');
+        }
+      }
+      for (let y = 1; y < 4; y++) {
+        addBlock(x, y, z, 'stone');
+        addBlock(x + 6, y, z, 'stone');
+        addBlock(x, y, z + 6, 'stone');
+        addBlock(x + 6, y, z + 6, 'stone');
+      }
+      addBlock(x + 3, 1, z + 3, 'porkcore');
+      addBlock(x + 3, 2, z + 3, 'glow');
+    }
+
+    function buildSmallCabin(x, z) {
+      for (let dx = 0; dx < 4; dx++) for (let dz = 0; dz < 4; dz++) addBlock(x + dx, 0, z + dz, 'darkwood');
+      for (let y = 1; y <= 3; y++) {
+        for (let dx = 0; dx < 4; dx++) {
+          for (let dz = 0; dz < 4; dz++) {
+            if (dx === 0 || dz === 0 || dx === 3 || dz === 3) addBlock(x + dx, y, z + dz, 'darkwood');
+          }
+        }
+      }
+      addBlock(x + 1, 1, z + 1, 'glow');
+      addBlock(x + 2, 1, z + 2, 'image1');
+    }
+
     function generateWorld() {
-      const size = 120;
+      const size = 140;
       for (let x = -size/2; x < size/2; x++) {
         for (let z = -size/2; z < size/2; z++) {
-          const n1 = Math.sin(x * 0.08) * 3;
-          const n2 = Math.cos(z * 0.07) * 3;
-          const n3 = Math.sin((x + z) * 0.05) * 2;
-          const y = Math.max(-4, Math.min(8, Math.round(n1 + n2 + n3)));
+          const n1 = Math.sin(x * 0.06) * 4;
+          const n2 = Math.cos(z * 0.065) * 4;
+          const n3 = Math.sin((x + z) * 0.035) * 3;
+          const n4 = Math.cos((x - z) * 0.02) * 2;
+          const y = Math.max(-5, Math.min(11, Math.round(n1 + n2 + n3 + n4)));
           let topType = 'grass';
           if (y <= -1) topType = 'sand';
-          if (y >= 6) topType = 'snow';
-          if (x > -50 && x < -25 && z > -50 && z < -25) topType = 'sand';
-          if (x > 35 && x < 58 && z > -48 && z < -25) topType = 'snow';
-          for (let yy = -6; yy < y; yy++) {
+          if (y >= 7) topType = 'snow';
+          if (x > -58 && x < -28 && z > -58 && z < -30) topType = 'sand';
+          if (x > 36 && x < 70 && z > -60 && z < -26) topType = 'snow';
+          if (x > -8 && x < 18 && z > 38 && z < 62) topType = 'grass2';
+          for (let yy = -7; yy < y; yy++) {
             let type = yy === y - 1 ? topType : yy > y - 4 ? 'dirt' : 'stone';
             if (topType === 'sand' && yy === y - 1) type = 'sand';
             if (topType === 'snow' && yy === y - 1) type = 'snow';
+            if (topType === 'grass2' && yy === y - 1) type = 'grass2';
             addBlock(x, yy, z, type);
           }
-          if (x > -28 && x < -10 && z > -28 && z < -10 && y <= 0) addBlock(x, y, z, 'water');
-          if (x > 44 && x < 52 && z > 40 && z < 48 && y >= 2) addBlock(x, y, z, 'lava');
+          if (x > -34 && x < -10 && z > -34 && z < -10 && y <= 0) addBlock(x, y, z, 'water');
+          if (x > 46 && x < 58 && z > 42 && z < 54 && y >= 2) addBlock(x, y, z, 'lava');
+          if (x > 52 && x < 62 && z > 12 && z < 22 && y <= 1) addBlock(x, y, z, 'ice');
         }
       }
-      for (let i = 0; i < 80; i++) {
-        const tx = Math.floor(Math.random() * 90) - 45;
-        const tz = Math.floor(Math.random() * 90) - 45;
-        if (tx > 14 && tx < 48 && tz > 10 && tz < 42) continue;
+      for (let i = 0; i < 120; i++) {
+        const tx = Math.floor(Math.random() * 110) - 55;
+        const tz = Math.floor(Math.random() * 110) - 55;
+        if (tx > 14 && tx < 50 && tz > 10 && tz < 44) continue;
+        if (tx > -12 && tx < 22 && tz > 34 && tz < 66) continue;
         buildTree(tx, tz, 0);
       }
       buildVillage();
+      buildVillage(-42, 26);
+      buildRuin(-26, -18);
+      buildRuin(48, 28);
+      buildSmallCabin(8, 48);
+      buildSmallCabin(-52, -6);
       buildTower(-30, 20);
       buildTower(45, -32);
       buildPorkTotem(-20, 30);
@@ -721,15 +779,18 @@
 
     function movePlayer(dt) {
       const dir = new THREE.Vector3();
-      const forward = new THREE.Vector3(Math.cos(player.yaw), 0, Math.sin(player.yaw));
-      const right = new THREE.Vector3(-Math.sin(player.yaw), 0, Math.cos(player.yaw));
+      const camForward = new THREE.Vector3();
+      camera.getWorldDirection(camForward);
+      camForward.y = 0;
+      camForward.normalize();
+      const right = new THREE.Vector3().crossVectors(camForward, new THREE.Vector3(0, 1, 0)).normalize().negate();
 
-      if (keys['KeyW'] || keys['ArrowUp']) dir.add(forward);
-      if (keys['KeyS'] || keys['ArrowDown']) dir.sub(forward);
+      if (keys['KeyW'] || keys['ArrowUp']) dir.add(camForward);
+      if (keys['KeyS'] || keys['ArrowDown']) dir.sub(camForward);
       if (keys['KeyA'] || keys['ArrowLeft']) dir.sub(right);
       if (keys['KeyD'] || keys['ArrowRight']) dir.add(right);
-      if (touchMove.y < -0.18) dir.add(forward);
-      if (touchMove.y > 0.18) dir.sub(forward);
+      if (touchMove.y < -0.18) dir.add(camForward);
+      if (touchMove.y > 0.18) dir.sub(camForward);
       if (touchMove.x < -0.18) dir.sub(right);
       if (touchMove.x > 0.18) dir.add(right);
 
@@ -872,6 +933,9 @@
       if (!t) return;
       const { x, y, z } = t.object.userData;
       if (y < -4) return;
+      armOverlay.classList.add('show');
+      armOverlay.style.transform = 'translateY(-6px) rotate(-10deg)';
+      setTimeout(() => { armOverlay.style.transform = ''; }, 120);
       removeBlock(x, y, z);
       hitSound.currentTime = 0;
       hitSound.play().catch(() => {});
@@ -1082,6 +1146,7 @@
       buildInventory();
       started = true;
       swordOverlay.classList.add('show');
+      armOverlay.classList.add('show');
       startScreen.style.display = 'none';
       showToast('Survival gestartet');
       if (!isTouch) renderer.domElement.requestPointerLock();
@@ -1095,6 +1160,7 @@
       buildInventory();
       started = true;
       swordOverlay.classList.add('show');
+      armOverlay.classList.add('show');
       startScreen.style.display = 'none';
       showToast('Creative gestartet');
       if (!isTouch) renderer.domElement.requestPointerLock();
