@@ -1,8 +1,9 @@
+<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>John Pork Craft 3D Ultra Plus</title>
+  <title>John Pork Craft 3D Ultra Deluxe</title>
   <style>
     * { box-sizing: border-box; }
     html, body { margin: 0; height: 100%; overflow: hidden; font-family: Arial, sans-serif; }
@@ -21,7 +22,7 @@
       pointer-events: auto;
     }
     .panel {
-      background: rgba(0,0,0,0.45); backdrop-filter: blur(8px);
+      background: rgba(0,0,0,0.48); backdrop-filter: blur(8px);
       border: 1px solid rgba(255,255,255,0.15); border-radius: 16px;
       padding: 10px 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.25);
     }
@@ -46,7 +47,7 @@
     #hotbar {
       display: flex; gap: 8px; background: rgba(0,0,0,0.45); border-radius: 16px;
       padding: 8px; border: 1px solid rgba(255,255,255,0.15); flex-wrap: wrap;
-      max-width: min(100%, 900px);
+      max-width: min(100%, 980px);
     }
     .slot {
       width: 56px; height: 56px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.15);
@@ -59,22 +60,22 @@
       position: absolute; right: 5px; bottom: 3px; font-size: 11px; font-weight: 700;
       color: white; text-shadow: 0 0 4px black;
     }
-    #help {
-      max-width: 390px; font-size: 13px; line-height: 1.45;
-    }
-    #startScreen {
+    #help { max-width: 420px; font-size: 13px; line-height: 1.45; }
+    #startScreen, #inventoryScreen {
       position: fixed; inset: 0; z-index: 20;
       display: flex; align-items: center; justify-content: center;
-      background: radial-gradient(circle at center, rgba(0,0,0,0.35), rgba(0,0,0,0.82));
+      background: radial-gradient(circle at center, rgba(0,0,0,0.35), rgba(0,0,0,0.84));
       padding: 16px;
     }
-    .startBox {
-      width: min(92vw, 860px); background: rgba(0,0,0,0.55); backdrop-filter: blur(10px);
+    #inventoryScreen { display: none; z-index: 25; }
+    .startBox, .inventoryBox {
+      width: min(94vw, 980px); background: rgba(0,0,0,0.58); backdrop-filter: blur(10px);
       border-radius: 24px; border: 1px solid rgba(255,255,255,0.16);
       padding: 22px; box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+      max-height: 92vh; overflow: auto;
     }
-    .startBox h1 { margin: 0 0 10px; font-size: clamp(28px, 5vw, 48px); }
-    .startBox p { margin: 8px 0; line-height: 1.5; }
+    .startBox h1, .inventoryBox h2 { margin: 0 0 10px; font-size: clamp(28px, 5vw, 48px); }
+    .startBox p, .inventoryBox p { margin: 8px 0; line-height: 1.5; }
     .row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
     button {
       appearance: none; border: none; border-radius: 14px; padding: 13px 18px;
@@ -109,10 +110,48 @@
       max-width: min(90vw, 420px); text-align: center;
     }
     #toast.show { opacity: 1; }
+    .inv-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 10px; margin-top: 14px;
+    }
+    .inv-item {
+      background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.14); border-radius: 16px;
+      padding: 8px; text-align: center; cursor: pointer;
+    }
+    .inv-item.active { border-color: #ffe76a; box-shadow: 0 0 12px rgba(255,231,106,0.5); }
+    .inv-item img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 10px; display: block; }
+    .inv-name { font-size: 12px; margin-top: 6px; }
+    #swordOverlay {
+      position: fixed; right: 24px; bottom: 92px; width: 180px; height: 180px; z-index: 11; pointer-events: none;
+      opacity: 0.95; transform-origin: 80% 90%; transition: transform 0.12s ease;
+      display: none;
+    }
+    #swordOverlay.show { display: block; }
+    #swordOverlay.attack { transform: rotate(-28deg) translate(-12px, -8px); }
+    #swordOverlay .blade {
+      position: absolute; right: 64px; bottom: 42px; width: 22px; height: 108px; border-radius: 8px;
+      background: linear-gradient(180deg, #f5f8ff, #9fc8ff); box-shadow: 0 0 14px rgba(180,220,255,0.65);
+    }
+    #swordOverlay .guard {
+      position: absolute; right: 48px; bottom: 40px; width: 56px; height: 12px; border-radius: 8px;
+      background: linear-gradient(90deg, #ffd700, #ff9900);
+    }
+    #swordOverlay .handle {
+      position: absolute; right: 63px; bottom: 0; width: 18px; height: 48px; border-radius: 8px;
+      background: linear-gradient(180deg, #4a2a18, #2a1309);
+    }
+    #damageFlash {
+      position: fixed; inset: 0; background: rgba(255, 0, 0, 0.24); z-index: 13; pointer-events: none; opacity: 0;
+      transition: opacity 0.12s ease;
+    }
+    #damageFlash.show { opacity: 1; }
     @media (max-width: 900px) {
       #help { max-width: 100%; }
       #touchControls { display: block; }
       .slot { width: 50px; height: 50px; }
+      #swordOverlay { width: 130px; height: 130px; right: 14px; bottom: 94px; }
+      #swordOverlay .blade { width: 16px; height: 80px; right: 48px; bottom: 30px; }
+      #swordOverlay .guard { width: 44px; right: 34px; bottom: 28px; }
+      #swordOverlay .handle { width: 14px; height: 36px; right: 49px; }
     }
   </style>
 </head>
@@ -120,11 +159,17 @@
   <div id="game"></div>
   <div id="crosshair"></div>
   <div id="toast"></div>
+  <div id="damageFlash"></div>
+  <div id="swordOverlay">
+    <div class="blade"></div>
+    <div class="guard"></div>
+    <div class="handle"></div>
+  </div>
 
   <div id="hud">
     <div class="topbar">
       <div class="panel">
-        <div class="title">⛏️ John Pork Craft 3D Ultra Plus</div>
+        <div class="title">⛏️ John Pork Craft 3D Ultra Deluxe</div>
       </div>
       <div class="panel stats">
         <div class="stat"><div class="label">Block</div><div class="value" id="blockName">Grass</div></div>
@@ -139,7 +184,7 @@
     <div class="bottom">
       <div id="hotbar"></div>
       <div class="panel" id="help">
-        <b>PC:</b> W vorwärts, A links, S rückwärts, D rechts, Pfeiltasten auch möglich, Maus schauen, Linksklick abbauen, Rechtsklick setzen, Leertaste springen, Shift runter, F angreifen. <br>
+        <b>PC:</b> W vorwärts, A links, S rückwärts, D rechts, Pfeiltasten auch, Maus schauen, Linksklick abbauen, Rechtsklick setzen, Leertaste springen, Shift runter, F angreifen, E Inventar, K speichern, L laden. <br>
         <b>Handy:</b> links laufen, rechts schauen, Buttons zum Springen / Abbauen / Setzen.
       </div>
     </div>
@@ -157,9 +202,9 @@
 
   <div id="startScreen">
     <div class="startBox">
-      <h1>🐷 John Pork Craft 3D Ultra Plus</h1>
-      <p>Jetzt mit <b>größerer Welt, besserer Steuerung, mehr Blöcken, Tag/Nacht, Dorf, NPCs, Pork-Monstern, HP und Angriff</b>.</p>
-      <p class="warn">Es ist weiter eine Browser-Version für GitHub Pages. Nicht das originale Minecraft Java, aber jetzt deutlich näher an einem richtigen kleinen Craft-Spiel.</p>
+      <h1>🐷 John Pork Craft 3D Ultra Deluxe</h1>
+      <p>Jetzt mit <b>größerer Welt, besserer Steuerung, mehr Blöcken, Tag/Nacht, Dorf, NPCs, Pork-Monstern, HP, Angriff, Inventar und Welt speichern/laden</b>.</p>
+      <p class="warn">Immer noch eine Browser-Version für GitHub Pages. Nicht das originale Minecraft Java, aber deutlich näher an einem richtigen kleinen Craft-Spiel.</p>
       <div class="row">
         <button id="survivalBtn">⚔️ Survival starten</button>
         <button id="creativeBtn">🧱 Creative starten</button>
@@ -167,12 +212,34 @@
     </div>
   </div>
 
+  <div id="inventoryScreen">
+    <div class="inventoryBox">
+      <h2>🎒 Inventar</h2>
+      <p>Block auswählen. In Creative sind alle Blöcke sichtbar, in Survival eine kleinere Auswahl.</p>
+      <div class="row">
+        <button id="closeInvBtn">Schließen</button>
+      </div>
+      <div class="inv-grid" id="inventoryGrid"></div>
+    </div>
+  </div>
+
+  <audio id="hitSound">
+    <source src="https://www.soundjay.com/button/beep-07.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="placeSound">
+    <source src="https://www.soundjay.com/button/button-16.mp3" type="audio/mpeg">
+  </audio>
+
   <script type="module">
     import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
+    const SAVE_KEY = 'johnPorkCraftUltraWorldV1';
+
     const game = document.getElementById('game');
     const startScreen = document.getElementById('startScreen');
-    const startBtn = document.getElementById('startBtn');
+    const inventoryScreen = document.getElementById('inventoryScreen');
+    const inventoryGrid = document.getElementById('inventoryGrid');
+    const closeInvBtn = document.getElementById('closeInvBtn');
     const hotbar = document.getElementById('hotbar');
     const blockNameEl = document.getElementById('blockName');
     const posTextEl = document.getElementById('posText');
@@ -180,9 +247,13 @@
     const mobTextEl = document.getElementById('mobText');
     const hpTextEl = document.getElementById('hpText');
     const modeTextEl = document.getElementById('modeText');
+    const toast = document.getElementById('toast');
+    const damageFlash = document.getElementById('damageFlash');
+    const swordOverlay = document.getElementById('swordOverlay');
+    const hitSound = document.getElementById('hitSound');
+    const placeSound = document.getElementById('placeSound');
     const survivalBtn = document.getElementById('survivalBtn');
     const creativeBtn = document.getElementById('creativeBtn');
-    const toast = document.getElementById('toast');
 
     const isTouch = ('ontouchstart' in window) || window.matchMedia('(max-width: 900px)').matches;
 
@@ -243,6 +314,14 @@
       brick: colorMat(0xb2442f),
       obsidian: colorMat(0x26143a),
       glow: colorMat(0xb8fff5),
+      grass2: colorMat(0x3f8f3a),
+      snow: colorMat(0xf4f8ff),
+      lava: colorMat(0xff5a00),
+      emerald: colorMat(0x00d26a),
+      ice: colorMat(0xa8ecff),
+      darkwood: colorMat(0x4f2f19),
+      clay: colorMat(0x9ab0bf),
+      porkcore: colorMat(0xff80aa),
       screenshot1: loadTex('Screenshot 2026-03-20 125829.png'),
       screenshot2: loadTex('Screenshot 2026-03-20 155545.png'),
       screenshot3: loadTex('Screenshot 2026-03-20 181111.png'),
@@ -267,21 +346,21 @@
       { key: 'brick', label: 'Brick', mat: materials.brick },
       { key: 'obsidian', label: 'Obsidian', mat: materials.obsidian },
       { key: 'glow', label: 'Glow', mat: materials.glow },
+      { key: 'grass2', label: 'Moss', mat: materials.grass2 },
+      { key: 'snow', label: 'Snow', mat: materials.snow },
+      { key: 'lava', label: 'Lava', mat: materials.lava },
+      { key: 'emerald', label: 'Emerald', mat: materials.emerald },
+      { key: 'ice', label: 'Ice', mat: materials.ice },
+      { key: 'darkwood', label: 'Dark Wood', mat: materials.darkwood },
+      { key: 'clay', label: 'Clay', mat: materials.clay },
+      { key: 'porkcore', label: 'Pork Core', mat: materials.porkcore },
       { key: 'screenshot1', label: 'Screenshot 1', mat: materials.screenshot1 },
       { key: 'screenshot2', label: 'Screenshot 2', mat: materials.screenshot2 },
       { key: 'screenshot3', label: 'Screenshot 3', mat: materials.screenshot3 },
       { key: 'image1', label: 'Image 1', mat: materials.image1 },
       { key: 'image2', label: 'Image 10', mat: materials.image2 },
       { key: 'bala', label: 'Bala', mat: materials.bala },
-      { key: 'janis', label: 'Janis', mat: materials.janis },
-      { key: 'grass2', label: 'Moss', mat: colorMat(0x3f8f3a) },
-      { key: 'snow', label: 'Snow', mat: colorMat(0xf4f8ff) },
-      { key: 'lava', label: 'Lava', mat: colorMat(0xff5a00) },
-      { key: 'emerald', label: 'Emerald', mat: colorMat(0x00d26a) },
-      { key: 'ice', label: 'Ice', mat: colorMat(0xa8ecff) },
-      { key: 'darkwood', label: 'Dark Wood', mat: colorMat(0x4f2f19) },
-      { key: 'clay', label: 'Clay', mat: colorMat(0x9ab0bf) },
-      { key: 'porkcore', label: 'Pork Core', mat: colorMat(0xff80aa) }
+      { key: 'janis', label: 'Janis', mat: materials.janis }
     ];
 
     let selectedBlock = 0;
@@ -296,6 +375,10 @@
       showToast._t = setTimeout(() => toast.classList.remove('show'), 1500);
     }
 
+    function getCurrentBlockList() {
+      return gameMode === 'creative' ? blockTypes : blockTypes.slice(0, 14);
+    }
+
     function updateHud() {
       const list = getCurrentBlockList();
       blockNameEl.textContent = list[selectedBlock]?.label || blockTypes[0].label;
@@ -303,10 +386,6 @@
       modeTextEl.textContent = gameMode === 'creative' ? 'Creative' : 'Survival';
       posTextEl.textContent = `${player.pos.x.toFixed(1)}, ${player.pos.y.toFixed(1)}, ${player.pos.z.toFixed(1)}`;
       mobTextEl.textContent = String(mobs.filter(m => m.parent).length);
-    }
-
-    function getCurrentBlockList() {
-      return gameMode === 'creative' ? blockTypes : blockTypes.slice(0, 12);
     }
 
     function buildHotbar() {
@@ -341,16 +420,63 @@
         hotbar.appendChild(slot);
       });
       refreshHotbar();
-    };
-        hotbar.appendChild(slot);
+    }
+
+    function buildInventory() {
+      inventoryGrid.innerHTML = '';
+      const visibleBlocks = getCurrentBlockList();
+      visibleBlocks.forEach((b, i) => {
+        const item = document.createElement('div');
+        item.className = 'inv-item' + (i === selectedBlock ? ' active' : '');
+        const img = document.createElement('img');
+        if (b.key.startsWith('screenshot') || b.key.startsWith('image') || b.key === 'bala' || b.key === 'janis') {
+          img.src = encodeURI(
+            b.key === 'screenshot1' ? 'Screenshot 2026-03-20 125829.png' :
+            b.key === 'screenshot2' ? 'Screenshot 2026-03-20 155545.png' :
+            b.key === 'screenshot3' ? 'Screenshot 2026-03-20 181111.png' :
+            b.key === 'image1' ? 'Image (1).jpg' :
+            b.key === 'image2' ? 'Image (10).jpg' :
+            b.key === 'bala' ? 'Image (40).jpg' : 'Image (41).jpg'
+          );
+        } else {
+          const canvas = document.createElement('canvas');
+          canvas.width = 64; canvas.height = 64;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#' + b.mat.color.getHexString();
+          ctx.fillRect(0,0,64,64);
+          img.src = canvas.toDataURL();
+        }
+        item.appendChild(img);
+        const name = document.createElement('div');
+        name.className = 'inv-name';
+        name.textContent = b.label;
+        item.appendChild(name);
+        item.onclick = () => {
+          selectedBlock = i;
+          refreshHotbar();
+          buildInventory();
+        };
+        inventoryGrid.appendChild(item);
       });
-      refreshHotbar();
     }
 
     function refreshHotbar() {
       [...hotbar.children].forEach((c, i) => c.classList.toggle('active', i === selectedBlock));
       updateHud();
     }
+
+    function openInventory() {
+      buildInventory();
+      inventoryScreen.style.display = 'flex';
+      if (document.pointerLockElement) document.exitPointerLock();
+    }
+
+    function closeInventory() {
+      inventoryScreen.style.display = 'none';
+      if (started && !isTouch) renderer.domElement.requestPointerLock();
+    }
+
+    closeInvBtn.onclick = closeInventory;
 
     function key(x, y, z) { return `${x},${y},${z}`; }
 
@@ -379,7 +505,7 @@
 
     function buildTree(x, z, baseY) {
       const h = 3 + Math.floor(Math.random() * 3);
-      for (let i = 1; i <= h; i++) addBlock(x, baseY + i, z, 'wood');
+      for (let i = 1; i <= h; i++) addBlock(x, baseY + i, z, Math.random() < 0.2 ? 'darkwood' : 'wood');
       for (let lx = -2; lx <= 2; lx++) {
         for (let lz = -2; lz <= 2; lz++) {
           for (let ly = h - 1; ly <= h + 1; ly++) {
@@ -408,6 +534,8 @@
         }
       }
       addBlock(x + 2, 1, z + 2, centerType);
+      addBlock(x + 1, 1, z + 1, 'glow');
+      addBlock(x + 3, 1, z + 3, 'brick');
     }
 
     function buildTower(x, z) {
@@ -668,9 +796,14 @@
       if (player.pos.y < -30) {
         player.pos.set(0, 6, 8);
         player.vel.set(0, 0, 0);
-        hp = Math.max(10, hp - 10);
+        if (gameMode === 'survival') hp = Math.max(10, hp - 10);
         showToast('Du bist gefallen');
       }
+    }
+
+    function flashDamage() {
+      damageFlash.classList.add('show');
+      setTimeout(() => damageFlash.classList.remove('show'), 120);
     }
 
     function updateMobs(dt) {
@@ -692,6 +825,7 @@
             hp -= 8;
             m.userData.cooldown = 1.0;
             showToast('Pork-Monster trifft dich');
+            flashDamage();
             if (hp <= 0) {
               hp = 100;
               player.pos.set(0, 6, 8);
@@ -739,6 +873,8 @@
       const { x, y, z } = t.object.userData;
       if (y < -4) return;
       removeBlock(x, y, z);
+      hitSound.currentTime = 0;
+      hitSound.play().catch(() => {});
     }
 
     function placeBlock() {
@@ -753,11 +889,16 @@
       if (inPlayer) return;
       const list = getCurrentBlockList();
       addBlock(x, y, z, list[selectedBlock].key);
+      placeSound.currentTime = 0;
+      placeSound.play().catch(() => {});
     }
 
     function attack() {
       if (player.attackCooldown > 0) return;
       player.attackCooldown = 0.4;
+      swordOverlay.classList.add('show', 'attack');
+      setTimeout(() => swordOverlay.classList.remove('attack'), 120);
+      setTimeout(() => { if (started) swordOverlay.classList.add('show'); }, 160);
       const origin = camera.position.clone();
       const dir = new THREE.Vector3();
       camera.getWorldDirection(dir);
@@ -777,39 +918,106 @@
       });
       if (bestMob) {
         bestMob.userData.hp -= 1;
+        hitSound.currentTime = 0;
+        hitSound.play().catch(() => {});
         showToast('Treffer!');
         if (bestMob.userData.hp <= 0) {
           mobGroup.remove(bestMob);
           showToast('Monster besiegt');
         }
+      } else {
+        showToast('Daneben');
+      }
+    }
+
+    function saveWorld() {
+      const blocks = [];
+      worldMap.forEach(mesh => {
+        blocks.push({ x: mesh.userData.x, y: mesh.userData.y, z: mesh.userData.z, type: mesh.userData.type });
+      });
+      const data = {
+        blocks,
+        player: { x: player.pos.x, y: player.pos.y, z: player.pos.z, yaw: player.yaw, pitch: player.pitch },
+        mode: gameMode,
+        worldTime,
+        hp
+      };
+      localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+      showToast('Welt gespeichert');
+    }
+
+    function clearWorldMeshes() {
+      while (blockMeshes.length) {
+        const mesh = blockMeshes.pop();
+        if (mesh.parent) mesh.parent.remove(mesh);
+      }
+      worldMap.clear();
+      while (mobs.length) {
+        const mob = mobs.pop();
+        if (mob.parent) mob.parent.remove(mob);
+      }
+    }
+
+    function loadWorld() {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) {
+        showToast('Kein Save gefunden');
+        return;
+      }
+      try {
+        const data = JSON.parse(raw);
+        clearWorldMeshes();
+        (data.blocks || []).forEach(b => addBlock(b.x, b.y, b.z, b.type));
+        spawnVillageNpcs();
+        gameMode = data.mode || 'creative';
+        hp = data.hp ?? 100;
+        worldTime = data.worldTime ?? 0;
+        if (data.player) {
+          player.pos.set(data.player.x, data.player.y, data.player.z);
+          player.yaw = data.player.yaw;
+          player.pitch = data.player.pitch;
+        }
+        selectedBlock = 0;
+        buildHotbar();
+        buildInventory();
+        showToast('Welt geladen');
+      } catch {
+        showToast('Fehler beim Laden');
       }
     }
 
     document.addEventListener('keydown', (e) => {
+      if (inventoryScreen.style.display === 'flex' && e.code !== 'KeyE') return;
       keys[e.code] = true;
       if (['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
       const idx = Number(e.key) - 1;
       if (idx >= 0 && idx < Math.min(getCurrentBlockList().length, 9)) { selectedBlock = idx; refreshHotbar(); }
       if (e.code === 'KeyF') attack();
+      if (e.code === 'KeyE') {
+        e.preventDefault();
+        if (inventoryScreen.style.display === 'flex') closeInventory(); else openInventory();
+      }
+      if (e.code === 'KeyK') saveWorld();
+      if (e.code === 'KeyL') loadWorld();
     }, { passive: false });
     document.addEventListener('keyup', (e) => { keys[e.code] = false; });
 
     renderer.domElement.addEventListener('click', () => {
-      if (!started) return;
+      if (!started || inventoryScreen.style.display === 'flex') return;
       if (!isTouch) renderer.domElement.requestPointerLock();
     });
     document.addEventListener('pointerlockchange', () => {
       pointerLocked = document.pointerLockElement === renderer.domElement;
     });
     document.addEventListener('mousemove', (e) => {
-      if (!pointerLocked) return;
+      if (!pointerLocked || inventoryScreen.style.display === 'flex') return;
       player.yaw -= e.movementX * 0.0022;
       player.pitch -= e.movementY * 0.0022;
       player.pitch = Math.max(-1.45, Math.min(1.45, player.pitch));
     });
 
     renderer.domElement.addEventListener('mousedown', (e) => {
-      if (!started || isTouch) return;
+      if (!started || isTouch || inventoryScreen.style.display === 'flex') return;
       if (e.button === 0) breakBlock();
       if (e.button === 2) placeBlock();
       if (e.button === 1) attack();
@@ -871,7 +1079,9 @@
       hp = 100;
       selectedBlock = 0;
       buildHotbar();
+      buildInventory();
       started = true;
+      swordOverlay.classList.add('show');
       startScreen.style.display = 'none';
       showToast('Survival gestartet');
       if (!isTouch) renderer.domElement.requestPointerLock();
@@ -882,7 +1092,9 @@
       hp = 100;
       selectedBlock = 0;
       buildHotbar();
+      buildInventory();
       started = true;
+      swordOverlay.classList.add('show');
       startScreen.style.display = 'none';
       showToast('Creative gestartet');
       if (!isTouch) renderer.domElement.requestPointerLock();
@@ -895,9 +1107,11 @@
     });
 
     buildHotbar();
+    buildInventory();
     generateWorld();
     spawnVillageNpcs();
     updateCamera();
+    updateHud();
 
     const clock = new THREE.Clock();
     function animate() {
