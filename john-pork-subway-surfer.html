@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>John Pork Subway Surfer</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; overflow: hidden; font-family: Arial, sans-serif; background: #111; }
+    body { color: white; }
+    #gameWrap {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(180deg, #62c6ff 0%, #dff7ff 30%, #3a3a3a 30%, #121212 100%);
+    }
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      touch-action: none;
+    }
+    .hud {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 14px;
+    }
+    .top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .panel {
+      background: rgba(0,0,0,0.45);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      padding: 10px 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+    }
+    .title {
+      font-size: 22px;
+      font-weight: 800;
+    }
+    .stats {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .stat-label {
+      font-size: 11px;
+      opacity: 0.8;
+    }
+    .stat-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ffe65a;
+    }
+    .bottom {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: end;
+      flex-wrap: wrap;
+    }
+    .help {
+      max-width: 520px;
+      line-height: 1.4;
+      font-size: 13px;
+    }
+    .btnRow {
+      display: flex;
+      gap: 10px;
+      pointer-events: auto;
+      flex-wrap: wrap;
+    }
+    button {
+      appearance: none;
+      border: none;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #ffe600, #ffae00);
+      color: #111;
+      cursor: pointer;
+    }
+    #startScreen, #gameOverScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.72);
+      padding: 16px;
+    }
+    #gameOverScreen { display: none; }
+    .box {
+      width: min(94vw, 760px);
+      background: rgba(0,0,0,0.62);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(10px);
+      border-radius: 28px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(32px, 5vw, 52px);
+    }
+    p {
+      font-size: clamp(16px, 2.2vw, 20px);
+      line-height: 1.55;
+    }
+    .touchControls {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 12px;
+      z-index: 12;
+      display: none;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .touchPad {
+      display: grid;
+      grid-template-columns: repeat(3, 68px);
+      gap: 10px;
+      pointer-events: auto;
+    }
+    .touchBtn {
+      width: 68px;
+      height: 68px;
+      border-radius: 18px;
+      background: rgba(0,0,0,0.42);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: white;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+    .touchBtn.empty {
+      opacity: 0;
+      pointer-events: none;
+    }
+    @media (max-width: 900px) {
+      .touchControls { display: flex; }
+      .help { max-width: 100%; }
+      .title { font-size: 18px; }
+      .stat-value { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="gameWrap">
+    <canvas id="gameCanvas"></canvas>
+  </div>
+
+  <div class="hud">
+    <div class="top">
+      <div class="panel title">🐷 John Pork Subway Surfer</div>
+      <div class="panel stats">
+        <div>
+          <div class="stat-label">Score</div>
+          <div class="stat-value" id="scoreText">0</div>
+        </div>
+        <div>
+          <div class="stat-label">Best</div>
+          <div class="stat-value" id="bestText">0</div>
+        </div>
+        <div>
+          <div class="stat-label">Speed</div>
+          <div class="stat-value" id="speedText">1.0x</div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom">
+      <div class="panel help">
+        <b>Steuerung:</b> A / ← links, D / → rechts, W / ↑ / Leertaste springen, S / ↓ rutschen.
+      </div>
+      <div class="btnRow">
+        <button id="restartBtn">🔁 Neustart</button>
+        <button id="homeBtn">🏠 Home</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="startScreen">
+    <div class="box">
+      <h1>🚇 JOHN PORK SUBWAY SURFER</h1>
+      <p>Weiche Zügen, Barrikaden und Absperrungen aus, sammle Coins und lauf so weit du kannst.</p>
+      <p>Das Spiel ist extra auf <b>PC und Handy</b> gemacht.</p>
+      <div class="btnRow" style="justify-content:center; margin-top: 12px;">
+        <button id="startBtn">▶️ Starten</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="gameOverScreen">
+    <div class="box">
+      <h1>💥 Game Over</h1>
+      <p id="finalScoreText">Dein Score: 0</p>
+      <div class="btnRow" style="justify-content:center; margin-top: 12px;">
+        <button id="playAgainBtn">🔥 Nochmal</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="touchControls">
+    <div class="touchPad">
+      <div class="touchBtn" data-action="left">◀</div>
+      <div class="touchBtn" data-action="jump">▲</div>
+      <div class="touchBtn" data-action="right">▶</div>
+      <div class="touchBtn empty"></div>
+      <div class="touchBtn" data-action="slide">▼</div>
+      <div class="touchBtn empty"></div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const scoreText = document.getElementById('scoreText');
+    const bestText = document.getElementById('bestText');
+    const speedText = document.getElementById('speedText');
+    const startScreen = document.getElementById('startScreen');
+    const gameOverScreen = document.getElementById('gameOverScreen');
+    const finalScoreText = document.getElementById('finalScoreText');
+    const startBtn = document.getElementById('startBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const playAgainBtn = document.getElementById('playAgainBtn');
+    const homeBtn = document.getElementById('homeBtn');
+
+    let width = 0;
+    let height = 0;
+    let roadWidth = 0;
+    let laneWidth = 0;
+    let horizonY = 0;
+
+    const LANES = [-1, 0, 1];
+    const keys = new Set();
+    let gameRunning = false;
+    let gameOver = false;
+    let score = 0;
+    let distance = 0;
+    let coins = 0;
+    let speed = 8;
+    let worldOffset = 0;
+    let bestScore = Number(localStorage.getItem('johnPorkSubwayBest') || 0);
+    bestText.textContent = bestScore;
+
+    const player = {
+      lane: 0,
+      x: 0,
+      y: 0,
+      width: 54,
+      height: 82,
+      baseY: 0,
+      vy: 0,
+      isJumping: false,
+      isSliding: false,
+      slideTimer: 0,
+      invulnerable: 0
+    };
+
+    const obstacles = [];
+    const coinsList = [];
+    const deco = [];
+    let spawnTimer = 0;
+    let coinTimer = 0;
+    let decoTimer = 0;
+
+    function resize() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+      roadWidth = Math.min(width * 0.7, 520);
+      laneWidth = roadWidth / 3;
+      horizonY = height * 0.28;
+      player.baseY = height - 138;
+      if (!gameRunning) {
+        player.y = player.baseY;
+      }
+    }
+
+    function laneCenter(lane) {
+      return width / 2 + lane * laneWidth;
+    }
+
+    function resetGame() {
+      score = 0;
+      distance = 0;
+      coins = 0;
+      speed = 8;
+      worldOffset = 0;
+      spawnTimer = 0;
+      coinTimer = 0;
+      decoTimer = 0;
+      obstacles.length = 0;
+      coinsList.length = 0;
+      deco.length = 0;
+      player.lane = 0;
+      player.x = laneCenter(0);
+      player.y = player.baseY;
+      player.vy = 0;
+      player.isJumping = false;
+      player.isSliding = false;
+      player.slideTimer = 0;
+      player.invulnerable = 0;
+      gameOver = false;
+      updateHud();
+    }
+
+    function startGame() {
+      resetGame();
+      gameRunning = true;
+      startScreen.style.display = 'none';
+      gameOverScreen.style.display = 'none';
+    }
+
+    function endGame() {
+      gameRunning = false;
+      gameOver = true;
+      if (score > bestScore) {
+        bestScore = Math.floor(score);
+        localStorage.setItem('johnPorkSubwayBest', String(bestScore));
+        bestText.textContent = bestScore;
+      }
+      finalScoreText.textContent = `Dein Score: ${Math.floor(score)} | Coins: ${coins}`;
+      gameOverScreen.style.display = 'flex';
+    }
+
+    function updateHud() {
+      scoreText.textContent = Math.floor(score);
+      speedText.textContent = (speed / 8).toFixed(1) + 'x';
+      bestText.textContent = bestScore;
+    }
+
+    function moveLeft() {
+      if (!gameRunning) return;
+      player.lane = Math.max(-1, player.lane - 1);
+    }
+
+    function moveRight() {
+      if (!gameRunning) return;
+      player.lane = Math.min(1, player.lane + 1);
+    }
+
+    function jump() {
+      if (!gameRunning) return;
+      if (player.isJumping) return;
+      player.isJumping = true;
+      player.vy = -18;
+    }
+
+    function slide() {
+      if (!gameRunning) return;
+      if (player.isSliding || player.isJumping) return;
+      player.isSliding = true;
+      player.slideTimer = 0.65;
+    }
+
+    function spawnObstacle() {
+      const lane = LANES[Math.floor(Math.random() * LANES.length)];
+      const typeRand = Math.random();
+      let type = 'barrier';
+      if (typeRand > 0.68) type = 'train';
+      else if (typeRand > 0.36) type = 'duck';
+
+      obstacles.push({
+        lane,
+        z: 120,
+        type,
+        hit: false
+      });
+    }
+
+    function spawnCoins() {
+      const lane = LANES[Math.floor(Math.random() * LANES.length)];
+      const amount = 3 + Math.floor(Math.random() * 4);
+      for (let i = 0; i < amount; i++) {
+        coinsList.push({
+          lane,
+          z: 120 + i * 10,
+          y: i % 2 === 0 ? 0 : 18,
+          taken: false
+        });
+      }
+    }
+
+    function spawnDecoration() {
+      const side = Math.random() < 0.5 ? -1 : 1;
+      deco.push({
+        side,
+        z: 140,
+        kind: Math.random() < 0.5 ? 'sign' : 'post'
+      });
+    }
+
+    function projectZ(z) {
+      const depth = Math.max(0.1, z);
+      const p = 1 / depth;
+      const y = horizonY + (height - horizonY) * (1 - p * 12);
+      const scale = Math.max(0.18, Math.min(2.4, 12 / depth));
+      return { y, scale };
+    }
+
+    function obstacleRect(ob) {
+      const p = projectZ(ob.z);
+      const x = laneCenter(ob.lane);
+      let w = 52 * p.scale;
+      let h = 64 * p.scale;
+      let y = p.y - h;
+
+      if (ob.type === 'train') {
+        w = 84 * p.scale;
+        h = 130 * p.scale;
+        y = p.y - h;
+      }
+      if (ob.type === 'duck') {
+        h = 34 * p.scale;
+        y = p.y - h;
+      }
+      return { x: x - w / 2, y, w, h, centerX: x, groundY: p.y, scale: p.scale };
+    }
+
+    function playerRect() {
+      const targetX = laneCenter(player.lane);
+      player.x += (targetX - player.x) * 0.22;
+      let h = player.isSliding ? 46 : player.height;
+      let y = player.y - h;
+      return { x: player.x - player.width / 2, y, w: player.width, h };
+    }
+
+    function intersects(a, b) {
+      return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+    }
+
+    function update(dt) {
+      if (!gameRunning) return;
+
+      speed += dt * 0.22;
+      worldOffset += speed * dt;
+      distance += speed * dt;
+      score += dt * 28 + speed * 0.09;
+
+      if (player.invulnerable > 0) player.invulnerable -= dt;
+
+      if (player.isJumping) {
+        player.vy += 38 * dt;
+        player.y += player.vy;
+        if (player.y >= player.baseY) {
+          player.y = player.baseY;
+          player.vy = 0;
+          player.isJumping = false;
+        }
+      }
+
+      if (player.isSliding) {
+        player.slideTimer -= dt;
+        if (player.slideTimer <= 0) {
+          player.isSliding = false;
+        }
+      }
+
+      spawnTimer -= dt;
+      coinTimer -= dt;
+      decoTimer -= dt;
+
+      if (spawnTimer <= 0) {
+        spawnObstacle();
+        spawnTimer = Math.max(0.35, 1.05 - speed * 0.04);
+      }
+      if (coinTimer <= 0) {
+        spawnCoins();
+        coinTimer = 1.1 + Math.random() * 0.7;
+      }
+      if (decoTimer <= 0) {
+        spawnDecoration();
+        decoTimer = 0.3;
+      }
+
+      const pr = playerRect();
+
+      for (const ob of obstacles) {
+        ob.z -= speed * dt * 2.6;
+        if (ob.z < 0.5 && !ob.hit) {
+          const or = obstacleRect(ob);
+          if (intersects(pr, or)) {
+            ob.hit = true;
+            if (player.invulnerable <= 0) {
+              endGame();
+              return;
+            }
+          }
+        }
+      }
+
+      for (const coin of coinsList) {
+        coin.z -= speed * dt * 2.6;
+        if (coin.taken) continue;
+        const p = projectZ(coin.z);
+        const cx = laneCenter(coin.lane);
+        const size = 22 * p.scale;
+        const cr = { x: cx - size / 2, y: p.y - 42 * p.scale - coin.y * p.scale, w: size, h: size };
+        if (intersects(pr, cr)) {
+          coin.taken = true;
+          coins += 1;
+          score += 30;
+        }
+      }
+
+      for (const d of deco) {
+        d.z -= speed * dt * 2.2;
+      }
+
+      while (obstacles.length && obstacles[0].z < 0.2) obstacles.shift();
+      while (coinsList.length && coinsList[0].z < 0.2) coinsList.shift();
+      while (deco.length && deco[0].z < 0.2) deco.shift();
+
+      updateHud();
+    }
+
+    function drawBackground() {
+      const sky = ctx.createLinearGradient(0, 0, 0, horizonY);
+      sky.addColorStop(0, '#63c7ff');
+      sky.addColorStop(1, '#dff6ff');
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, width, horizonY);
+
+      ctx.fillStyle = '#c8c8c8';
+      for (let i = 0; i < 6; i++) {
+        ctx.fillRect(i * 160 - (worldOffset * 10 % 160), horizonY - 36 - (i % 2) * 12, 100, 22);
+      }
+
+      ctx.fillStyle = '#2e2e2e';
+      ctx.beginPath();
+      ctx.moveTo(width / 2 - roadWidth / 2, height);
+      ctx.lineTo(width / 2 - roadWidth * 0.22, horizonY);
+      ctx.lineTo(width / 2 + roadWidth * 0.22, horizonY);
+      ctx.lineTo(width / 2 + roadWidth / 2, height);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.strokeStyle = '#666';
+      ctx.lineWidth = 4;
+      for (let i = -1; i <= 1; i++) {
+        const xBottom = width / 2 + i * laneWidth / 2;
+        const xTop = width / 2 + i * laneWidth * 0.12;
+        ctx.beginPath();
+        ctx.moveTo(xBottom, height);
+        ctx.lineTo(xTop, horizonY);
+        ctx.stroke();
+      }
+
+      for (let i = 0; i < 20; i++) {
+        const z = ((i * 12 + worldOffset * 18) % 180) + 1;
+        const p = projectZ(z);
+        const railW = Math.max(2, 10 * p.scale);
+        const railH = Math.max(1, 4 * p.scale);
+        ctx.fillStyle = '#9a9a9a';
+        ctx.fillRect(width / 2 - railW - 34 * p.scale, p.y - railH / 2, railW, railH);
+        ctx.fillRect(width / 2 + 34 * p.scale, p.y - railH / 2, railW, railH);
+      }
+    }
+
+    function drawDecoration() {
+      for (const d of deco) {
+        const p = projectZ(d.z);
+        const sideOffset = roadWidth * 0.7;
+        const x = width / 2 + d.side * sideOffset * (1 / Math.max(1, d.z * 0.03));
+        if (d.kind === 'sign') {
+          ctx.fillStyle = '#444';
+          ctx.fillRect(x - 3 * p.scale, p.y - 40 * p.scale, 6 * p.scale, 40 * p.scale);
+          ctx.fillStyle = '#ffda2d';
+          ctx.fillRect(x - 16 * p.scale, p.y - 68 * p.scale, 32 * p.scale, 24 * p.scale);
+        } else {
+          ctx.fillStyle = '#666';
+          ctx.fillRect(x - 2 * p.scale, p.y - 48 * p.scale, 4 * p.scale, 48 * p.scale);
+          ctx.fillStyle = '#ddd';
+          ctx.beginPath();
+          ctx.arc(x, p.y - 54 * p.scale, 10 * p.scale, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    function drawCoins() {
+      for (const coin of coinsList) {
+        if (coin.taken) continue;
+        const p = projectZ(coin.z);
+        const x = laneCenter(coin.lane);
+        const y = p.y - 42 * p.scale - coin.y * p.scale;
+        const r = Math.max(4, 11 * p.scale);
+        ctx.fillStyle = '#ffd84c';
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#ffb700';
+        ctx.lineWidth = Math.max(2, 2 * p.scale);
+        ctx.stroke();
+      }
+    }
+
+    function drawObstacles() {
+      const sorted = [...obstacles].sort((a, b) => b.z - a.z);
+      for (const ob of sorted) {
+        const r = obstacleRect(ob);
+        if (ob.type === 'train') {
+          ctx.fillStyle = '#cc2f2f';
+          ctx.fillRect(r.x, r.y, r.w, r.h);
+          ctx.fillStyle = '#87d7ff';
+          ctx.fillRect(r.x + r.w * 0.15, r.y + r.h * 0.18, r.w * 0.7, r.h * 0.2);
+          ctx.fillStyle = '#222';
+          ctx.fillRect(r.x, r.y + r.h * 0.8, r.w, r.h * 0.2);
+        } else if (ob.type === 'duck') {
+          ctx.fillStyle = '#ff9a1f';
+          ctx.fillRect(r.x, r.y, r.w, r.h);
+          ctx.fillStyle = '#fff';
+          ctx.fillRect(r.x + r.w * 0.16, r.y + r.h * 0.28, r.w * 0.68, r.h * 0.18);
+        } else {
+          ctx.fillStyle = '#ff4f4f';
+          ctx.fillRect(r.x, r.y, r.w, r.h);
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = Math.max(2, 3 * r.scale);
+          ctx.beginPath();
+          ctx.moveTo(r.x + r.w * 0.18, r.y + r.h * 0.2);
+          ctx.lineTo(r.x + r.w * 0.82, r.y + r.h * 0.8);
+          ctx.moveTo(r.x + r.w * 0.82, r.y + r.h * 0.2);
+          ctx.lineTo(r.x + r.w * 0.18, r.y + r.h * 0.8);
+          ctx.stroke();
+        }
+      }
+    }
+
+    function drawPlayer() {
+      const pr = playerRect();
+      ctx.save();
+      if (gameOver) ctx.globalAlpha = 0.7;
+      ctx.fillStyle = '#f2c19c';
+      ctx.fillRect(pr.x + 12, pr.y + 2, pr.w - 24, 18);
+      ctx.fillStyle = '#f05b8f';
+      ctx.fillRect(pr.x + 7, pr.y + 20, pr.w - 14, pr.h - 20);
+      ctx.fillStyle = '#111';
+      ctx.fillRect(pr.x + 4, pr.y + pr.h - 18, 14, 18);
+      ctx.fillRect(pr.x + pr.w - 18, pr.y + pr.h - 18, 14, 18);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(pr.x + 14, pr.y + 6, 7, 7);
+      ctx.fillRect(pr.x + pr.w - 21, pr.y + 6, 7, 7);
+      ctx.fillStyle = '#000';
+      ctx.fillRect(pr.x + 16, pr.y + 8, 3, 3);
+      ctx.fillRect(pr.x + pr.w - 19, pr.y + 8, 3, 3);
+      ctx.restore();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, width, height);
+      drawBackground();
+      drawDecoration();
+      drawCoins();
+      drawObstacles();
+      drawPlayer();
+    }
+
+    let lastTime = 0;
+    function loop(timestamp) {
+      const dt = Math.min(0.032, (timestamp - lastTime) / 1000 || 0.016);
+      lastTime = timestamp;
+      update(dt);
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    function handleKeyDown(e) {
+      if (e.repeat) return;
+      if (['ArrowLeft', 'KeyA'].includes(e.code)) moveLeft();
+      if (['ArrowRight', 'KeyD'].includes(e.code)) moveRight();
+      if (['ArrowUp', 'KeyW', 'Space'].includes(e.code)) jump();
+      if (['ArrowDown', 'KeyS'].includes(e.code)) slide();
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    document.querySelectorAll('.touchBtn[data-action]').forEach(btn => {
+      btn.addEventListener('pointerdown', () => {
+        const action = btn.dataset.action;
+        if (action === 'left') moveLeft();
+        if (action === 'right') moveRight();
+        if (action === 'jump') jump();
+        if (action === 'slide') slide();
+      });
+    });
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+    canvas.addEventListener('touchstart', (e) => {
+      const t = e.touches[0];
+      touchStartX = t.clientX;
+      touchStartY = t.clientY;
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', (e) => {
+      const t = e.changedTouches[0];
+      const dx = t.clientX - touchStartX;
+      const dy = t.clientY - touchStartY;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 30) moveRight();
+        if (dx < -30) moveLeft();
+      } else {
+        if (dy < -30) jump();
+        if (dy > 30) slide();
+      }
+    }, { passive: true });
+
+    startBtn.onclick = startGame;
+    restartBtn.onclick = startGame;
+    playAgainBtn.onclick = startGame;
+    homeBtn.onclick = () => { window.location.href = 'index.html'; };
+
+    resize();
+    window.addEventListener('resize', resize);
+    updateHud();
+    draw();
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
