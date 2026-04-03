@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>John Pork Subway Surfer</title>
+  <title>John Pork Subway Surfer Ultra</title>
   <style>
     * { box-sizing: border-box; }
     html, body { margin: 0; height: 100%; overflow: hidden; font-family: Arial, sans-serif; background: #111; }
@@ -11,7 +11,7 @@
     #gameWrap {
       position: fixed;
       inset: 0;
-      background: linear-gradient(180deg, #62c6ff 0%, #dff7ff 30%, #3a3a3a 30%, #121212 100%);
+      background: linear-gradient(180deg, #63c7ff 0%, #dff7ff 28%, #4a4a4a 28%, #121212 100%);
     }
     canvas {
       display: block;
@@ -36,7 +36,7 @@
       flex-wrap: wrap;
     }
     .panel {
-      background: rgba(0,0,0,0.45);
+      background: rgba(0,0,0,0.48);
       border: 1px solid rgba(255,255,255,0.12);
       backdrop-filter: blur(8px);
       border-radius: 16px;
@@ -69,7 +69,7 @@
       flex-wrap: wrap;
     }
     .help {
-      max-width: 520px;
+      max-width: 560px;
       line-height: 1.4;
       font-size: 13px;
     }
@@ -167,7 +167,7 @@
 
   <div class="hud">
     <div class="top">
-      <div class="panel title">🐷 John Pork Subway Surfer</div>
+      <div class="panel title">🐷 John Pork Subway Surfer Ultra</div>
       <div class="panel stats">
         <div>
           <div class="stat-label">Score</div>
@@ -178,6 +178,10 @@
           <div class="stat-value" id="bestText">0</div>
         </div>
         <div>
+          <div class="stat-label">Coins</div>
+          <div class="stat-value" id="coinText">0</div>
+        </div>
+        <div>
           <div class="stat-label">Speed</div>
           <div class="stat-value" id="speedText">1.0x</div>
         </div>
@@ -185,7 +189,8 @@
     </div>
     <div class="bottom">
       <div class="panel help">
-        <b>Steuerung:</b> A / ← links, D / → rechts, W / ↑ / Leertaste springen, S / ↓ rutschen.
+        <b>Steuerung:</b> A / ← links, D / → rechts, W / ↑ / Leertaste springen, S / ↓ rutschen.<br>
+        <b>Score:</b> steigt jetzt realistischer mit Zeit, Tempo und Coins.
       </div>
       <div class="btnRow">
         <button id="restartBtn">🔁 Neustart</button>
@@ -198,7 +203,7 @@
     <div class="box">
       <h1>🚇 JOHN PORK SUBWAY SURFER</h1>
       <p>Weiche Zügen, Barrikaden und Absperrungen aus, sammle Coins und lauf so weit du kannst.</p>
-      <p>Das Spiel ist extra auf <b>PC und Handy</b> gemacht.</p>
+      <p>Jetzt mit besserer Kollision, fairerem Spawn und realistischerem Score.</p>
       <div class="btnRow" style="justify-content:center; margin-top: 12px;">
         <button id="startBtn">▶️ Starten</button>
       </div>
@@ -232,6 +237,7 @@
 
     const scoreText = document.getElementById('scoreText');
     const bestText = document.getElementById('bestText');
+    const coinText = document.getElementById('coinText');
     const speedText = document.getElementById('speedText');
     const startScreen = document.getElementById('startScreen');
     const gameOverScreen = document.getElementById('gameOverScreen');
@@ -248,7 +254,6 @@
     let horizonY = 0;
 
     const LANES = [-1, 0, 1];
-    const keys = new Set();
     let gameRunning = false;
     let gameOver = false;
     let score = 0;
@@ -263,39 +268,44 @@
       lane: 0,
       x: 0,
       y: 0,
-      width: 54,
-      height: 82,
+      width: 58,
+      height: 86,
       baseY: 0,
       vy: 0,
       isJumping: false,
       isSliding: false,
-      slideTimer: 0,
-      invulnerable: 0
+      slideTimer: 0
     };
 
     const obstacles = [];
     const coinsList = [];
     const deco = [];
-    let spawnTimer = 0;
-    let coinTimer = 0;
+    let obstacleSpawnTimer = 0;
+    let coinSpawnTimer = 0;
     let decoTimer = 0;
+    let safeStartTimer = 0;
 
     function resize() {
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = width;
       canvas.height = height;
-      roadWidth = Math.min(width * 0.7, 520);
+      roadWidth = Math.min(width * 0.72, 560);
       laneWidth = roadWidth / 3;
-      horizonY = height * 0.28;
-      player.baseY = height - 138;
-      if (!gameRunning) {
-        player.y = player.baseY;
-      }
+      horizonY = height * 0.27;
+      player.baseY = height - 140;
+      if (!gameRunning) player.y = player.baseY;
     }
 
     function laneCenter(lane) {
       return width / 2 + lane * laneWidth;
+    }
+
+    function updateHud() {
+      scoreText.textContent = Math.floor(score);
+      bestText.textContent = bestScore;
+      coinText.textContent = coins;
+      speedText.textContent = (speed / 8).toFixed(1) + 'x';
     }
 
     function resetGame() {
@@ -304,9 +314,10 @@
       coins = 0;
       speed = 8;
       worldOffset = 0;
-      spawnTimer = 0;
-      coinTimer = 0;
-      decoTimer = 0;
+      obstacleSpawnTimer = 1.2;
+      coinSpawnTimer = 0.8;
+      decoTimer = 0.1;
+      safeStartTimer = 1.5;
       obstacles.length = 0;
       coinsList.length = 0;
       deco.length = 0;
@@ -317,7 +328,6 @@
       player.isJumping = false;
       player.isSliding = false;
       player.slideTimer = 0;
-      player.invulnerable = 0;
       gameOver = false;
       updateHud();
     }
@@ -332,19 +342,14 @@
     function endGame() {
       gameRunning = false;
       gameOver = true;
-      if (score > bestScore) {
-        bestScore = Math.floor(score);
+      const rounded = Math.floor(score);
+      if (rounded > bestScore) {
+        bestScore = rounded;
         localStorage.setItem('johnPorkSubwayBest', String(bestScore));
-        bestText.textContent = bestScore;
       }
-      finalScoreText.textContent = `Dein Score: ${Math.floor(score)} | Coins: ${coins}`;
+      updateHud();
+      finalScoreText.textContent = `Dein Score: ${rounded} | Coins: ${coins} | Distanz: ${Math.floor(distance)}m`;
       gameOverScreen.style.display = 'flex';
-    }
-
-    function updateHud() {
-      scoreText.textContent = Math.floor(score);
-      speedText.textContent = (speed / 8).toFixed(1) + 'x';
-      bestText.textContent = bestScore;
     }
 
     function moveLeft() {
@@ -358,42 +363,71 @@
     }
 
     function jump() {
-      if (!gameRunning) return;
-      if (player.isJumping) return;
+      if (!gameRunning || player.isJumping) return;
       player.isJumping = true;
       player.vy = -18;
     }
 
     function slide() {
-      if (!gameRunning) return;
-      if (player.isSliding || player.isJumping) return;
+      if (!gameRunning || player.isSliding || player.isJumping) return;
       player.isSliding = true;
-      player.slideTimer = 0.65;
+      player.slideTimer = 0.62;
     }
 
-    function spawnObstacle() {
-      const lane = LANES[Math.floor(Math.random() * LANES.length)];
-      const typeRand = Math.random();
-      let type = 'barrier';
-      if (typeRand > 0.68) type = 'train';
-      else if (typeRand > 0.36) type = 'duck';
+    function randomLane() {
+      return LANES[Math.floor(Math.random() * LANES.length)];
+    }
 
-      obstacles.push({
-        lane,
-        z: 120,
-        type,
-        hit: false
-      });
+    function canSpawnObstacle(lane, z, type) {
+      for (const ob of obstacles) {
+        if (ob.lane !== lane) continue;
+        if (Math.abs(ob.z - z) < 28) return false;
+        if ((ob.type === 'train' || type === 'train') && Math.abs(ob.z - z) < 42) return false;
+      }
+      return true;
+    }
+
+    function spawnObstaclePack() {
+      const pattern = Math.random();
+      const z = 130;
+
+      if (pattern < 0.35) {
+        const lane = randomLane();
+        const type = Math.random() < 0.4 ? 'train' : (Math.random() < 0.5 ? 'duck' : 'barrier');
+        if (canSpawnObstacle(lane, z, type)) obstacles.push({ lane, z, type, hit: false });
+        return;
+      }
+
+      if (pattern < 0.68) {
+        const blockedLane = randomLane();
+        for (const lane of LANES) {
+          if (lane === blockedLane) continue;
+          const type = Math.random() < 0.5 ? 'barrier' : 'duck';
+          if (canSpawnObstacle(lane, z + (lane === -1 ? 0 : 8), type)) {
+            obstacles.push({ lane, z: z + (lane === -1 ? 0 : 8), type, hit: false });
+          }
+        }
+        return;
+      }
+
+      const laneA = randomLane();
+      const laneB = LANES.find(l => l !== laneA && l !== 0) ?? 1;
+      const openLane = LANES.find(l => l !== laneA && l !== laneB) ?? 0;
+      if (canSpawnObstacle(laneA, z, 'barrier')) obstacles.push({ lane: laneA, z, type: 'barrier', hit: false });
+      if (canSpawnObstacle(laneB, z + 10, 'duck')) obstacles.push({ lane: laneB, z: z + 10, type: 'duck', hit: false });
+      for (let i = 0; i < 4; i++) {
+        coinsList.push({ lane: openLane, z: z + i * 10, y: i % 2 === 0 ? 6 : 18, taken: false });
+      }
     }
 
     function spawnCoins() {
-      const lane = LANES[Math.floor(Math.random() * LANES.length)];
-      const amount = 3 + Math.floor(Math.random() * 4);
+      const lane = randomLane();
+      const amount = 4 + Math.floor(Math.random() * 4);
       for (let i = 0; i < amount; i++) {
         coinsList.push({
           lane,
-          z: 120 + i * 10,
-          y: i % 2 === 0 ? 0 : 18,
+          z: 120 + i * 9,
+          y: i % 2 === 0 ? 0 : 16,
           taken: false
         });
       }
@@ -401,45 +435,41 @@
 
     function spawnDecoration() {
       const side = Math.random() < 0.5 ? -1 : 1;
-      deco.push({
-        side,
-        z: 140,
-        kind: Math.random() < 0.5 ? 'sign' : 'post'
-      });
+      deco.push({ side, z: 145, kind: Math.random() < 0.5 ? 'sign' : 'post' });
     }
 
     function projectZ(z) {
-      const depth = Math.max(0.1, z);
+      const depth = Math.max(0.15, z);
       const p = 1 / depth;
       const y = horizonY + (height - horizonY) * (1 - p * 12);
-      const scale = Math.max(0.18, Math.min(2.4, 12 / depth));
+      const scale = Math.max(0.18, Math.min(2.8, 12 / depth));
       return { y, scale };
     }
 
     function obstacleRect(ob) {
       const p = projectZ(ob.z);
       const x = laneCenter(ob.lane);
-      let w = 52 * p.scale;
-      let h = 64 * p.scale;
+      let w = 56 * p.scale;
+      let h = 68 * p.scale;
       let y = p.y - h;
 
       if (ob.type === 'train') {
-        w = 84 * p.scale;
-        h = 130 * p.scale;
+        w = 90 * p.scale;
+        h = 140 * p.scale;
         y = p.y - h;
-      }
-      if (ob.type === 'duck') {
+      } else if (ob.type === 'duck') {
+        w = 60 * p.scale;
         h = 34 * p.scale;
         y = p.y - h;
       }
-      return { x: x - w / 2, y, w, h, centerX: x, groundY: p.y, scale: p.scale };
+      return { x: x - w / 2, y, w, h, scale: p.scale, groundY: p.y, centerX: x };
     }
 
     function playerRect() {
       const targetX = laneCenter(player.lane);
-      player.x += (targetX - player.x) * 0.22;
-      let h = player.isSliding ? 46 : player.height;
-      let y = player.y - h;
+      player.x += (targetX - player.x) * 0.24;
+      const h = player.isSliding ? 44 : player.height;
+      const y = player.y - h;
       return { x: player.x - player.width / 2, y, w: player.width, h };
     }
 
@@ -450,15 +480,13 @@
     function update(dt) {
       if (!gameRunning) return;
 
-      speed += dt * 0.22;
+      speed = Math.min(17, speed + dt * 0.18);
       worldOffset += speed * dt;
-      distance += speed * dt;
-      score += dt * 28 + speed * 0.09;
-
-      if (player.invulnerable > 0) player.invulnerable -= dt;
+      distance += speed * dt * 0.95;
+      score += dt * 14 + speed * dt * 5 + coins * 0.02;
 
       if (player.isJumping) {
-        player.vy += 38 * dt;
+        player.vy += 40 * dt;
         player.y += player.vy;
         if (player.y >= player.baseY) {
           player.y = player.baseY;
@@ -469,40 +497,38 @@
 
       if (player.isSliding) {
         player.slideTimer -= dt;
-        if (player.slideTimer <= 0) {
-          player.isSliding = false;
-        }
+        if (player.slideTimer <= 0) player.isSliding = false;
       }
 
-      spawnTimer -= dt;
-      coinTimer -= dt;
+      obstacleSpawnTimer -= dt;
+      coinSpawnTimer -= dt;
       decoTimer -= dt;
+      safeStartTimer -= dt;
 
-      if (spawnTimer <= 0) {
-        spawnObstacle();
-        spawnTimer = Math.max(0.35, 1.05 - speed * 0.04);
+      if (obstacleSpawnTimer <= 0 && safeStartTimer <= 0) {
+        spawnObstaclePack();
+        obstacleSpawnTimer = Math.max(0.52, 1.1 - speed * 0.035 + Math.random() * 0.18);
       }
-      if (coinTimer <= 0) {
+      if (coinSpawnTimer <= 0) {
         spawnCoins();
-        coinTimer = 1.1 + Math.random() * 0.7;
+        coinSpawnTimer = 1.2 + Math.random() * 0.7;
       }
       if (decoTimer <= 0) {
         spawnDecoration();
-        decoTimer = 0.3;
+        decoTimer = 0.34;
       }
 
       const pr = playerRect();
 
       for (const ob of obstacles) {
         ob.z -= speed * dt * 2.6;
-        if (ob.z < 0.5 && !ob.hit) {
+        if (ob.hit) continue;
+        if (ob.z < 6) {
           const or = obstacleRect(ob);
           if (intersects(pr, or)) {
             ob.hit = true;
-            if (player.invulnerable <= 0) {
-              endGame();
-              return;
-            }
+            endGame();
+            return;
           }
         }
       }
@@ -513,21 +539,19 @@
         const p = projectZ(coin.z);
         const cx = laneCenter(coin.lane);
         const size = 22 * p.scale;
-        const cr = { x: cx - size / 2, y: p.y - 42 * p.scale - coin.y * p.scale, w: size, h: size };
+        const cr = { x: cx - size / 2, y: p.y - 40 * p.scale - coin.y * p.scale, w: size, h: size };
         if (intersects(pr, cr)) {
           coin.taken = true;
           coins += 1;
-          score += 30;
+          score += 12;
         }
       }
 
-      for (const d of deco) {
-        d.z -= speed * dt * 2.2;
-      }
+      for (const d of deco) d.z -= speed * dt * 2.1;
 
-      while (obstacles.length && obstacles[0].z < 0.2) obstacles.shift();
-      while (coinsList.length && coinsList[0].z < 0.2) coinsList.shift();
-      while (deco.length && deco[0].z < 0.2) deco.shift();
+      for (let i = obstacles.length - 1; i >= 0; i--) if (obstacles[i].z < 0.2) obstacles.splice(i, 1);
+      for (let i = coinsList.length - 1; i >= 0; i--) if (coinsList[i].z < 0.2 || coinsList[i].taken) coinsList.splice(i, 1);
+      for (let i = deco.length - 1; i >= 0; i--) if (deco[i].z < 0.2) deco.splice(i, 1);
 
       updateHud();
     }
@@ -539,21 +563,21 @@
       ctx.fillStyle = sky;
       ctx.fillRect(0, 0, width, horizonY);
 
-      ctx.fillStyle = '#c8c8c8';
-      for (let i = 0; i < 6; i++) {
-        ctx.fillRect(i * 160 - (worldOffset * 10 % 160), horizonY - 36 - (i % 2) * 12, 100, 22);
+      ctx.fillStyle = '#cfcfcf';
+      for (let i = 0; i < 7; i++) {
+        ctx.fillRect(i * 180 - (worldOffset * 10 % 180), horizonY - 42 - (i % 2) * 10, 110, 24);
       }
 
-      ctx.fillStyle = '#2e2e2e';
+      ctx.fillStyle = '#2a2a2a';
       ctx.beginPath();
       ctx.moveTo(width / 2 - roadWidth / 2, height);
-      ctx.lineTo(width / 2 - roadWidth * 0.22, horizonY);
-      ctx.lineTo(width / 2 + roadWidth * 0.22, horizonY);
+      ctx.lineTo(width / 2 - roadWidth * 0.23, horizonY);
+      ctx.lineTo(width / 2 + roadWidth * 0.23, horizonY);
       ctx.lineTo(width / 2 + roadWidth / 2, height);
       ctx.closePath();
       ctx.fill();
 
-      ctx.strokeStyle = '#666';
+      ctx.strokeStyle = '#6e6e6e';
       ctx.lineWidth = 4;
       for (let i = -1; i <= 1; i++) {
         const xBottom = width / 2 + i * laneWidth / 2;
@@ -564,33 +588,33 @@
         ctx.stroke();
       }
 
-      for (let i = 0; i < 20; i++) {
-        const z = ((i * 12 + worldOffset * 18) % 180) + 1;
+      ctx.strokeStyle = '#a8a8a8';
+      for (let i = 0; i < 24; i++) {
+        const z = ((i * 10 + worldOffset * 18) % 200) + 2;
         const p = projectZ(z);
-        const railW = Math.max(2, 10 * p.scale);
-        const railH = Math.max(1, 4 * p.scale);
-        ctx.fillStyle = '#9a9a9a';
-        ctx.fillRect(width / 2 - railW - 34 * p.scale, p.y - railH / 2, railW, railH);
-        ctx.fillRect(width / 2 + 34 * p.scale, p.y - railH / 2, railW, railH);
+        const tieW = Math.max(10, 28 * p.scale);
+        const tieH = Math.max(2, 6 * p.scale);
+        ctx.fillStyle = '#8b5a2b';
+        ctx.fillRect(width / 2 - tieW / 2, p.y - tieH / 2, tieW, tieH);
       }
     }
 
     function drawDecoration() {
       for (const d of deco) {
         const p = projectZ(d.z);
-        const sideOffset = roadWidth * 0.7;
+        const sideOffset = roadWidth * 0.74;
         const x = width / 2 + d.side * sideOffset * (1 / Math.max(1, d.z * 0.03));
         if (d.kind === 'sign') {
           ctx.fillStyle = '#444';
-          ctx.fillRect(x - 3 * p.scale, p.y - 40 * p.scale, 6 * p.scale, 40 * p.scale);
+          ctx.fillRect(x - 3 * p.scale, p.y - 42 * p.scale, 6 * p.scale, 42 * p.scale);
           ctx.fillStyle = '#ffda2d';
-          ctx.fillRect(x - 16 * p.scale, p.y - 68 * p.scale, 32 * p.scale, 24 * p.scale);
+          ctx.fillRect(x - 18 * p.scale, p.y - 70 * p.scale, 36 * p.scale, 24 * p.scale);
         } else {
-          ctx.fillStyle = '#666';
-          ctx.fillRect(x - 2 * p.scale, p.y - 48 * p.scale, 4 * p.scale, 48 * p.scale);
-          ctx.fillStyle = '#ddd';
+          ctx.fillStyle = '#6a6a6a';
+          ctx.fillRect(x - 2 * p.scale, p.y - 50 * p.scale, 4 * p.scale, 50 * p.scale);
+          ctx.fillStyle = '#e8e8e8';
           ctx.beginPath();
-          ctx.arc(x, p.y - 54 * p.scale, 10 * p.scale, 0, Math.PI * 2);
+          ctx.arc(x, p.y - 56 * p.scale, 10 * p.scale, 0, Math.PI * 2);
           ctx.fill();
         }
       }
@@ -598,10 +622,9 @@
 
     function drawCoins() {
       for (const coin of coinsList) {
-        if (coin.taken) continue;
         const p = projectZ(coin.z);
         const x = laneCenter(coin.lane);
-        const y = p.y - 42 * p.scale - coin.y * p.scale;
+        const y = p.y - 40 * p.scale - coin.y * p.scale;
         const r = Math.max(4, 11 * p.scale);
         ctx.fillStyle = '#ffd84c';
         ctx.beginPath();
@@ -647,7 +670,6 @@
     function drawPlayer() {
       const pr = playerRect();
       ctx.save();
-      if (gameOver) ctx.globalAlpha = 0.7;
       ctx.fillStyle = '#f2c19c';
       ctx.fillRect(pr.x + 12, pr.y + 2, pr.w - 24, 18);
       ctx.fillStyle = '#f05b8f';
