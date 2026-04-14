@@ -3,121 +3,88 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>John Pork Craft 3D Phase 4</title>
+  <title>John Pork Craft 3D Ultimate</title>
   <style>
     * { box-sizing: border-box; }
-    html, body { margin: 0; height: 100%; overflow: hidden; font-family: Arial, sans-serif; }
-    body { background: #87ceeb; color: white; }
+    html, body { margin: 0; height: 100%; overflow: hidden; font-family: Inter, Arial, sans-serif; background: #06111d; color: white; }
     #game { position: fixed; inset: 0; }
-    #crosshair { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 24px; height: 24px; z-index: 12; pointer-events: none; }
-    #crosshair::before, #crosshair::after { content: ""; position: absolute; background: white; box-shadow: 0 0 6px black; }
-    #crosshair::before { width: 2px; height: 24px; left: 11px; top: 0; }
-    #crosshair::after { width: 24px; height: 2px; left: 0; top: 11px; }
+    #crosshair { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 26px; height: 26px; z-index: 12; pointer-events: none; }
+    #crosshair::before, #crosshair::after { content: ""; position: absolute; background: rgba(255,255,255,.95); box-shadow: 0 0 10px rgba(0,0,0,.9); border-radius: 2px; }
+    #crosshair::before { width: 2px; height: 26px; left: 12px; top: 0; }
+    #crosshair::after { width: 26px; height: 2px; left: 0; top: 12px; }
     #hud { position: fixed; inset: 0; z-index: 10; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 12px; }
-    .topbar, .bottom { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; pointer-events: auto; }
-    .panel { background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.14); border-radius: 16px; padding: 10px 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
-    .title { font-size: 22px; font-weight: 700; }
+    .topbar, .bottom { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; pointer-events: auto; }
+    .panel { background: rgba(10,16,26,.58); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 10px 12px; box-shadow: 0 10px 30px rgba(0,0,0,.24); }
+    .title { font-size: 22px; font-weight: 800; }
+    .sub { font-size: 12px; opacity: .82; }
     .stats { display: flex; gap: 10px; flex-wrap: wrap; }
     .stat { min-width: 90px; }
-    .label { font-size: 11px; opacity: 0.8; }
-    .value { font-size: 18px; font-weight: 700; color: #ffe76a; }
+    .label { font-size: 11px; opacity: .72; text-transform: uppercase; letter-spacing: .05em; }
+    .value { font-size: 18px; font-weight: 800; color: #ffe56c; }
     .home-btn-wrap { margin-left: auto; }
-    #topHomeBtn { min-width: 110px; }
-    #hotbar { display: flex; gap: 8px; background: rgba(0,0,0,0.45); border-radius: 16px; padding: 8px; border: 1px solid rgba(255,255,255,0.15); flex-wrap: wrap; max-width: min(100%, 960px); }
-    .slot { width: 56px; height: 56px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; background: rgba(255,255,255,0.06); cursor: pointer; }
-    .slot.active { border-color: #ffe76a; box-shadow: 0 0 14px rgba(255,231,106,0.6); }
+    button { appearance: none; border: none; border-radius: 14px; padding: 12px 16px; background: linear-gradient(90deg, #ffe14f, #ffaf2f); color: #141414; font-weight: 800; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.2); }
+    #hotbar { display: flex; gap: 8px; flex-wrap: wrap; max-width: min(100%, 980px); background: rgba(0,0,0,.34); border: 1px solid rgba(255,255,255,.12); border-radius: 16px; padding: 8px; }
+    .slot { width: 56px; height: 56px; border-radius: 14px; border: 2px solid rgba(255,255,255,.12); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; cursor: pointer; background: rgba(255,255,255,.06); }
+    .slot.active { border-color: #ffe56c; box-shadow: 0 0 14px rgba(255,229,108,.45); }
     .slot img { width: 100%; height: 100%; object-fit: cover; }
-    .slot span { position: absolute; right: 4px; bottom: 3px; font-size: 10px; font-weight: 700; }
-    #help { max-width: 540px; font-size: 13px; line-height: 1.45; }
-    #startScreen, #inventoryScreen { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.78); padding: 16px; }
+    .slot span { position: absolute; right: 4px; bottom: 3px; font-size: 10px; font-weight: 800; text-shadow: 0 1px 2px black; }
+    #help { max-width: 620px; font-size: 13px; line-height: 1.5; }
+    #startScreen, #inventoryScreen { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; padding: 16px; background: radial-gradient(circle at top, rgba(35,62,97,.45), rgba(0,0,0,.85)); }
     #inventoryScreen { display: none; z-index: 24; }
-    .box { width: min(94vw, 980px); background: rgba(0,0,0,0.58); backdrop-filter: blur(10px); border-radius: 24px; border: 1px solid rgba(255,255,255,0.16); padding: 22px; max-height: 92vh; overflow: auto; }
-    .box h1, .box h2 { margin: 0 0 10px; font-size: clamp(28px, 5vw, 46px); }
+    .box { width: min(96vw, 1000px); background: rgba(5,10,18,.74); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,.12); border-radius: 28px; padding: 24px; max-height: 92vh; overflow: auto; box-shadow: 0 30px 70px rgba(0,0,0,.35); }
+    .box h1, .box h2 { margin: 0 0 10px; font-size: clamp(30px, 5vw, 52px); }
+    .box p { line-height: 1.6; opacity: .95; }
     .row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
-    button { appearance: none; border: none; border-radius: 14px; padding: 13px 18px; background: linear-gradient(90deg, #ffe600, #ffac00); color: #111; font-weight: 700; font-size: 15px; cursor: pointer; }
-    .warn { color: #ffd6d6; font-size: 13px; }
-    #toast { position: fixed; left: 50%; top: 84px; transform: translateX(-50%); z-index: 16; background: rgba(0,0,0,0.7); color: white; padding: 10px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.14); opacity: 0; pointer-events: none; transition: opacity 0.2s ease; max-width: min(90vw, 520px); text-align: center; }
+    .warn { color: #ffd5d5; font-size: 13px; }
+    #toast { position: fixed; left: 50%; top: 82px; transform: translateX(-50%); z-index: 18; background: rgba(0,0,0,.72); padding: 10px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,.14); opacity: 0; transition: opacity .2s ease; max-width: min(90vw, 520px); text-align: center; }
     #toast.show { opacity: 1; }
     .inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 10px; margin-top: 14px; }
-    .inv-item { background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.14); border-radius: 16px; padding: 8px; text-align: center; cursor: pointer; }
-    .inv-item.active { border-color: #ffe76a; box-shadow: 0 0 12px rgba(255,231,106,0.5); }
-    .inv-item img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 10px; }
+    .inv-item { background: rgba(255,255,255,.07); border: 2px solid rgba(255,255,255,.12); border-radius: 16px; padding: 8px; text-align: center; cursor: pointer; }
+    .inv-item.active { border-color: #ffe56c; box-shadow: 0 0 12px rgba(255,229,108,.35); }
+    .inv-item img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 10px; }
     .inv-name { font-size: 12px; margin-top: 6px; }
-    #damageFlash { position: fixed; inset: 0; background: rgba(255,0,0,0.22); z-index: 13; pointer-events: none; opacity: 0; transition: opacity 0.12s ease; }
-    #damageFlash.show { opacity: 1; }
-    #heldItem { position: fixed; right: 10px; bottom: 8px; width: 220px; height: 220px; z-index: 11; pointer-events: none; transform-origin: 84% 88%; transition: transform 0.08s ease; opacity: 0.98; }
-    #heldItem.swing { transform: rotate(-18deg) translate(-16px, -8px); }
-    #heldArm { position: absolute; right: 16px; bottom: 8px; width: 120px; height: 52px; border-radius: 22px; background: linear-gradient(180deg, #f3c8a2, #db9d76); transform: rotate(-18deg); box-shadow: 0 0 18px rgba(0,0,0,0.24); }
-    #heldBlock { position: absolute; right: 76px; bottom: 56px; width: 72px; height: 72px; border-radius: 12px; background: #4caf50; border: 3px solid rgba(255,255,255,0.25); overflow: hidden; box-shadow: 0 0 14px rgba(0,0,0,0.2); }
-    #heldBlock img { width: 100%; height: 100%; object-fit: cover; display: none; }
-    #touchControls { position: fixed; inset: 0; z-index: 14; pointer-events: none; display: none; }
-    .touchPad, .touchActions { position: absolute; bottom: 14px; pointer-events: auto; }
-    .touchPad { left: 14px; width: 150px; height: 150px; border-radius: 50%; background: rgba(0,0,0,0.22); }
-    .touchKnob { position: absolute; left: 50px; top: 50px; width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.25); }
-    .touchActions { right: 14px; display: grid; grid-template-columns: repeat(2, 72px); gap: 10px; }
-    .touchBtn { width: 72px; height: 72px; border-radius: 18px; background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.18); color: white; font-weight: 700; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6px; }
-    @media (max-width: 900px) {
-      #touchControls { display: block; }
-      #help { max-width: 100%; }
-      .slot { width: 50px; height: 50px; }
-      #heldItem { width: 150px; height: 150px; }
-      #heldArm { width: 88px; height: 38px; }
-      #heldBlock { width: 50px; height: 50px; right: 56px; bottom: 42px; }
-      .home-btn-wrap { width: 100%; display: flex; justify-content: flex-end; }
-    }
   </style>
 </head>
 <body>
   <div id="game"></div>
   <div id="crosshair"></div>
   <div id="toast"></div>
-  <div id="damageFlash"></div>
-  <div id="heldItem"><div id="heldArm"></div><div id="heldBlock"><img id="heldBlockImg" alt=""></div></div>
 
   <div id="hud">
     <div class="topbar">
-      <div class="panel"><div class="title">⛏️ John Pork Craft 3D Phase 4</div></div>
+      <div class="panel">
+        <div class="title">🐷 John Pork Craft 3D Ultimate</div>
+        <div class="sub">Bala-Portale, Spezial-Strukturen, Chaos Mode</div>
+      </div>
       <div class="panel stats">
         <div class="stat"><div class="label">Block</div><div class="value" id="blockName">Grass</div></div>
         <div class="stat"><div class="label">Position</div><div class="value" id="posText">0,0,0</div></div>
-        <div class="stat"><div class="label">Chunks</div><div class="value" id="chunkText">0</div></div>
         <div class="stat"><div class="label">Biome</div><div class="value" id="biomeText">Plains</div></div>
-        <div class="stat"><div class="label">Mobs</div><div class="value" id="mobText">0</div></div>
+        <div class="stat"><div class="label">FPS</div><div class="value" id="fpsText">60</div></div>
         <div class="stat"><div class="label">HP</div><div class="value" id="hpText">100</div></div>
         <div class="stat"><div class="label">Modus</div><div class="value" id="modeText">Creative</div></div>
+        <div class="stat"><div class="label">Event</div><div class="value" id="eventText">---</div></div>
         <div class="stat"><div class="label">Welt</div><div class="value" id="dimensionText">Overworld</div></div>
-        <div class="stat"><div class="label">Schwierigkeit</div><div class="value" id="difficultyText">Peaceful</div></div>
       </div>
       <div class="home-btn-wrap panel"><button id="topHomeBtn">🏠 Home</button></div>
     </div>
     <div class="bottom">
       <div id="hotbar"></div>
       <div class="panel" id="help">
-        <b>Portale:</b> Obsidian-Rahmen 4 breit / 5 hoch = Nether. Rahmen komplett aus <b>Janis</b>, <b>Bala</b> oder <b>Cem</b>-Blöcken = Spezialwelt. In der jeweiligen Welt bringt dasselbe Portal wieder zurück.<br>
-        <b>Welt:</b> Mehr Biome, Berge, Strand, Schnee, Jungle, Wüste und große Chunk-Welt.
+        <b>Portale:</b> Obsidian = Nether. Janis = Janis World. Bala = Bala World. Cem = Cem World.<br>
+        <b>Neu:</b> Bala-Türme, Bala-Tempel, Bala-Portal-Strukturen, Janis/Cem-Tempel und Chaos Mode.
       </div>
-    </div>
-  </div>
-
-  <div id="touchControls">
-    <div class="touchPad" id="touchPad"><div class="touchKnob" id="touchKnob"></div></div>
-    <div class="touchActions">
-      <div class="touchBtn" id="lookBtn">LOOK</div>
-      <div class="touchBtn" id="jumpBtn">JUMP</div>
-      <div class="touchBtn" id="breakBtn">BREAK</div>
-      <div class="touchBtn" id="placeBtn">PLACE</div>
     </div>
   </div>
 
   <div id="startScreen">
     <div class="box">
-      <h1>🐷 John Pork Craft 3D Phase 4</h1>
-      <p>Jetzt mit <b>größerer unendlicher Chunk-Welt</b>, mehr Biomen, Bergen, Strand, Jungle, Wüste, Schnee und klar getrennten Spezial-Portalen.</p>
-      <p class="warn">Obsidian-Rahmen = Nether. Janis/Bala/Cem-Rahmen = jeweilige Spezialwelt. In der Spezialwelt bringt das gleiche Rahmen-Portal wieder zurück.</p>
+      <h1>🐷 John Pork Craft 3D Ultimate</h1>
+      <p>Alles zusammen in einer Datei: bessere Welt, Spezial-Portale, Bala-Strukturen und Chaos Mode.</p>
       <div class="row">
-        <button id="peacefulSurvivalBtn">☮️ Peaceful Survival</button>
-        <button id="hardSurvivalBtn">💀 Hard Survival</button>
+        <button id="survivalBtn">☮️ Survival</button>
         <button id="creativeBtn">🧱 Creative</button>
+        <button id="chaosBtn">⚡ Chaos Mode</button>
       </div>
     </div>
   </div>
@@ -125,24 +92,16 @@
   <div id="inventoryScreen">
     <div class="box">
       <h2>🎒 Inventar</h2>
-      <p>Block auswählen.</p>
+      <p>Block auswählen. <b>E</b> öffnet Inventar.</p>
       <div class="row"><button id="closeInvBtn">Schließen</button></div>
       <div class="inv-grid" id="inventoryGrid"></div>
     </div>
   </div>
 
-  <audio id="hitSound"><source src="https://www.soundjay.com/button/beep-07.mp3" type="audio/mpeg"></audio>
-  <audio id="placeSound"><source src="https://www.soundjay.com/button/button-16.mp3" type="audio/mpeg"></audio>
-  <audio id="portalSound"><source src="https://www.soundjay.com/misc/sounds/magic-chime-02.mp3" type="audio/mpeg"></audio>
-
   <script type="module">
     import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
-    const SAVE_KEY = 'johnPorkCraftPhase4V1';
-    const CHUNK_SIZE = 16;
-    const RENDER_DISTANCE = 3;
-    const PORTAL_INNER_WIDTH = 2;
-    const PORTAL_INNER_HEIGHT = 3;
+    const CHUNK_SIZE = 16, RENDER_RADIUS = 2, UNLOAD_RADIUS = 3, PORTAL_INNER_WIDTH = 2, PORTAL_INNER_HEIGHT = 3, SEA_LEVEL = 3;
 
     const game = document.getElementById('game');
     const startScreen = document.getElementById('startScreen');
@@ -152,188 +111,128 @@
     const hotbar = document.getElementById('hotbar');
     const blockNameEl = document.getElementById('blockName');
     const posTextEl = document.getElementById('posText');
-    const chunkTextEl = document.getElementById('chunkText');
     const biomeTextEl = document.getElementById('biomeText');
-    const mobTextEl = document.getElementById('mobText');
+    const fpsTextEl = document.getElementById('fpsText');
     const hpTextEl = document.getElementById('hpText');
     const modeTextEl = document.getElementById('modeText');
+    const eventTextEl = document.getElementById('eventText');
     const dimensionTextEl = document.getElementById('dimensionText');
-    const difficultyTextEl = document.getElementById('difficultyText');
     const toast = document.getElementById('toast');
-    const damageFlash = document.getElementById('damageFlash');
-    const hitSound = document.getElementById('hitSound');
-    const placeSound = document.getElementById('placeSound');
-    const portalSound = document.getElementById('portalSound');
-    const peacefulSurvivalBtn = document.getElementById('peacefulSurvivalBtn');
-    const hardSurvivalBtn = document.getElementById('hardSurvivalBtn');
+    const survivalBtn = document.getElementById('survivalBtn');
     const creativeBtn = document.getElementById('creativeBtn');
+    const chaosBtn = document.getElementById('chaosBtn');
     const topHomeBtn = document.getElementById('topHomeBtn');
-    const heldItem = document.getElementById('heldItem');
-    const heldBlock = document.getElementById('heldBlock');
-    const heldBlockImg = document.getElementById('heldBlockImg');
 
-    const isTouch = ('ontouchstart' in window) || window.matchMedia('(max-width: 900px)').matches;
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87ceeb);
-    scene.fog = new THREE.Fog(0x87ceeb, 60, 220);
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1200);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1400);
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
     game.appendChild(renderer.domElement);
 
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x557755, 1.05); scene.add(hemiLight);
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.95); dirLight.position.set(20, 30, 10); scene.add(dirLight);
-    const worldGroup = new THREE.Group(); scene.add(worldGroup);
-    const mobGroup = new THREE.Group(); scene.add(mobGroup);
+    const hemiLight = new THREE.HemisphereLight(0xcbe9ff, 0x334022, 1.15);
+    const sunLight = new THREE.DirectionalLight(0xfff3cc, 1.1);
+    sunLight.position.set(30, 40, 18);
+    scene.add(hemiLight, sunLight);
 
+    const worldGroup = new THREE.Group();
+    scene.add(worldGroup);
+
+    const cubeGeo = new THREE.BoxGeometry(1, 1, 1);
     const raycaster = new THREE.Raycaster();
     const mouseCenter = new THREE.Vector2(0, 0);
-    const cubeGeo = new THREE.BoxGeometry(1, 1, 1);
-    const worldMap = new Map();
-    const blockMeshes = [];
-    const mobs = [];
-    const loadedChunks = new Set();
-    const customBlocks = new Map();
-    const removedBlocks = new Set();
-
     const textureLoader = new THREE.TextureLoader();
-    function loadTex(path) {
-      const tex = textureLoader.load(encodeURI(path), undefined, undefined, () => {});
-      tex.colorSpace = THREE.SRGBColorSpace;
-      tex.magFilter = THREE.NearestFilter;
-      tex.minFilter = THREE.NearestFilter;
-      return new THREE.MeshLambertMaterial({ map: tex });
+
+    function tex(path) {
+      const t = textureLoader.load(encodeURI(path), undefined, undefined, () => {});
+      t.colorSpace = THREE.SRGBColorSpace;
+      t.magFilter = THREE.NearestFilter;
+      t.minFilter = THREE.NearestFilter;
+      return new THREE.MeshLambertMaterial({ map: t });
     }
-    function colorMat(color, emissive = 0x000000) { return new THREE.MeshLambertMaterial({ color, emissive }); }
+    function mat(color, opts = {}) { return new THREE.MeshLambertMaterial({ color, ...opts }); }
 
     const materials = {
-      grass: colorMat(0x4caf50), dirt: colorMat(0x7a4a24), stone: colorMat(0x888888), wood: colorMat(0x8d5a2b), leaves: colorMat(0x2e8b57), plank: colorMat(0xc99a5f), roof: colorMat(0xb63a2b), water: colorMat(0x3aa7ff), sand: colorMat(0xe7d28a), snow: colorMat(0xf4f8ff), brick: colorMat(0xb2442f), glow: colorMat(0xb8fff5, 0x335555), obsidian: colorMat(0x180b33), netherrack: colorMat(0x7a1c17), soul: colorMat(0x4b5b6a), lava: colorMat(0xff5a00, 0x661100), jungle: colorMat(0x1c6a28), clay: colorMat(0x8ca8b5), beach: colorMat(0xf1df9d),
-      portal: colorMat(0x4a1a7f, 0x2d0055), janis_portal: colorMat(0x5b2b93, 0x2c1450), bala_portal: colorMat(0x176a5d, 0x0a332c), cem_portal: colorMat(0x7b2a18, 0x3b120a),
-      screenshot1: loadTex('Screenshot 2026-03-20 125829.png'), screenshot2: loadTex('Screenshot 2026-03-20 155545.png'), screenshot3: loadTex('Screenshot 2026-03-20 181111.png'), bala: loadTex('Image (40).jpg'), janis: loadTex('Image (41).jpg'), cem: loadTex('Screenshot 2026-03-20 155545.png')
+      grass: mat(0x57b54d), dirt: mat(0x7f5530), stone: mat(0x8c9096), wood: mat(0x906136), leaves: mat(0x2f8b49),
+      plank: mat(0xcb9c63), roof: mat(0xb6462f), water: mat(0x48a9ff, { transparent: true, opacity: 0.72 }),
+      sand: mat(0xe8d59a), snow: mat(0xf4fbff), brick: mat(0xb54c39), glow: mat(0xc4fff2),
+      obsidian: mat(0x191028), netherrack: mat(0x76231b), soul: mat(0x4d6372), jungle: mat(0x226b2a), beach: mat(0xf3e1a6),
+      gold: mat(0xffd84a),
+      portal: mat(0x5b1b8c), janis_portal: mat(0x7132c4), bala_portal: mat(0x19806c), cem_portal: mat(0x8d341a),
+      bala: tex('Image (40).jpg'), janis: tex('Image (41).jpg'), cem: tex('Screenshot 2026-03-20 155545.png')
     };
 
     const blockTypes = [
-      { key: 'grass', label: 'Grass', mat: materials.grass, held: '#4caf50' }, { key: 'dirt', label: 'Dirt', mat: materials.dirt, held: '#7a4a24' }, { key: 'stone', label: 'Stone', mat: materials.stone, held: '#888888' }, { key: 'wood', label: 'Wood', mat: materials.wood, held: '#8d5a2b' }, { key: 'leaves', label: 'Leaves', mat: materials.leaves, held: '#2e8b57' }, { key: 'plank', label: 'Plank', mat: materials.plank, held: '#c99a5f' }, { key: 'roof', label: 'Roof', mat: materials.roof, held: '#b63a2b' }, { key: 'water', label: 'Water', mat: materials.water, held: '#3aa7ff' }, { key: 'sand', label: 'Sand', mat: materials.sand, held: '#e7d28a' }, { key: 'snow', label: 'Snow', mat: materials.snow, held: '#f4f8ff' }, { key: 'brick', label: 'Brick', mat: materials.brick, held: '#b2442f' }, { key: 'glow', label: 'Glow', mat: materials.glow, held: '#b8fff5' }, { key: 'obsidian', label: 'Obsidian', mat: materials.obsidian, held: '#180b33' }, { key: 'screenshot1', label: 'Screenshot 1', mat: materials.screenshot1, held: 'Screenshot 2026-03-20 125829.png' }, { key: 'screenshot2', label: 'Screenshot 2', mat: materials.screenshot2, held: 'Screenshot 2026-03-20 155545.png' }, { key: 'screenshot3', label: 'Screenshot 3', mat: materials.screenshot3, held: 'Screenshot 2026-03-20 181111.png' }, { key: 'bala', label: 'Bala', mat: materials.bala, held: 'Image (40).jpg' }, { key: 'janis', label: 'Janis', mat: materials.janis, held: 'Image (41).jpg' }, { key: 'cem', label: 'Cem', mat: materials.cem, held: 'Screenshot 2026-03-20 155545.png' }
+      { key: 'grass', label: 'Grass', mat: materials.grass, held: '#57b54d' },
+      { key: 'dirt', label: 'Dirt', mat: materials.dirt, held: '#7f5530' },
+      { key: 'stone', label: 'Stone', mat: materials.stone, held: '#8c9096' },
+      { key: 'wood', label: 'Wood', mat: materials.wood, held: '#906136' },
+      { key: 'leaves', label: 'Leaves', mat: materials.leaves, held: '#2f8b49' },
+      { key: 'plank', label: 'Plank', mat: materials.plank, held: '#cb9c63' },
+      { key: 'roof', label: 'Roof', mat: materials.roof, held: '#b6462f' },
+      { key: 'water', label: 'Water', mat: materials.water, held: '#48a9ff' },
+      { key: 'sand', label: 'Sand', mat: materials.sand, held: '#e8d59a' },
+      { key: 'snow', label: 'Snow', mat: materials.snow, held: '#f4fbff' },
+      { key: 'brick', label: 'Brick', mat: materials.brick, held: '#b54c39' },
+      { key: 'glow', label: 'Glow', mat: materials.glow, held: '#c4fff2' },
+      { key: 'obsidian', label: 'Obsidian', mat: materials.obsidian, held: '#191028' },
+      { key: 'gold', label: 'Gold', mat: materials.gold, held: '#ffd84a' },
+      { key: 'bala', label: 'Bala', mat: materials.bala, held: 'Image (40).jpg' },
+      { key: 'janis', label: 'Janis', mat: materials.janis, held: 'Image (41).jpg' },
+      { key: 'cem', label: 'Cem', mat: materials.cem, held: 'Screenshot 2026-03-20 155545.png' }
     ];
 
-    let selectedBlock = 0, hp = 100, gameMode = 'creative', difficulty = 'peaceful', started = false, dimension = 'overworld', portalCooldown = 0;
-    const player = { pos: new THREE.Vector3(0, 8, 0), vel: new THREE.Vector3(), yaw: -Math.PI / 2, pitch: -0.15, speed: 7.2, jump: 7.8, onGround: false, height: 1.75, radius: 0.34, attackCooldown: 0 };
-    const keys = {}, touchMove = { x: 0, y: 0 };
-    let pointerLocked = false, lookActive = false, lookPrev = null;
-    let worldTime = 0;
+    const player = { pos: new THREE.Vector3(0, 9, 0), vel: new THREE.Vector3(), yaw: -Math.PI / 2, pitch: -0.18, speed: 7.4, jump: 7.8, onGround: false, height: 1.75, radius: 0.34 };
+    const keys = {};
+    const worldMap = new Map();
+    const blockMeshes = [];
+    const loadedChunks = new Map();
 
-    function showToast(text) { toast.textContent = text; toast.classList.add('show'); clearTimeout(showToast._t); showToast._t = setTimeout(() => toast.classList.remove('show'), 1500); }
-    function updateHeldItem() {
-      const block = getCurrentBlockList()[selectedBlock] || getCurrentBlockList()[0];
-      const isImage = typeof block.held === 'string' && (block.held.endsWith('.png') || block.held.endsWith('.jpg'));
-      heldBlock.style.background = isImage ? '#111' : block.held; heldBlockImg.style.display = isImage ? 'block' : 'none'; if (isImage) heldBlockImg.src = encodeURI(block.held);
-    }
-    function getCurrentBlockList() { return gameMode === 'creative' ? blockTypes : blockTypes.slice(0, 13); }
+    let selectedBlock = 0, hp = 100, gameMode = 'creative', dimension = 'overworld', started = false, worldTime = 0, portalCooldown = 0;
+    let fpsFrameCount = 0, fpsTimer = 0, chaosTimer = 10, activeEvent = '---';
+    let chaosState = { speedMul: 1, jumpMul: 1, lowGravity: false, darkness: false };
+
+    function currentList() { return gameMode === 'creative' ? blockTypes : blockTypes.slice(0, 14); }
+    function showToast(text) { toast.textContent = text; toast.classList.add('show'); clearTimeout(showToast.t); showToast.t = setTimeout(() => toast.classList.remove('show'), 1600); }
+    function keyFor(x, y, z, dim = dimension) { return `${dim}|${x},${y},${z}`; }
+    function chunkKey(cx, cz, dim = dimension) { return `${dim}|${cx},${cz}`; }
+    function rand(a, b, c = 0) { const n = Math.sin(a * 127.1 + b * 311.7 + c * 74.7) * 43758.5453123; return n - Math.floor(n); }
+    function noise2(x, z) { return Math.sin(x * 0.018) * 0.8 + Math.cos(z * 0.016) * 0.8 + Math.sin((x + z) * 0.009) * 1.2 + Math.cos((x - z) * 0.011) * 1.15; }
 
     function getBiome(wx, wz, dim = dimension) {
       if (dim === 'nether') return 'Nether';
       if (dim === 'janis_world') return 'Janis';
       if (dim === 'bala_world') return 'Bala';
       if (dim === 'cem_world') return 'Cem';
-      const heat = Math.sin(wx * 0.01) + Math.cos(wz * 0.012) + Math.sin((wx + wz) * 0.006);
-      const wet = Math.cos(wx * 0.014) + Math.sin(wz * 0.013);
-      const elev = Math.sin(wx * 0.028) + Math.cos(wz * 0.025);
-      if (elev > 1.0) return 'Mountains';
-      if (heat > 1.2 && wet < 0.1) return 'Desert';
-      if (wet > 1.2 && heat > 0.2) return 'Jungle';
-      if (heat < -0.7) return 'Snow';
-      if (wet > 0.3 && wet < 0.9 && Math.abs(heat) < 0.4) return 'Beach';
+      const heat = Math.sin(wx * 0.012) + Math.cos(wz * 0.012) + Math.sin((wx + wz) * 0.005);
+      const wet = Math.cos(wx * 0.015) + Math.sin(wz * 0.014);
+      const elev = noise2(wx, wz);
+      if (elev > 2.3) return 'Mountains';
+      if (heat > 1.15 && wet < 0) return 'Desert';
+      if (wet > 1.2 && heat > 0.1) return 'Jungle';
+      if (heat < -0.8) return 'Snow';
+      if (wet > 0.35 && wet < 0.9 && Math.abs(heat) < 0.45) return 'Beach';
       return 'Plains';
     }
 
-    function updateHud() {
-      const list = getCurrentBlockList();
-      blockNameEl.textContent = list[selectedBlock]?.label || 'Grass';
-      posTextEl.textContent = `${player.pos.x.toFixed(1)}, ${player.pos.y.toFixed(1)}, ${player.pos.z.toFixed(1)}`;
-      chunkTextEl.textContent = String(loadedChunks.size);
-      biomeTextEl.textContent = getBiome(player.pos.x, player.pos.z, dimension);
-      mobTextEl.textContent = String(mobs.filter(m => m.parent).length);
-      hpTextEl.textContent = gameMode === 'creative' ? '∞' : String(Math.max(0, Math.round(hp)));
-      modeTextEl.textContent = gameMode === 'creative' ? 'Creative' : 'Survival';
-      difficultyTextEl.textContent = difficulty === 'hard' ? 'Hard' : 'Peaceful';
-      dimensionTextEl.textContent = dimension.replace('_', ' ');
-      updateHeldItem();
+    function heightAt(wx, wz, dim = dimension) {
+      if (dim === 'nether') return Math.max(2, Math.min(13, Math.round(5 + Math.sin(wx * 0.08) * 2 + Math.cos(wz * 0.07) * 2 + Math.sin((wx - wz) * 0.04) * 2)));
+      if (dim === 'janis_world' || dim === 'bala_world' || dim === 'cem_world') return Math.max(2, Math.min(8, Math.round(3 + Math.sin(wx * 0.05) + Math.cos(wz * 0.05) + Math.sin((wx + wz) * 0.03))));
+      const biome = getBiome(wx, wz, dim), n = noise2(wx, wz);
+      if (biome === 'Mountains') return Math.max(4, Math.min(18, Math.round(8 + n * 2.4)));
+      if (biome === 'Desert') return Math.max(2, Math.min(6, Math.round(3 + n * 0.6)));
+      if (biome === 'Snow') return Math.max(3, Math.min(11, Math.round(5 + n * 1.1)));
+      if (biome === 'Jungle') return Math.max(3, Math.min(9, Math.round(4 + n * 0.9)));
+      if (biome === 'Beach') return Math.max(2, Math.min(4, Math.round(2 + n * 0.3)));
+      return Math.max(2, Math.min(8, Math.round(4 + n * 0.7)));
     }
 
-    function buildHotbar() {
-      hotbar.innerHTML = '';
-      getCurrentBlockList().forEach((b, i) => {
-        const slot = document.createElement('div'); slot.className = 'slot' + (i === selectedBlock ? ' active' : '');
-        const img = document.createElement('img');
-        if (typeof b.held === 'string' && (b.held.endsWith('.png') || b.held.endsWith('.jpg'))) img.src = encodeURI(b.held); else {
-          const canvas = document.createElement('canvas'); canvas.width = 48; canvas.height = 48; const ctx = canvas.getContext('2d'); ctx.fillStyle = b.held; ctx.fillRect(0,0,48,48); img.src = canvas.toDataURL();
-        }
-        slot.appendChild(img); const n = document.createElement('span'); n.textContent = i < 9 ? i + 1 : ''; slot.appendChild(n);
-        slot.onclick = () => { selectedBlock = i; refreshHotbar(); }; hotbar.appendChild(slot);
-      });
-      refreshHotbar();
-    }
-    function buildInventory() {
-      inventoryGrid.innerHTML = '';
-      getCurrentBlockList().forEach((b, i) => {
-        const item = document.createElement('div'); item.className = 'inv-item' + (i === selectedBlock ? ' active' : '');
-        const img = document.createElement('img');
-        if (typeof b.held === 'string' && (b.held.endsWith('.png') || b.held.endsWith('.jpg'))) img.src = encodeURI(b.held); else {
-          const canvas = document.createElement('canvas'); canvas.width = 64; canvas.height = 64; const ctx = canvas.getContext('2d'); ctx.fillStyle = b.held; ctx.fillRect(0,0,64,64); img.src = canvas.toDataURL();
-        }
-        const name = document.createElement('div'); name.className = 'inv-name'; name.textContent = b.label; item.append(img, name);
-        item.onclick = () => { selectedBlock = i; refreshHotbar(); buildInventory(); }; inventoryGrid.appendChild(item);
-      });
-    }
-    function refreshHotbar() { [...hotbar.children].forEach((c, i) => c.classList.toggle('active', i === selectedBlock)); updateHud(); }
-    function openInventory() { buildInventory(); inventoryScreen.style.display = 'flex'; if (document.pointerLockElement) document.exitPointerLock(); }
-    function closeInventory() { inventoryScreen.style.display = 'none'; if (started && !isTouch) renderer.domElement.requestPointerLock(); }
-    closeInvBtn.onclick = closeInventory; topHomeBtn.onclick = () => { window.location.href = 'index.html'; };
-
-    function worldKey(x, y, z) { return `${dimension}|${x},${y},${z}`; }
-    function chunkKey(cx, cz) { return `${dimension}|${cx},${cz}`; }
-    function customBlockKey(x, y, z) { return `${dimension}|${x},${y},${z}`; }
-    function blockTypeByKey(typeKey) { return blockTypes.find(b => b.key === typeKey) || { key: typeKey, mat: materials[typeKey] || materials.portal }; }
-
-    function addBlock(x, y, z, typeKey, source = 'custom') {
-      const k = worldKey(x, y, z); if (worldMap.has(k)) return null;
-      const type = blockTypeByKey(typeKey); const mat = type.mat || materials[typeKey] || materials.portal;
-      const mesh = new THREE.Mesh(cubeGeo, mat); mesh.position.set(x, y, z); mesh.userData = { x, y, z, type: typeKey, source };
-      worldGroup.add(mesh); worldMap.set(k, mesh); blockMeshes.push(mesh);
-      if (source === 'custom') { customBlocks.set(customBlockKey(x, y, z), typeKey); removedBlocks.delete(customBlockKey(x, y, z)); }
-      return mesh;
-    }
-    function removeBlock(x, y, z) {
-      const k = worldKey(x, y, z), mesh = worldMap.get(k); if (!mesh) return;
-      worldGroup.remove(mesh); worldMap.delete(k); const idx = blockMeshes.indexOf(mesh); if (idx >= 0) blockMeshes.splice(idx, 1);
-      if (mesh.userData.source === 'world') removedBlocks.add(customBlockKey(x, y, z)); else customBlocks.delete(customBlockKey(x, y, z));
-    }
-    function clearWorld() { while (blockMeshes.length) { const m = blockMeshes.pop(); if (m.parent) m.parent.remove(m); } worldMap.clear(); loadedChunks.clear(); while (mobs.length) { const m = mobs.pop(); if (m.parent) m.parent.remove(m); } }
-
-    function specialFloorForDimension(dim) {
+    function topType(wx, wz, y, dim = dimension) {
+      if (dim === 'nether') return (wx + wz) % 11 === 0 ? 'soul' : 'netherrack';
       if (dim === 'janis_world') return 'janis';
       if (dim === 'bala_world') return 'bala';
       if (dim === 'cem_world') return 'cem';
-      return null;
-    }
-
-    function getHeight(wx, wz, dim = dimension) {
-      if (dim === 'nether') return Math.max(0, Math.min(10, Math.round(Math.sin(wx * 0.09) * 3 + Math.cos(wz * 0.08) * 3 + Math.sin((wx - wz) * 0.04) * 2 + 3)));
-      if (specialFloorForDimension(dim)) return Math.max(1, Math.min(4, Math.round(Math.sin(wx * 0.05) + Math.cos(wz * 0.05) + 2)));
-      const biome = getBiome(wx, wz, dim);
-      const base = Math.sin(wx * 0.018) * 2 + Math.cos(wz * 0.018) * 2 + Math.sin((wx + wz) * 0.01) * 2;
-      if (biome === 'Mountains') return Math.max(2, Math.min(16, Math.round(base * 2.3 + 7)));
-      if (biome === 'Desert') return Math.max(1, Math.min(6, Math.round(base * 0.8 + 3)));
-      if (biome === 'Jungle') return Math.max(2, Math.min(9, Math.round(base * 1.1 + 4)));
-      if (biome === 'Snow') return Math.max(2, Math.min(10, Math.round(base * 1.3 + 5)));
-      if (biome === 'Beach') return Math.max(1, Math.min(4, Math.round(base * 0.4 + 2)));
-      return Math.max(1, Math.min(8, Math.round(base + 4)));
-    }
-
-    function maybeSpecialTop(wx, wz, y, dim = dimension) {
-      const specialFloor = specialFloorForDimension(dim); if (specialFloor) return specialFloor;
-      if (dim === 'nether') return (wx + wz) % 11 === 0 ? 'soul' : 'netherrack';
       const biome = getBiome(wx, wz, dim);
       if (biome === 'Desert') return 'sand';
       if (biome === 'Snow') return 'snow';
@@ -344,125 +243,219 @@
       return 'grass';
     }
 
-    function buildTree(wx, wz, baseY, biome = 'Plains') {
-      const h = biome === 'Jungle' ? 6 + (Math.abs(wx + wz) % 4) : 3 + (Math.abs(wx + wz) % 3);
-      for (let i = 1; i <= h; i++) addBlock(wx, baseY + i, wz, 'wood', 'world');
+    function undergroundType(wx, wz, y, dim = dimension) {
+      if (dim === 'nether') return y < 1 ? 'obsidian' : 'netherrack';
+      if (dim === 'janis_world') return 'janis';
+      if (dim === 'bala_world') return 'bala';
+      if (dim === 'cem_world') return 'cem';
+      const biome = getBiome(wx, wz, dim);
+      if (biome === 'Mountains') return 'stone';
+      if (biome === 'Desert') return 'sand';
+      return 'dirt';
+    }
+
+    function blockTypeByKey(typeKey) { return blockTypes.find(b => b.key === typeKey) || { key: typeKey, mat: materials[typeKey] || materials.grass }; }
+
+    function addBlock(x, y, z, typeKey, source = 'custom') {
+      const k = keyFor(x, y, z);
+      if (worldMap.has(k)) return null;
+      const mesh = new THREE.Mesh(cubeGeo, blockTypeByKey(typeKey).mat);
+      mesh.position.set(x, y, z);
+      mesh.userData = { x, y, z, type: typeKey, source };
+      worldGroup.add(mesh);
+      worldMap.set(k, mesh);
+      blockMeshes.push(mesh);
+      return mesh;
+    }
+
+    function removeBlock(x, y, z) {
+      const k = keyFor(x, y, z), mesh = worldMap.get(k);
+      if (!mesh) return;
+      worldGroup.remove(mesh); worldMap.delete(k);
+      const idx = blockMeshes.indexOf(mesh); if (idx >= 0) blockMeshes.splice(idx, 1);
+    }
+
+    function clearWorld() {
+      while (blockMeshes.length) { const m = blockMeshes.pop(); if (m.parent) m.parent.remove(m); }
+      worldMap.clear(); loadedChunks.clear();
+    }
+
+    function buildTree(wx, wz, baseY, biome) {
+      const h = biome === 'Jungle' ? 6 + Math.floor(rand(wx, wz) * 3) : 3 + Math.floor(rand(wx, wz) * 3);
+      for (let i = 1; i <= h; i++) addBlock(wx, baseY + i, wz, 'wood');
       const radius = biome === 'Jungle' ? 3 : 2;
-      for (let lx = -radius; lx <= radius; lx++) for (let lz = -radius; lz <= radius; lz++) for (let ly = h - 1; ly <= h + 1; ly++) if (Math.abs(lx) + Math.abs(lz) < (biome === 'Jungle' ? 5 : 4)) addBlock(wx + lx, baseY + ly, wz + lz, 'leaves', 'world');
+      for (let lx = -radius; lx <= radius; lx++) for (let lz = -radius; lz <= radius; lz++) for (let ly = h - 1; ly <= h + 1; ly++) if (Math.abs(lx) + Math.abs(lz) <= radius + 1) addBlock(wx + lx, baseY + ly, wz + lz, 'leaves');
     }
 
-    function buildHouse(wx, wz, faceType = 'screenshot2') {
-      for (let dx = 0; dx < 5; dx++) for (let dz = 0; dz < 5; dz++) addBlock(wx + dx, 1, wz + dz, 'plank', 'world');
-      for (let y = 2; y <= 4; y++) {
-        for (let dx = 0; dx < 5; dx++) {
-          for (let dz = 0; dz < 5; dz++) {
-            const edge = dx === 0 || dz === 0 || dx === 4 || dz === 4; if (!edge) continue; if (dx === 2 && dz === 0 && y <= 3) continue; addBlock(wx + dx, y, wz + dz, 'plank', 'world');
-          }
-        }
-      }
-      for (let dx = -1; dx <= 5; dx++) for (let dz = -1; dz <= 5; dz++) if (Math.abs(dx - 2) + Math.abs(dz - 2) <= 4) addBlock(wx + dx, 5, wz + dz, 'roof', 'world');
-      addBlock(wx + 2, 2, wz + 2, faceType, 'world');
+    function buildTower(wx, wz, yBase, type) { const h = 7 + Math.floor(rand(wx, wz, 2) * 5); for (let y = yBase; y < yBase + h; y++) addBlock(wx, y, wz, type); addBlock(wx, yBase + h, wz, 'glow'); }
+    function buildShrine(wx, wz, yBase, centerType) { for (let dx = -2; dx <= 2; dx++) for (let dz = -2; dz <= 2; dz++) addBlock(wx + dx, yBase, wz + dz, 'plank'); addBlock(wx, yBase + 1, wz, centerType); addBlock(wx + 1, yBase + 1, wz, 'glow'); addBlock(wx - 1, yBase + 1, wz, 'glow'); }
+    function buildTemple(wx, wz, yBase, pillarType, centerType) {
+      for (let dx = -3; dx <= 3; dx++) for (let dz = -3; dz <= 3; dz++) addBlock(wx + dx, yBase, wz + dz, 'brick');
+      const pillars = [[-2,-2],[2,-2],[-2,2],[2,2]];
+      for (const [dx, dz] of pillars) for (let y = 1; y <= 4; y++) addBlock(wx + dx, yBase + y, wz + dz, pillarType);
+      addBlock(wx, yBase + 1, wz, centerType); addBlock(wx, yBase + 2, wz, 'glow');
     }
 
-    function buildSpecialStructure(wx, wz, type) {
-      const floor = type === 'janis_world' ? 'janis' : type === 'bala_world' ? 'bala' : 'cem';
-      for (let dx = -3; dx <= 3; dx++) for (let dz = -3; dz <= 3; dz++) addBlock(wx + dx, 2, wz + dz, floor, 'world');
-      for (let y = 3; y <= 8; y++) {
-        addBlock(wx, y, wz, floor, 'world');
-        if (y % 2 === 0) { addBlock(wx + 1, y, wz, floor, 'world'); addBlock(wx - 1, y, wz, floor, 'world'); }
-      }
+    function buildPortalFrameStructure(wx, wz, yBase, frameType) {
+      for (let y = 0; y < 5; y++) { addBlock(wx, yBase + y, wz, frameType); addBlock(wx + 3, yBase + y, wz, frameType); }
+      for (let x = 0; x < 4; x++) { addBlock(wx + x, yBase, wz, frameType); addBlock(wx + x, yBase + 4, wz, frameType); }
+      maybeActivatePortalAround(wx + 1, yBase + 1, wz);
+    }
+
+    function generateStructureForChunk(cx, cz, centerX, centerZ, yBase) {
+      const roll = rand(cx, cz, dimension.length);
+      if (dimension === 'bala_world') { if (roll > 0.75) buildTower(centerX, centerZ, yBase + 1, 'bala'); else if (roll > 0.48) buildTemple(centerX, centerZ, yBase + 1, 'bala', 'bala'); else if (roll > 0.28) buildPortalFrameStructure(centerX, centerZ, yBase + 1, 'bala'); else buildShrine(centerX, centerZ, yBase + 1, 'bala'); return; }
+      if (dimension === 'janis_world') { if (roll > 0.68) buildTemple(centerX, centerZ, yBase + 1, 'janis', 'janis'); else if (roll > 0.35) buildPortalFrameStructure(centerX, centerZ, yBase + 1, 'janis'); else buildShrine(centerX, centerZ, yBase + 1, 'janis'); return; }
+      if (dimension === 'cem_world') { if (roll > 0.68) buildTemple(centerX, centerZ, yBase + 1, 'cem', 'cem'); else if (roll > 0.35) buildPortalFrameStructure(centerX, centerZ, yBase + 1, 'cem'); else buildShrine(centerX, centerZ, yBase + 1, 'cem'); return; }
+      if (dimension === 'nether') { if (roll > 0.7) buildTower(centerX, centerZ, yBase + 1, 'obsidian'); return; }
+      if (roll > 0.85) buildTemple(centerX, centerZ, yBase + 1, 'bala', 'bala');
+      else if (roll > 0.73) buildTemple(centerX, centerZ, yBase + 1, 'janis', 'janis');
+      else if (roll > 0.61) buildTemple(centerX, centerZ, yBase + 1, 'cem', 'cem');
+      else if (roll > 0.5) buildPortalFrameStructure(centerX, centerZ, yBase + 1, 'bala');
+      else if (roll > 0.4) buildPortalFrameStructure(centerX, centerZ, yBase + 1, 'janis');
+      else if (roll > 0.3) buildPortalFrameStructure(centerX, centerZ, yBase + 1, 'cem');
     }
 
     function generateChunk(cx, cz) {
-      const ck = chunkKey(cx, cz); if (loadedChunks.has(ck)) return; loadedChunks.add(ck);
+      const ck = chunkKey(cx, cz); if (loadedChunks.has(ck)) return;
+      const blocksInChunk = []; loadedChunks.set(ck, { blocks: blocksInChunk });
       const startX = cx * CHUNK_SIZE, startZ = cz * CHUNK_SIZE;
-      for (let x = 0; x < CHUNK_SIZE; x++) {
-        for (let z = 0; z < CHUNK_SIZE; z++) {
-          const wx = startX + x, wz = startZ + z, h = getHeight(wx, wz, dimension), top = maybeSpecialTop(wx, wz, h, dimension), biome = getBiome(wx, wz, dimension);
-          const bottom = 0;
-          for (let y = bottom; y < h; y++) {
-            let type = y === h - 1 ? top : specialFloorForDimension(dimension) ? specialFloorForDimension(dimension) : (dimension === 'nether' ? 'netherrack' : (biome === 'Mountains' ? 'stone' : 'dirt'));
-            if (dimension === 'nether' && y < h - 5) type = 'obsidian';
-            const cKey = customBlockKey(wx, y, wz); if (removedBlocks.has(cKey) || customBlocks.has(cKey)) continue;
-            addBlock(wx, y, wz, type, 'world');
-          }
-          if (dimension === 'overworld') {
-            if ((wx + wz) % (biome === 'Jungle' ? 17 : 29) === 0 && ['Plains','Jungle'].includes(biome)) buildTree(wx, wz, h - 1, biome);
-            if (biome === 'Beach' && (wx * 5 + wz) % 31 === 0) addBlock(wx, h, wz, 'water', 'world');
-          } else if (dimension === 'nether') {
-            if ((wx * 7 + wz) % 29 === 0) addBlock(wx, h, wz, 'lava', 'world');
-          }
+      for (let x = 0; x < CHUNK_SIZE; x++) for (let z = 0; z < CHUNK_SIZE; z++) {
+        const wx = startX + x, wz = startZ + z, h = heightAt(wx, wz, dimension), top = topType(wx, wz, h, dimension);
+        for (let y = Math.max(0, h - 2); y <= h; y++) { const type = y === h ? top : undergroundType(wx, wz, y, dimension); const mesh = addBlock(wx, y, wz, type); if (mesh) blocksInChunk.push(mesh); }
+        if (dimension === 'overworld' && h <= SEA_LEVEL) for (let y = h + 1; y <= SEA_LEVEL; y++) { const mesh = addBlock(wx, y, wz, 'water'); if (mesh) blocksInChunk.push(mesh); }
+      }
+      const centerX = startX + 8, centerZ = startZ + 8, hCenter = heightAt(centerX, centerZ, dimension);
+      generateStructureForChunk(cx, cz, centerX, centerZ, hCenter);
+      if (dimension === 'overworld') {
+        const biome = getBiome(centerX, centerZ, dimension), treeCount = biome === 'Jungle' ? 4 : biome === 'Plains' ? 2 : 1;
+        for (let i = 0; i < treeCount; i++) { const tx = startX + 2 + Math.floor(rand(cx, cz, i + 1) * 12), tz = startZ + 2 + Math.floor(rand(cz, cx, i + 11) * 12), th = heightAt(tx, tz, dimension), tb = getBiome(tx, tz, dimension); if (tb === 'Plains' || tb === 'Jungle' || tb === 'Snow') buildTree(tx, tz, th, tb); }
+      }
+    }
+
+    function unloadFarChunks() {
+      const cx = Math.floor(player.pos.x / CHUNK_SIZE), cz = Math.floor(player.pos.z / CHUNK_SIZE);
+      for (const [ck, info] of loadedChunks.entries()) {
+        const [dim, pair] = ck.split('|'); if (dim !== dimension) continue;
+        const [x, z] = pair.split(',').map(Number);
+        if (Math.abs(x - cx) > UNLOAD_RADIUS || Math.abs(z - cz) > UNLOAD_RADIUS) {
+          info.blocks.forEach(m => { if (m.parent) m.parent.remove(m); worldMap.delete(keyFor(m.userData.x, m.userData.y, m.userData.z, dim)); const idx = blockMeshes.indexOf(m); if (idx >= 0) blockMeshes.splice(idx, 1); });
+          loadedChunks.delete(ck);
         }
       }
-      if (dimension === 'overworld' && cx === 1 && cz === 1) { buildHouse(startX + 4, startZ + 4, 'screenshot2'); addBlock(startX + 9, 2, startZ + 6, 'bala', 'world'); addBlock(startX + 6, 2, startZ + 9, 'janis', 'world'); addBlock(startX + 4, 2, startZ + 9, 'cem', 'world'); }
-      if (specialFloorForDimension(dimension) && cx === 0 && cz === 0) buildSpecialStructure(startX + 8, startZ + 8, dimension);
-      customBlocks.forEach((type, key) => {
-        if (!key.startsWith(`${dimension}|`)) return;
-        const rest = key.slice(dimension.length + 1); const [sx, sy, sz] = rest.split(',').map(Number);
-        if (sx >= startX && sx < startX + CHUNK_SIZE && sz >= startZ && sz < startZ + CHUNK_SIZE) { const wk = worldKey(sx, sy, sz); if (!worldMap.has(wk)) addBlock(sx, sy, sz, type, 'custom'); }
+    }
+
+    function ensureChunksAroundPlayer() {
+      const cx = Math.floor(player.pos.x / CHUNK_SIZE), cz = Math.floor(player.pos.z / CHUNK_SIZE);
+      for (let dx = -RENDER_RADIUS; dx <= RENDER_RADIUS; dx++) for (let dz = -RENDER_RADIUS; dz <= RENDER_RADIUS; dz++) generateChunk(cx + dx, cz + dz);
+      unloadFarChunks();
+    }
+
+    function updateHud() {
+      blockNameEl.textContent = currentList()[selectedBlock]?.label || 'Grass';
+      posTextEl.textContent = `${player.pos.x.toFixed(1)}, ${player.pos.y.toFixed(1)}, ${player.pos.z.toFixed(1)}`;
+      biomeTextEl.textContent = getBiome(player.pos.x, player.pos.z, dimension);
+      hpTextEl.textContent = gameMode === 'creative' ? '∞' : String(Math.max(0, Math.round(hp)));
+      modeTextEl.textContent = gameMode === 'chaos' ? 'Chaos' : gameMode === 'creative' ? 'Creative' : 'Survival';
+      eventTextEl.textContent = activeEvent;
+      dimensionTextEl.textContent = dimension.replace('_', ' ');
+    }
+
+    function buildHotbar() {
+      hotbar.innerHTML = '';
+      currentList().forEach((b, i) => {
+        const slot = document.createElement('div'); slot.className = 'slot' + (i === selectedBlock ? ' active' : '');
+        const img = document.createElement('img');
+        if (typeof b.held === 'string' && (b.held.endsWith('.png') || b.held.endsWith('.jpg'))) img.src = encodeURI(b.held);
+        else { const canvas = document.createElement('canvas'); canvas.width = 48; canvas.height = 48; const ctx = canvas.getContext('2d'); ctx.fillStyle = b.held; ctx.fillRect(0,0,48,48); img.src = canvas.toDataURL(); }
+        const n = document.createElement('span'); n.textContent = i < 9 ? i + 1 : '';
+        slot.appendChild(img); slot.appendChild(n); slot.onclick = () => { selectedBlock = i; refreshHotbar(); }; hotbar.appendChild(slot);
+      });
+      refreshHotbar();
+    }
+
+    function buildInventory() {
+      inventoryGrid.innerHTML = '';
+      currentList().forEach((b, i) => {
+        const item = document.createElement('div'); item.className = 'inv-item' + (i === selectedBlock ? ' active' : '');
+        const img = document.createElement('img');
+        if (typeof b.held === 'string' && (b.held.endsWith('.png') || b.held.endsWith('.jpg'))) img.src = encodeURI(b.held);
+        else { const canvas = document.createElement('canvas'); canvas.width = 64; canvas.height = 64; const ctx = canvas.getContext('2d'); ctx.fillStyle = b.held; ctx.fillRect(0,0,64,64); img.src = canvas.toDataURL(); }
+        const name = document.createElement('div'); name.className = 'inv-name'; name.textContent = b.label; item.append(img, name);
+        item.onclick = () => { selectedBlock = i; refreshHotbar(); buildInventory(); }; inventoryGrid.appendChild(item);
       });
     }
 
-    function ensureChunksAroundPlayer() { const cx = Math.floor(player.pos.x / CHUNK_SIZE), cz = Math.floor(player.pos.z / CHUNK_SIZE); for (let dx = -RENDER_DISTANCE; dx <= RENDER_DISTANCE; dx++) for (let dz = -RENDER_DISTANCE; dz <= RENDER_DISTANCE; dz++) generateChunk(cx + dx, cz + dz); }
+    function refreshHotbar() { [...hotbar.children].forEach((c, i) => c.classList.toggle('active', i === selectedBlock)); updateHud(); }
+    function openInventory() { buildInventory(); inventoryScreen.style.display = 'flex'; if (document.pointerLockElement) document.exitPointerLock(); }
+    function closeInventory() { inventoryScreen.style.display = 'none'; if (started) renderer.domElement.requestPointerLock(); }
+    closeInvBtn.onclick = closeInventory; topHomeBtn.onclick = () => window.location.href = 'index.html';
 
-    function createNpc(x, z, hostile = false) { const g = new THREE.Group(); const bodyMat = hostile ? materials.screenshot1 : materials.screenshot2; const headMat = hostile ? materials.screenshot3 : materials.bala; const body = new THREE.Mesh(new THREE.BoxGeometry(0.9,1.2,0.45), bodyMat); body.position.y = 1.1; const head = new THREE.Mesh(new THREE.BoxGeometry(0.75,0.75,0.75), headMat); head.position.y = 2.05; g.add(body, head); g.position.set(x, getHeight(x,z,dimension) + 0.1, z); g.userData = { homeX:x, homeZ:z, t:Math.random() * Math.PI * 2, hostile, hp:difficulty === 'hard' ? 3 : 1, cooldown:0, dimension }; mobGroup.add(g); mobs.push(g); }
-    function clearMobs() { while (mobs.length) { const m = mobs.pop(); if (m.parent) m.parent.remove(m); } }
-    function spawnInitialNpcs() {
-      clearMobs();
-      if (dimension === 'overworld') { createNpc(12,12,false); createNpc(18,8,false); if (difficulty === 'hard' && gameMode === 'survival') createNpc(-10,-10,true); }
-      else if (dimension === 'nether') { if (gameMode === 'survival') { createNpc(6,6,true); createNpc(12,-4,true); } }
-      else { createNpc(5,5,false); if (difficulty === 'hard' && gameMode === 'survival') createNpc(10,10,true); }
+    function intersectsAt(pos) {
+      const minX = pos.x - player.radius, maxX = pos.x + player.radius, minY = pos.y - player.height, maxY = pos.y, minZ = pos.z - player.radius, maxZ = pos.z + player.radius;
+      for (let x = Math.floor(minX); x <= Math.floor(maxX); x++) for (let y = Math.floor(minY); y <= Math.floor(maxY); y++) for (let z = Math.floor(minZ); z <= Math.floor(maxZ); z++) { const mesh = worldMap.get(keyFor(x, y, z)); if (mesh && !isPortalType(mesh.userData.type) && mesh.userData.type !== 'water') return true; }
+      return false;
     }
-    function maybeSpawnNightMonster() { if (gameMode === 'creative' || difficulty === 'peaceful' || dimension !== 'overworld') return; const hostileCount = mobs.filter(m => m.userData.hostile && m.parent).length; if (hostileCount >= 6) return; const ang = Math.random() * Math.PI * 2, dist = 12 + Math.random() * 10; createNpc(Math.round(player.pos.x + Math.cos(ang) * dist), Math.round(player.pos.z + Math.sin(ang) * dist), true); }
+
+    function tryStepUp(basePos, moveX, moveZ) { for (const step of [0.6,1.0,1.2]) { const stepped = basePos.clone(); stepped.y += step; if (intersectsAt(stepped)) continue; const moved = stepped.clone(); moved.x += moveX; moved.z += moveZ; if (intersectsAt(moved)) continue; return moved; } return null; }
+
+    function movePlayer(dt) {
+      const forward = new THREE.Vector3(); camera.getWorldDirection(forward); forward.y = 0; if (forward.lengthSq() === 0) forward.set(Math.cos(player.yaw),0,Math.sin(player.yaw)); forward.normalize();
+      const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0,1,0)).normalize(); const move = new THREE.Vector3();
+      if (keys['KeyW'] || keys['ArrowUp']) move.add(forward); if (keys['KeyS'] || keys['ArrowDown']) move.sub(forward); if (keys['KeyA'] || keys['ArrowLeft']) move.sub(right); if (keys['KeyD'] || keys['ArrowRight']) move.add(right);
+      let moveX = 0, moveZ = 0, speed = player.speed * chaosState.speedMul;
+      if (move.lengthSq() > 0) { move.normalize().multiplyScalar(speed * dt); moveX = move.x; moveZ = move.z; }
+      player.vel.y -= (chaosState.lowGravity ? 7 : 18) * dt;
+      if ((keys['Space'] || keys['KeyQ']) && player.onGround) { player.vel.y = player.jump * chaosState.jumpMul; player.onGround = false; }
+      if (moveX !== 0 || moveZ !== 0) {
+        let p = player.pos.clone(); p.x += moveX; p.z += moveZ;
+        if (!intersectsAt(p)) player.pos.copy(p);
+        else {
+          const px = player.pos.clone(); px.x += moveX; if (!intersectsAt(px)) player.pos.x = px.x; else { const s = tryStepUp(player.pos, moveX, 0); if (s) player.pos.copy(s); }
+          const pz = player.pos.clone(); pz.z += moveZ; if (!intersectsAt(pz)) player.pos.z = pz.z; else { const s = tryStepUp(player.pos, 0, moveZ); if (s) player.pos.copy(s); }
+        }
+      }
+      const py = player.pos.clone(); py.y += player.vel.y * dt;
+      if (!intersectsAt(py)) { player.pos.y = py.y; player.onGround = false; } else { if (player.vel.y < 0) player.onGround = true; player.vel.y = 0; }
+      const probe = player.pos.clone(); probe.y -= 0.08; if (player.onGround && !intersectsAt(probe)) player.onGround = false;
+      if (player.pos.y < -20) { player.pos.set(0, 9, 0); player.vel.set(0,0,0); if (gameMode !== 'creative') hp = Math.max(10, hp - 8); showToast('Du bist gefallen'); }
+    }
+
+    function updateCamera() { camera.position.copy(player.pos); camera.rotation.order = 'YXZ'; camera.rotation.y = player.yaw; camera.rotation.x = player.pitch; updateHud(); }
+
+    function updateSky(dt) {
+      worldTime += dt * 0.03;
+      let sky;
+      if (dimension === 'nether') sky = new THREE.Color(0x3d0d0d);
+      else if (dimension === 'janis_world') sky = new THREE.Color(0x5a2aa5);
+      else if (dimension === 'bala_world') sky = new THREE.Color(0x16695f);
+      else if (dimension === 'cem_world') sky = new THREE.Color(0x8b371f);
+      else { const cycle = (Math.sin(worldTime) + 1) / 2; sky = new THREE.Color().lerpColors(new THREE.Color(chaosState.darkness ? 0x04070f : 0x081327), new THREE.Color(0x8bd3ff), cycle); }
+      scene.background = sky; scene.fog = new THREE.Fog(sky, 70, 220); scene.fog.color = sky; hemiLight.intensity = chaosState.darkness ? 0.14 : 0.7; sunLight.intensity = chaosState.darkness ? 0.18 : 1.0;
+    }
+
+    function getTargetBlock() {
+      raycaster.setFromCamera(mouseCenter, camera);
+      const hits = raycaster.intersectObjects(blockMeshes, false);
+      if (!hits.length) return null;
+      const hit = hits[0]; const normal = hit.face.normal.clone(); normal.applyMatrix3(new THREE.Matrix3().getNormalMatrix(hit.object.matrixWorld)).round();
+      return { object: hit.object, normal };
+    }
+
+    function breakBlock() { const t = getTargetBlock(); if (!t) return; const { x, y, z, type } = t.object.userData; if (y < 0 || isPortalType(type) || type === 'water') return; removeBlock(x,y,z); }
+    function placeBlock() { const t = getTargetBlock(); if (!t) return; const p = t.object.position.clone().add(t.normal); const x = Math.round(p.x), y = Math.round(p.y), z = Math.round(p.z); addBlock(x,y,z,currentList()[selectedBlock].key); maybeActivatePortalAround(x,y,z); }
+
     function isPortalType(type) { return ['portal','janis_portal','bala_portal','cem_portal'].includes(type); }
-    function isPortalAt(x,y,z) { const m = worldMap.get(worldKey(x,y,z)); return !!(m && isPortalType(m.userData.type)); }
+    function portalTypeToDimension(type) { if (type === 'janis_portal') return 'janis_world'; if (type === 'bala_portal') return 'bala_world'; if (type === 'cem_portal') return 'cem_world'; return 'nether'; }
 
     function isFrameBlockForPortalType(x, y, z, portalType) {
-      const m = worldMap.get(worldKey(x, y, z)); if (!m) return false;
+      const m = worldMap.get(keyFor(x,y,z)); if (!m) return false;
       if (portalType === 'portal') return m.userData.type === 'obsidian';
       if (portalType === 'janis_portal') return m.userData.type === 'janis';
       if (portalType === 'bala_portal') return m.userData.type === 'bala';
       if (portalType === 'cem_portal') return m.userData.type === 'cem';
       return false;
     }
-
-    function intersectsAt(pos) {
-      const minX = pos.x - player.radius, maxX = pos.x + player.radius, minY = pos.y - player.height, maxY = pos.y, minZ = pos.z - player.radius, maxZ = pos.z + player.radius;
-      for (let x = Math.floor(minX); x <= Math.floor(maxX); x++) for (let y = Math.floor(minY); y <= Math.floor(maxY); y++) for (let z = Math.floor(minZ); z <= Math.floor(maxZ); z++) { const m = worldMap.get(worldKey(x,y,z)); if (m && !isPortalType(m.userData.type)) return true; }
-      return false;
-    }
-    function tryStepUp(basePos, moveX, moveZ) { for (const step of [0.6,1.0,1.2]) { const stepped = basePos.clone(); stepped.y += step; if (intersectsAt(stepped)) continue; const moved = stepped.clone(); moved.x += moveX; moved.z += moveZ; if (intersectsAt(moved)) continue; return moved; } return null; }
-    function movePlayer(dt) {
-      const forward = new THREE.Vector3(); camera.getWorldDirection(forward); forward.y = 0; if (forward.lengthSq() === 0) forward.set(Math.cos(player.yaw),0,Math.sin(player.yaw)); forward.normalize();
-      const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0,1,0)).normalize(); const move = new THREE.Vector3();
-      if (keys['KeyW'] || keys['ArrowUp']) move.add(forward); if (keys['KeyS'] || keys['ArrowDown']) move.sub(forward); if (keys['KeyA'] || keys['ArrowLeft']) move.sub(right); if (keys['KeyD'] || keys['ArrowRight']) move.add(right); if (touchMove.y < -0.18) move.add(forward); if (touchMove.y > 0.18) move.sub(forward); if (touchMove.x < -0.18) move.sub(right); if (touchMove.x > 0.18) move.add(right);
-      let moveX = 0, moveZ = 0; if (move.lengthSq() > 0) { move.normalize().multiplyScalar(player.speed * dt); moveX = move.x; moveZ = move.z; }
-      player.vel.y -= 18 * dt; if ((keys['Space'] || keys['KeyQ']) && player.onGround) { player.vel.y = player.jump; player.onGround = false; }
-      if (moveX !== 0 || moveZ !== 0) { let p = player.pos.clone(); p.x += moveX; p.z += moveZ; if (!intersectsAt(p)) player.pos.copy(p); else { const px = player.pos.clone(); px.x += moveX; if (!intersectsAt(px)) player.pos.x = px.x; else { const s = tryStepUp(player.pos, moveX, 0); if (s) player.pos.copy(s); } const pz = player.pos.clone(); pz.z += moveZ; if (!intersectsAt(pz)) player.pos.z = pz.z; else { const s = tryStepUp(player.pos, 0, moveZ); if (s) player.pos.copy(s); } } }
-      const py = player.pos.clone(); py.y += player.vel.y * dt; if (!intersectsAt(py)) { player.pos.y = py.y; player.onGround = false; } else { if (player.vel.y < 0) player.onGround = true; player.vel.y = 0; }
-      const groundProbe = player.pos.clone(); groundProbe.y -= 0.08; if (player.onGround && !intersectsAt(groundProbe)) player.onGround = false;
-      if (player.pos.y < -20) { player.pos.set(0,8,0); player.vel.set(0,0,0); if (gameMode === 'survival') hp = Math.max(10, hp - 10); showToast('Du bist gefallen'); }
-    }
-    function updateCamera() { camera.position.copy(player.pos); camera.rotation.order = 'YXZ'; camera.rotation.y = player.yaw; camera.rotation.x = player.pitch; updateHud(); }
-    function flashDamage() { damageFlash.classList.add('show'); setTimeout(() => damageFlash.classList.remove('show'), 120); }
-    function updateMobs(dt) {
-      mobs.forEach((m, i) => { if (!m.parent || m.userData.dimension !== dimension) return; if (m.userData.cooldown > 0) m.userData.cooldown -= dt; if (m.userData.hostile && gameMode === 'survival' && difficulty === 'hard') { const toPlayer = player.pos.clone().sub(m.position); toPlayer.y = 0; const dist = toPlayer.length(); if (dist > 0.001) { toPlayer.normalize(); m.position.addScaledVector(toPlayer, dt * (dimension === 'nether' ? 2.5 : 2.0)); } if (dist < 1.4 && m.userData.cooldown <= 0) { hp -= dimension === 'nether' ? 10 : 8; m.userData.cooldown = 1.0; flashDamage(); showToast('Monster trifft dich'); if (hp <= 0) { hp = 100; player.pos.set(0,8,0); showToast('Du wurdest besiegt'); } } } else { m.userData.t += dt * (0.6 + i * 0.03); m.position.x = m.userData.homeX + Math.sin(m.userData.t) * 1.4; m.position.z = m.userData.homeZ + Math.cos(m.userData.t * 0.8) * 1.4; } });
-    }
-    function updateDayNight(dt) {
-      worldTime += dt * 0.03;
-      if (dimension === 'nether') { hemiLight.intensity = 0.35; dirLight.intensity = 0.45; dirLight.position.set(10,16,5); const sky = new THREE.Color(0x4a0f0f); scene.background = sky; scene.fog.color = sky; }
-      else if (dimension === 'janis_world') { hemiLight.intensity = 0.7; dirLight.intensity = 0.75; const sky = new THREE.Color(0x6a3fb8); scene.background = sky; scene.fog.color = sky; }
-      else if (dimension === 'bala_world') { hemiLight.intensity = 0.7; dirLight.intensity = 0.75; const sky = new THREE.Color(0x1f7c6d); scene.background = sky; scene.fog.color = sky; }
-      else if (dimension === 'cem_world') { hemiLight.intensity = 0.7; dirLight.intensity = 0.75; const sky = new THREE.Color(0x8b3c22); scene.background = sky; scene.fog.color = sky; }
-      else { const cycle = (Math.sin(worldTime) + 1) / 2; hemiLight.intensity = 0.22 + cycle * 0.98; dirLight.intensity = 0.12 + cycle * 1.05; dirLight.position.set(Math.cos(worldTime) * 40, 12 + cycle * 28, Math.sin(worldTime) * 24); const sky = new THREE.Color().lerpColors(new THREE.Color(0x0d1630), new THREE.Color(0x87ceeb), cycle); scene.background = sky; scene.fog.color = sky; if (Math.random() < 0.0025 && cycle < 0.3) maybeSpawnNightMonster(); }
-    }
-
-    function getTargetBlock() { raycaster.setFromCamera(mouseCenter, camera); const hits = raycaster.intersectObjects(blockMeshes, false); if (!hits.length) return null; const hit = hits[0]; const normal = hit.face.normal.clone(); normal.applyMatrix3(new THREE.Matrix3().getNormalMatrix(hit.object.matrixWorld)).round(); return { object: hit.object, normal }; }
-    function getTargetMob() { const origin = camera.position.clone(), dir = new THREE.Vector3(); camera.getWorldDirection(dir); let best = null, bestDist = 3.2; mobs.forEach(m => { if (!m.parent || m.userData.dimension !== dimension) return; const to = m.position.clone().sub(origin); const dist = to.length(); if (dist > bestDist) return; to.normalize(); if (dir.dot(to) > 0.84) { best = m; bestDist = dist; } }); return best; }
-    function swingHand() { heldItem.classList.remove('swing'); void heldItem.offsetWidth; heldItem.classList.add('swing'); setTimeout(() => heldItem.classList.remove('swing'), 90); }
-    function breakBlockOrAttack() { const mob = getTargetMob(); if (mob && mob.userData.hostile) { attack(); return; } const t = getTargetBlock(); if (!t) return; const { x, y, z, type } = t.object.userData; if (y < 0 || isPortalType(type)) return; swingHand(); removeBlock(x,y,z); hitSound.currentTime = 0; hitSound.play().catch(() => {}); }
-    function placeBlock() { const t = getTargetBlock(); if (!t) return; const p = t.object.position.clone().add(t.normal); const x = Math.round(p.x), y = Math.round(p.y), z = Math.round(p.z); const list = getCurrentBlockList(); swingHand(); addBlock(x,y,z,list[selectedBlock].key,'custom'); placeSound.currentTime = 0; placeSound.play().catch(() => {}); maybeActivatePortalAround(x,y,z); }
-    function attack() { if (player.attackCooldown > 0) return; player.attackCooldown = 0.35; swingHand(); hitSound.currentTime = 0; hitSound.play().catch(() => {}); const mob = getTargetMob(); if (!mob || !mob.userData.hostile) { showToast('Daneben'); return; } mob.userData.hp -= 1; showToast('Treffer!'); if (mob.userData.hp <= 0) { mobGroup.remove(mob); showToast('Monster besiegt'); } }
 
     function frameLooksValid(baseX, baseY, baseZ, portalType) {
       let zOk = true;
@@ -477,51 +470,82 @@
     }
 
     function fillPortalInterior(baseX, baseY, baseZ, axis, portalType) {
-      for (let iy = 1; iy <= PORTAL_INNER_HEIGHT; iy++) for (let ii = 1; ii <= PORTAL_INNER_WIDTH; ii++) { const x = axis === 'z' ? baseX + ii : baseX, y = baseY + iy, z = axis === 'z' ? baseZ : baseZ + ii; const existing = worldMap.get(worldKey(x,y,z)); if (existing && existing.userData.type === portalType) continue; if (existing && !isPortalType(existing.userData.type)) return; addBlock(x,y,z,portalType,'custom'); }
+      for (let iy = 1; iy <= PORTAL_INNER_HEIGHT; iy++) for (let ii = 1; ii <= PORTAL_INNER_WIDTH; ii++) {
+        const x = axis === 'z' ? baseX + ii : baseX, y = baseY + iy, z = axis === 'z' ? baseZ : baseZ + ii;
+        const existing = worldMap.get(keyFor(x,y,z)); if (existing && existing.userData.type === portalType) continue; if (existing && !isPortalType(existing.userData.type)) return;
+        addBlock(x,y,z,portalType);
+      }
     }
+
     function maybeActivatePortalAround(x, y, z) {
       const portalTypes = ['portal','janis_portal','bala_portal','cem_portal'];
-      for (const portalType of portalTypes) {
-        for (let bx = x - 4; bx <= x; bx++) for (let by = y - 5; by <= y; by++) for (let bz = z - 4; bz <= z + 1; bz++) { const valid = frameLooksValid(bx, by, bz, portalType); if (valid) { fillPortalInterior(bx, by, bz, valid.axis, portalType); showToast(`${portalType.replace('_portal','')} Portal aktiviert`); portalSound.currentTime = 0; portalSound.play().catch(() => {}); return true; } }
-      }
+      for (const portalType of portalTypes) for (let bx = x - 4; bx <= x; bx++) for (let by = y - 5; by <= y; by++) for (let bz = z - 4; bz <= z + 1; bz++) { const valid = frameLooksValid(bx, by, bz, portalType); if (valid) { fillPortalInterior(bx, by, bz, valid.axis, portalType); showToast(`${portalType.replace('_portal','')} Portal aktiviert`); return true; } }
       return false;
     }
+
     function getPortalAtPlayer() {
       const px = Math.round(player.pos.x), pz = Math.round(player.pos.z), pyTop = Math.floor(player.pos.y - 0.2), pyBottom = Math.floor(player.pos.y - player.height + 0.4);
-      for (let y = pyBottom; y <= pyTop; y++) { const coords = [[px,y,pz],[px+1,y,pz],[px-1,y,pz],[px,y,pz+1],[px,y,pz-1]]; for (const [x,yy,z] of coords) { const mesh = worldMap.get(worldKey(x,yy,z)); if (mesh && isPortalType(mesh.userData.type)) return mesh.userData.type; } }
+      for (let y = pyBottom; y <= pyTop; y++) { const coords = [[px,y,pz],[px+1,y,pz],[px-1,y,pz],[px,y,pz+1],[px,y,pz-1]]; for (const [x,yy,z] of coords) { const mesh = worldMap.get(keyFor(x,yy,z)); if (mesh && isPortalType(mesh.userData.type)) return mesh.userData.type; } }
       return null;
     }
-    function portalTypeToDimension(type) { if (type === 'janis_portal') return 'janis_world'; if (type === 'bala_portal') return 'bala_world'; if (type === 'cem_portal') return 'cem_world'; return 'nether'; }
-    function switchDimension(newDimension) { if (dimension === newDimension) return; dimension = newDimension; clearWorld(); player.pos.set(0,8,0); player.vel.set(0,0,0); spawnInitialNpcs(); ensureChunksAroundPlayer(); updateDayNight(0); showToast(`Willkommen in ${newDimension.replace('_',' ')}`); portalSound.currentTime = 0; portalSound.play().catch(() => {}); }
+
+    function switchDimension(newDimension) { if (dimension === newDimension) return; dimension = newDimension; clearWorld(); player.pos.set(0,9,0); player.vel.set(0,0,0); ensureChunksAroundPlayer(); updateSky(0); showToast(`Willkommen in ${newDimension.replace('_',' ')}`); }
     function checkPortalTravel(dt) { if (portalCooldown > 0) { portalCooldown -= dt; return; } const portalType = getPortalAtPlayer(); if (portalType) { portalCooldown = 2.0; if (dimension === 'overworld') switchDimension(portalTypeToDimension(portalType)); else switchDimension('overworld'); } }
 
-    function saveWorld() { const blocks = []; customBlocks.forEach((type,key) => blocks.push({ key, type })); const removed = [...removedBlocks]; localStorage.setItem(SAVE_KEY, JSON.stringify({ blocks, removed, player:{ x:player.pos.x,y:player.pos.y,z:player.pos.z,yaw:player.yaw,pitch:player.pitch }, mode:gameMode, hp, worldTime, difficulty, dimension })); showToast('Welt gespeichert'); }
-    function loadWorld() { const raw = localStorage.getItem(SAVE_KEY); if (!raw) return showToast('Kein Save gefunden'); try { const data = JSON.parse(raw); clearWorld(); customBlocks.clear(); removedBlocks.clear(); (data.blocks || []).forEach(b => customBlocks.set(b.key,b.type)); (data.removed || []).forEach(r => removedBlocks.add(r)); dimension = data.dimension || 'overworld'; player.pos.set(data.player.x,data.player.y,data.player.z); player.yaw = data.player.yaw; player.pitch = data.player.pitch; gameMode = data.mode || 'creative'; hp = data.hp ?? 100; worldTime = data.worldTime ?? 0; difficulty = data.difficulty || 'peaceful'; selectedBlock = 0; buildHotbar(); buildInventory(); ensureChunksAroundPlayer(); spawnInitialNpcs(); updateDayNight(0); showToast('Welt geladen'); } catch { showToast('Fehler beim Laden'); } }
+    function resetChaosEffects() { chaosState = { speedMul: 1, jumpMul: 1, lowGravity: false, darkness: false }; }
+    function chaosRain(typeKey, count = 20) { for (let i = 0; i < count; i++) { const x = Math.round(player.pos.x + (Math.random() - 0.5) * 16), z = Math.round(player.pos.z + (Math.random() - 0.5) * 16), y = Math.round(player.pos.y + 10 + Math.random() * 6); addBlock(x, y, z, typeKey); } }
+    function triggerChaosEvent() {
+      if (gameMode !== 'chaos') return; resetChaosEffects();
+      const events = ['Speed Boost','Jump Boost','Low Gravity','Healing','Darkness','Gold Rain','Obsidian Rain','Bala Rain'];
+      const chosen = events[Math.floor(Math.random() * events.length)];
+      activeEvent = chosen;
+      if (chosen === 'Speed Boost') chaosState.speedMul = 1.75;
+      if (chosen === 'Jump Boost') chaosState.jumpMul = 1.9;
+      if (chosen === 'Low Gravity') chaosState.lowGravity = true;
+      if (chosen === 'Healing') hp = Math.min(100, hp + 25);
+      if (chosen === 'Darkness') chaosState.darkness = true;
+      if (chosen === 'Gold Rain') chaosRain('gold', 26);
+      if (chosen === 'Obsidian Rain') chaosRain('obsidian', 22);
+      if (chosen === 'Bala Rain') chaosRain('bala', 20);
+      showToast(`Chaos Event: ${chosen}`);
+    }
 
-    document.addEventListener('keydown', (e) => { if (inventoryScreen.style.display === 'flex' && e.code !== 'KeyE') return; keys[e.code] = true; if (['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault(); const idx = Number(e.key) - 1; if (idx >= 0 && idx < Math.min(getCurrentBlockList().length, 9)) { selectedBlock = idx; refreshHotbar(); } if (e.code === 'KeyF') attack(); if (e.code === 'KeyE') { e.preventDefault(); inventoryScreen.style.display === 'flex' ? closeInventory() : openInventory(); } if (e.code === 'KeyK') saveWorld(); if (e.code === 'KeyL') loadWorld(); }, { passive: false });
+    function updateChaos(dt) { if (gameMode !== 'chaos') return; chaosTimer -= dt; if (chaosTimer <= 0) { chaosTimer = 10 + Math.random() * 8; triggerChaosEvent(); } }
+
+    function startGame(mode) {
+      gameMode = mode; hp = 100; selectedBlock = 0; started = true; dimension = 'overworld'; portalCooldown = 0; chaosTimer = 9; activeEvent = mode === 'chaos' ? 'Ready' : '---';
+      resetChaosEffects(); clearWorld(); buildHotbar(); buildInventory(); ensureChunksAroundPlayer(); updateSky(0); startScreen.style.display = 'none'; showToast(`${mode === 'chaos' ? 'Chaos Mode' : mode === 'creative' ? 'Creative' : 'Survival'} gestartet`); renderer.domElement.requestPointerLock();
+    }
+
+    survivalBtn.onclick = () => startGame('survival');
+    creativeBtn.onclick = () => startGame('creative');
+    chaosBtn.onclick = () => startGame('chaos');
+
+    document.addEventListener('keydown', (e) => {
+      if (inventoryScreen.style.display === 'flex' && e.code !== 'KeyE') return;
+      keys[e.code] = true;
+      if (['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
+      const idx = Number(e.key) - 1;
+      if (idx >= 0 && idx < Math.min(currentList().length, 9)) { selectedBlock = idx; refreshHotbar(); }
+      if (e.code === 'KeyE') { e.preventDefault(); inventoryScreen.style.display === 'flex' ? closeInventory() : openInventory(); }
+    }, { passive: false });
+
     document.addEventListener('keyup', (e) => { keys[e.code] = false; });
-    renderer.domElement.addEventListener('click', () => { if (started && inventoryScreen.style.display !== 'flex' && !isTouch) renderer.domElement.requestPointerLock(); });
-    document.addEventListener('pointerlockchange', () => { pointerLocked = document.pointerLockElement === renderer.domElement; });
-    document.addEventListener('mousemove', (e) => { if (!pointerLocked || inventoryScreen.style.display === 'flex') return; player.yaw -= e.movementX * 0.0022; player.pitch -= e.movementY * 0.0022; player.pitch = Math.max(-1.45, Math.min(1.45, player.pitch)); });
-    renderer.domElement.addEventListener('mousedown', (e) => { if (!started || isTouch || inventoryScreen.style.display === 'flex') return; if (e.button === 0) breakBlockOrAttack(); if (e.button === 2) placeBlock(); if (e.button === 1) attack(); });
+    renderer.domElement.addEventListener('click', () => { if (started && inventoryScreen.style.display !== 'flex') renderer.domElement.requestPointerLock(); });
+    document.addEventListener('mousemove', (e) => { if (document.pointerLockElement !== renderer.domElement || inventoryScreen.style.display === 'flex') return; player.yaw -= e.movementX * 0.0022; player.pitch -= e.movementY * 0.0022; player.pitch = Math.max(-1.45, Math.min(1.45, player.pitch)); });
+    renderer.domElement.addEventListener('mousedown', (e) => { if (!started || inventoryScreen.style.display === 'flex') return; if (e.button === 0) breakBlock(); if (e.button === 2) placeBlock(); });
     renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
-
-    const touchPad = document.getElementById('touchPad'), touchKnob = document.getElementById('touchKnob'), lookBtn = document.getElementById('lookBtn'), jumpBtn = document.getElementById('jumpBtn'), breakBtn = document.getElementById('breakBtn'), placeBtn = document.getElementById('placeBtn'); let padActive = false;
-    function setPad(clientX, clientY) { const rect = touchPad.getBoundingClientRect(), cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2; let dx = clientX - cx, dy = clientY - cy; const len = Math.hypot(dx, dy), max = 42; if (len > max) { dx = dx / len * max; dy = dy / len * max; } touchMove.x = dx / max; touchMove.y = dy / max; touchKnob.style.left = `${50 + dx}px`; touchKnob.style.top = `${50 + dy}px`; }
-    function resetPad() { padActive = false; touchMove.x = 0; touchMove.y = 0; touchKnob.style.left = '50px'; touchKnob.style.top = '50px'; }
-    touchPad.addEventListener('pointerdown', (e) => { padActive = true; setPad(e.clientX, e.clientY); });
-    window.addEventListener('pointermove', (e) => { if (padActive) setPad(e.clientX, e.clientY); if (lookActive && lookPrev) { const dx = e.clientX - lookPrev.x, dy = e.clientY - lookPrev.y; lookPrev = { x:e.clientX, y:e.clientY }; player.yaw -= dx * 0.01; player.pitch -= dy * 0.01; player.pitch = Math.max(-1.45, Math.min(1.45, player.pitch)); } });
-    window.addEventListener('pointerup', () => { resetPad(); lookActive = false; lookPrev = null; });
-    lookBtn.addEventListener('pointerdown', (e) => { lookActive = true; lookPrev = { x:e.clientX, y:e.clientY }; });
-    jumpBtn.onclick = () => { keys['Space'] = true; setTimeout(() => keys['Space'] = false, 80); }; breakBtn.onclick = () => breakBlockOrAttack(); placeBtn.onclick = () => placeBlock(); lookBtn.ondblclick = () => attack();
-
-    function startGame(mode, diff) { gameMode = mode; difficulty = diff; hp = 100; selectedBlock = 0; started = true; dimension = 'overworld'; portalCooldown = 0; clearWorld(); buildHotbar(); buildInventory(); ensureChunksAroundPlayer(); spawnInitialNpcs(); startScreen.style.display = 'none'; showToast(`${mode === 'creative' ? 'Creative' : diff === 'hard' ? 'Hard Survival' : 'Peaceful Survival'} gestartet`); if (!isTouch) renderer.domElement.requestPointerLock(); }
-    peacefulSurvivalBtn.onclick = () => startGame('survival', 'peaceful'); hardSurvivalBtn.onclick = () => startGame('survival', 'hard'); creativeBtn.onclick = () => startGame('creative', 'peaceful');
     window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
 
-    buildHotbar(); buildInventory(); ensureChunksAroundPlayer(); updateCamera(); updateHud(); updateDayNight(0);
+    buildHotbar(); buildInventory(); ensureChunksAroundPlayer(); updateCamera(); updateHud(); updateSky(0);
     const clock = new THREE.Clock();
-    function animate() { requestAnimationFrame(animate); const dt = Math.min(clock.getDelta(), 0.033); if (started) { movePlayer(dt); updateMobs(dt); updateDayNight(dt); ensureChunksAroundPlayer(); checkPortalTravel(dt); if (player.attackCooldown > 0) player.attackCooldown -= dt; } updateCamera(); renderer.render(scene, camera); }
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = Math.min(clock.getDelta(), 0.033);
+      if (started) { movePlayer(dt); ensureChunksAroundPlayer(); checkPortalTravel(dt); updateChaos(dt); updateSky(dt); }
+      updateCamera(); renderer.render(scene, camera);
+      fpsFrameCount++; fpsTimer += dt; if (fpsTimer > 0.5) { fpsTextEl.textContent = String(Math.round(fpsFrameCount / fpsTimer)); fpsFrameCount = 0; fpsTimer = 0; }
+    }
     animate();
   </script>
 </body>
