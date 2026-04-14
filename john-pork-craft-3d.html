@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -392,33 +393,138 @@
     closeInvBtn.onclick = closeInventory; topHomeBtn.onclick = () => window.location.href = 'index.html';
 
     function intersectsAt(pos) {
-      const minX = pos.x - player.radius, maxX = pos.x + player.radius, minY = pos.y - player.height, maxY = pos.y, minZ = pos.z - player.radius, maxZ = pos.z + player.radius;
-      for (let x = Math.floor(minX); x <= Math.floor(maxX); x++) for (let y = Math.floor(minY); y <= Math.floor(maxY); y++) for (let z = Math.floor(minZ); z <= Math.floor(maxZ); z++) { const mesh = worldMap.get(keyFor(x, y, z)); if (mesh && !isPortalType(mesh.userData.type) && mesh.userData.type !== 'water') return true; }
+      const minX = pos.x - player.radius + 0.001;
+      const maxX = pos.x + player.radius - 0.001;
+      const minY = pos.y - player.height + 0.001;
+      const maxY = pos.y - 0.001;
+      const minZ = pos.z - player.radius + 0.001;
+      const maxZ = pos.z + player.radius - 0.001;
+
+      for (let x = Math.floor(minX); x <= Math.floor(maxX); x++) {
+        for (let y = Math.floor(minY); y <= Math.floor(maxY); y++) {
+          for (let z = Math.floor(minZ); z <= Math.floor(maxZ); z++) {
+            const mesh = worldMap.get(keyFor(x, y, z));
+            if (!mesh) continue;
+            if (isPortalType(mesh.userData.type) || mesh.userData.type === 'water') continue;
+            return true;
+          }
+        }
+      }
       return false;
     }
 
-    function tryStepUp(basePos, moveX, moveZ) { for (const step of [0.6,1.0,1.2]) { const stepped = basePos.clone(); stepped.y += step; if (intersectsAt(stepped)) continue; const moved = stepped.clone(); moved.x += moveX; moved.z += moveZ; if (intersectsAt(moved)) continue; return moved; } return null; }
+    function tryStepUp(basePos, moveX, moveZ) {
+      const maxStepHeight = 1.01;
+      const raised = basePos.clone();
+      raised.y += maxStepHeight;
 
-    function movePlayer(dt) {
-      const forward = new THREE.Vector3(); camera.getWorldDirection(forward); forward.y = 0; if (forward.lengthSq() === 0) forward.set(Math.cos(player.yaw),0,Math.sin(player.yaw)); forward.normalize();
-      const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0,1,0)).normalize(); const move = new THREE.Vector3();
-      if (keys['KeyW'] || keys['ArrowUp']) move.add(forward); if (keys['KeyS'] || keys['ArrowDown']) move.sub(forward); if (keys['KeyA'] || keys['ArrowLeft']) move.sub(right); if (keys['KeyD'] || keys['ArrowRight']) move.add(right);
-      let moveX = 0, moveZ = 0, speed = player.speed * chaosState.speedMul;
-      if (move.lengthSq() > 0) { move.normalize().multiplyScalar(speed * dt); moveX = move.x; moveZ = move.z; }
-      player.vel.y -= (chaosState.lowGravity ? 7 : 18) * dt;
-      if ((keys['Space'] || keys['KeyQ']) && player.onGround) { player.vel.y = player.jump * chaosState.jumpMul; player.onGround = false; }
-      if (moveX !== 0 || moveZ !== 0) {
-        let p = player.pos.clone(); p.x += moveX; p.z += moveZ;
-        if (!intersectsAt(p)) player.pos.copy(p);
-        else {
-          const px = player.pos.clone(); px.x += moveX; if (!intersectsAt(px)) player.pos.x = px.x; else { const s = tryStepUp(player.pos, moveX, 0); if (s) player.pos.copy(s); }
-          const pz = player.pos.clone(); pz.z += moveZ; if (!intersectsAt(pz)) player.pos.z = pz.z; else { const s = tryStepUp(player.pos, 0, moveZ); if (s) player.pos.copy(s); }
+      if (intersectsAt(raised)) return null;
+
+      raised.x += moveX;
+      raised.z += moveZ;
+      if (intersectsAt(raised)) return null;
+
+      for (let drop = 0; drop <= maxStepHeight + 0.05; drop += 0.05) {
+        const candidate = raised.clone();
+        candidate.y -= drop;
+
+        if (!intersectsAt(candidate)) {
+          const groundProbe = candidate.clone();
+          groundProbe.y -= 0.08;
+
+          if (intersectsAt(groundProbe) || drop >= maxStepHeight - 0.05) {
+            return candidate;
+          }
         }
       }
-      const py = player.pos.clone(); py.y += player.vel.y * dt;
-      if (!intersectsAt(py)) { player.pos.y = py.y; player.onGround = false; } else { if (player.vel.y < 0) player.onGround = true; player.vel.y = 0; }
-      const probe = player.pos.clone(); probe.y -= 0.08; if (player.onGround && !intersectsAt(probe)) player.onGround = false;
-      if (player.pos.y < -20) { player.pos.set(0, 9, 0); player.vel.set(0,0,0); if (gameMode !== 'creative') hp = Math.max(10, hp - 8); showToast('Du bist gefallen'); }
+      return null;
+    }
+
+    function movePlayer(dt) {
+      const forward = new THREE.Vector3();
+      camera.getWorldDirection(forward);
+      forward.y = 0;
+      if (forward.lengthSq() === 0) forward.set(Math.cos(player.yaw), 0, Math.sin(player.yaw));
+      forward.normalize();
+
+      const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
+      const move = new THREE.Vector3();
+
+      if (keys['KeyW'] || keys['ArrowUp']) move.add(forward);
+      if (keys['KeyS'] || keys['ArrowDown']) move.sub(forward);
+      if (keys['KeyA'] || keys['ArrowLeft']) move.sub(right);
+      if (keys['KeyD'] || keys['ArrowRight']) move.add(right);
+
+      let moveX = 0, moveZ = 0;
+      const speed = player.speed * chaosState.speedMul;
+
+      if (move.lengthSq() > 0) {
+        move.normalize().multiplyScalar(speed * dt);
+        moveX = move.x;
+        moveZ = move.z;
+      }
+
+      player.vel.y -= (chaosState.lowGravity ? 7 : 18) * dt;
+
+      if ((keys['Space'] || keys['KeyQ']) && player.onGround) {
+        player.vel.y = player.jump * chaosState.jumpMul;
+        player.onGround = false;
+      }
+
+      if (moveX !== 0 || moveZ !== 0) {
+        const direct = player.pos.clone();
+        direct.x += moveX;
+        direct.z += moveZ;
+
+        if (!intersectsAt(direct)) {
+          player.pos.copy(direct);
+        } else {
+          const stepBoth = tryStepUp(player.pos, moveX, moveZ);
+          if (stepBoth) {
+            player.pos.copy(stepBoth);
+          } else {
+            const px = player.pos.clone();
+            px.x += moveX;
+            if (!intersectsAt(px)) {
+              player.pos.x = px.x;
+            } else {
+              const stepX = tryStepUp(player.pos, moveX, 0);
+              if (stepX) player.pos.copy(stepX);
+            }
+
+            const pz = player.pos.clone();
+            pz.z += moveZ;
+            if (!intersectsAt(pz)) {
+              player.pos.z = pz.z;
+            } else {
+              const stepZ = tryStepUp(player.pos, 0, moveZ);
+              if (stepZ) player.pos.copy(stepZ);
+            }
+          }
+        }
+      }
+
+      const vertical = player.pos.clone();
+      vertical.y += player.vel.y * dt;
+
+      if (!intersectsAt(vertical)) {
+        player.pos.y = vertical.y;
+        player.onGround = false;
+      } else {
+        if (player.vel.y < 0) player.onGround = true;
+        player.vel.y = 0;
+      }
+
+      const groundProbe = player.pos.clone();
+      groundProbe.y -= 0.08;
+      player.onGround = intersectsAt(groundProbe);
+
+      if (player.pos.y < -20) {
+        player.pos.set(0, 9, 0);
+        player.vel.set(0, 0, 0);
+        if (gameMode !== 'creative') hp = Math.max(10, hp - 8);
+        showToast('Du bist gefallen');
+      }
     }
 
     function updateCamera() { camera.position.copy(player.pos); camera.rotation.order = 'YXZ'; camera.rotation.y = player.yaw; camera.rotation.x = player.pitch; updateHud(); }
