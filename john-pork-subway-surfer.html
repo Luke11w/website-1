@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>John Pork Runner</title>
+  <title>John Pork Runner Deluxe</title>
   <style>
     * { box-sizing: border-box; }
     html, body {
@@ -11,20 +11,18 @@
       height: 100%;
       overflow: hidden;
       font-family: Inter, Arial, sans-serif;
-      background: #09111f;
+      background: #0a1322;
       color: white;
     }
     body {
       background:
-        radial-gradient(circle at 20% 10%, rgba(72, 169, 255, 0.18), transparent 28%),
-        radial-gradient(circle at 80% 0%, rgba(255, 140, 80, 0.16), transparent 30%),
-        linear-gradient(180deg, #12233f 0%, #09111f 100%);
+        radial-gradient(circle at 20% 0%, rgba(81,156,255,.18), transparent 30%),
+        radial-gradient(circle at 80% 10%, rgba(255,138,80,.14), transparent 28%),
+        linear-gradient(180deg, #142645 0%, #0a1322 100%);
     }
-    #gameWrap {
+    #game {
       position: fixed;
       inset: 0;
-    }
-    canvas {
       display: block;
       width: 100%;
       height: 100%;
@@ -47,50 +45,22 @@
       flex-wrap: wrap;
     }
     .panel {
-      background: rgba(7, 12, 22, 0.58);
+      background: rgba(8, 13, 24, .58);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,.10);
       border-radius: 18px;
       padding: 10px 14px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.22);
+      box-shadow: 0 12px 30px rgba(0,0,0,.22);
     }
-    .brand {
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing: 0.02em;
-    }
-    .sub {
-      font-size: 12px;
-      opacity: 0.8;
-      margin-top: 4px;
-    }
-    .stats {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .stat {
-      min-width: 92px;
-    }
-    .label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      opacity: 0.68;
-    }
-    .value {
-      margin-top: 2px;
-      font-size: 21px;
-      font-weight: 900;
-      color: #ffe56c;
-    }
-    #tip {
-      max-width: 430px;
-      line-height: 1.45;
-      font-size: 13px;
-      opacity: 0.92;
-    }
-    #startScreen, #gameOverScreen, #pauseScreen {
+    .brand { font-size: 22px; font-weight: 900; }
+    .sub { font-size: 12px; opacity: .78; margin-top: 4px; }
+    .stats { display: flex; gap: 10px; flex-wrap: wrap; }
+    .stat { min-width: 90px; }
+    .label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; opacity: .68; }
+    .value { font-size: 21px; font-weight: 900; color: #ffe56c; margin-top: 2px; }
+    #tip { max-width: 460px; font-size: 13px; line-height: 1.45; opacity: .9; }
+
+    .screen {
       position: fixed;
       inset: 0;
       z-index: 20;
@@ -98,36 +68,39 @@
       align-items: center;
       justify-content: center;
       padding: 16px;
-      background: radial-gradient(circle at top, rgba(44,78,125,0.34), rgba(0,0,0,0.82));
+      background: radial-gradient(circle at top, rgba(35,62,97,.34), rgba(0,0,0,.82));
     }
-    #gameOverScreen, #pauseScreen {
-      display: none;
-    }
+    #pauseScreen, #gameOverScreen { display: none; }
     .box {
-      width: min(94vw, 920px);
-      background: rgba(5, 10, 18, 0.74);
+      width: min(94vw, 930px);
+      background: rgba(6, 10, 18, .76);
       backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,.10);
       border-radius: 30px;
       padding: 28px;
-      box-shadow: 0 30px 70px rgba(0,0,0,0.35);
+      box-shadow: 0 30px 70px rgba(0,0,0,.35);
     }
     h1, h2 {
       margin: 0 0 10px;
-      font-size: clamp(34px, 6vw, 62px);
-      line-height: 0.95;
+      font-size: clamp(34px, 6vw, 60px);
+      line-height: .95;
     }
-    p {
-      margin: 10px 0 0;
-      line-height: 1.6;
-      opacity: 0.94;
-    }
-    .row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+    p { margin: 10px 0 0; line-height: 1.6; opacity: .94; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+    .cards {
       margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
     }
+    .card {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .cardTitle { font-size: 14px; font-weight: 900; margin-bottom: 6px; }
+    .cardText { font-size: 13px; opacity: .84; line-height: 1.5; }
     button {
       appearance: none;
       border: none;
@@ -138,44 +111,22 @@
       cursor: pointer;
       color: #111;
       background: linear-gradient(90deg, #ffe14f, #ffae2f);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.24);
+      box-shadow: 0 10px 25px rgba(0,0,0,.24);
     }
     button.secondary {
       color: white;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
       box-shadow: none;
-    }
-    .cards {
-      margin-top: 18px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-    }
-    .card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 20px;
-      padding: 16px;
-    }
-    .cardTitle {
-      font-size: 14px;
-      font-weight: 900;
-      margin-bottom: 6px;
-    }
-    .cardText {
-      font-size: 13px;
-      opacity: 0.84;
-      line-height: 1.5;
     }
     #toast {
       position: fixed;
       left: 50%;
-      top: 90px;
+      top: 92px;
       transform: translateX(-50%);
       z-index: 30;
-      background: rgba(0,0,0,0.72);
-      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,.72);
+      border: 1px solid rgba(255,255,255,.12);
       border-radius: 14px;
       padding: 10px 14px;
       opacity: 0;
@@ -185,23 +136,17 @@
       text-align: center;
     }
     #toast.show { opacity: 1; }
-    @media (max-width: 700px) {
-      .panel { padding: 9px 12px; }
-      .brand { font-size: 19px; }
-      .value { font-size: 18px; }
-      #tip { max-width: 100%; }
-    }
   </style>
 </head>
 <body>
-  <div id="gameWrap"><canvas id="game"></canvas></div>
+  <canvas id="game"></canvas>
   <div id="toast"></div>
 
   <div id="hud">
     <div class="topbar">
       <div class="panel">
-        <div class="brand">🐷 John Pork Runner</div>
-        <div class="sub">Eigenes High-Quality Browser-Runner-Game</div>
+        <div class="brand">🐷 John Pork Runner Deluxe</div>
+        <div class="sub">Funktionierende eigene High-Quality Runner-Version</div>
       </div>
       <div class="panel stats">
         <div class="stat"><div class="label">Score</div><div class="value" id="scoreText">0</div></div>
@@ -212,40 +157,40 @@
     </div>
     <div class="bottombar">
       <div class="panel" id="tip">
-        Steuerung: <b>A/D</b> oder <b>←/→</b> Spur wechseln, <b>W/↑/Leertaste</b> springen, <b>S/↓</b> sliden, <b>P</b> pausieren.
+        <b>A/D</b> oder <b>←/→</b> Spur wechseln, <b>W/↑/Leertaste</b> springen, <b>S/↓</b> sliden, <b>P</b> pausieren.
       </div>
     </div>
   </div>
 
-  <div id="startScreen">
+  <div id="startScreen" class="screen">
     <div class="box">
       <h1>John Pork Runner</h1>
-      <p>Ein eigenes Endless-Runner-Spiel mit besserer Qualität, sauberem Look, Coins, Hindernissen, Geschwindigkeitsskalierung und flüssigerem Spielgefühl.</p>
+      <p>Eine saubere eigene Runner-Version mit flüssigeren Animationen, Coins, sauberem Score-System und deutlich besserem Spielgefühl.</p>
       <div class="row">
-        <button id="startBtn">▶ Spiel starten</button>
-        <button class="secondary" id="howBtn">❓ Kurz erklären</button>
+        <button id="startBtn">▶ Starten</button>
+        <button class="secondary" id="helpBtn">❓ Kurz erklären</button>
       </div>
       <div class="cards">
-        <div class="card"><div class="cardTitle">3 Spuren</div><div class="cardText">Wechsle sauber zwischen links, mitte und rechts.</div></div>
-        <div class="card"><div class="cardTitle">Jump & Slide</div><div class="cardText">Springe über Barrieren und slide unter hohen Hindernissen durch.</div></div>
-        <div class="card"><div class="cardTitle">Coins & Score</div><div class="cardText">Sammle Coins, steigere deinen Score und knackle den Highscore.</div></div>
-        <div class="card"><div class="cardTitle">Mehr Tempo</div><div class="cardText">Das Spiel wird mit der Zeit schneller und schwerer.</div></div>
+        <div class="card"><div class="cardTitle">3 Spuren</div><div class="cardText">Sauberer Spurwechsel mit weicher Bewegung.</div></div>
+        <div class="card"><div class="cardTitle">Jump & Slide</div><div class="cardText">Eigene Animationen für Springen und Sliden.</div></div>
+        <div class="card"><div class="cardTitle">Coins & Highscore</div><div class="cardText">Sammle Coins und knacke deinen Bestwert.</div></div>
+        <div class="card"><div class="cardTitle">Mehr Tempo</div><div class="cardText">Das Spiel steigert mit der Zeit automatisch die Schwierigkeit.</div></div>
       </div>
     </div>
   </div>
 
-  <div id="pauseScreen">
+  <div id="pauseScreen" class="screen">
     <div class="box">
       <h2>Pausiert</h2>
-      <p>Drück <b>P</b>, um weiterzuspielen.</p>
+      <p>Drück <b>P</b> oder klick auf Weiter.</p>
       <div class="row">
         <button id="resumeBtn">Weiter</button>
-        <button class="secondary" id="restartFromPauseBtn">Neu starten</button>
+        <button class="secondary" id="restartPauseBtn">Neu starten</button>
       </div>
     </div>
   </div>
 
-  <div id="gameOverScreen">
+  <div id="gameOverScreen" class="screen">
     <div class="box">
       <h2>Game Over</h2>
       <p>Du bist gegen ein Hindernis gelaufen.</p>
@@ -270,62 +215,45 @@
     const speedText = document.getElementById('speedText');
 
     const startScreen = document.getElementById('startScreen');
-    const gameOverScreen = document.getElementById('gameOverScreen');
     const pauseScreen = document.getElementById('pauseScreen');
+    const gameOverScreen = document.getElementById('gameOverScreen');
 
     const finalScore = document.getElementById('finalScore');
     const finalCoins = document.getElementById('finalCoins');
     const finalBest = document.getElementById('finalBest');
 
-    const startBtn = document.getElementById('startBtn');
-    const restartBtn = document.getElementById('restartBtn');
-    const resumeBtn = document.getElementById('resumeBtn');
-    const restartFromPauseBtn = document.getElementById('restartFromPauseBtn');
-    const howBtn = document.getElementById('howBtn');
-    const toast = document.getElementById('toast');
-
-    const LANES = [-1, 0, 1];
-    const STORAGE_KEY = 'johnPorkRunnerBest';
+    const STORAGE_KEY = 'johnPorkRunnerDeluxeBest';
     let bestScore = Number(localStorage.getItem(STORAGE_KEY) || 0);
 
     const state = {
       running: false,
       paused: false,
-      time: 0,
-      distance: 0,
       score: 0,
       coins: 0,
-      speed: 460,
+      speed: 420,
       speedScale: 1,
-      spawnTimer: 0,
-      coinTimer: 0,
-      difficultyTimer: 0,
-      roadStripeOffset: 0,
+      time: 0,
+      laneOffset: 0,
+      spawnTimer: 0.6,
+      coinTimer: 0.4,
+      diffTimer: 0,
+      obstacles: [],
+      coinsList: [],
+      particles: [],
       player: {
         lane: 0,
         targetLane: 0,
         x: 0,
         y: 0,
         vy: 0,
-        width: 64,
-        height: 96,
+        width: 66,
+        height: 102,
         jumping: false,
         sliding: false,
         slideTimer: 0,
-        baseHeight: 96,
-        slideHeight: 56
-      },
-      obstacles: [],
-      coinsList: [],
-      particles: []
+        animTime: 0
+      }
     };
-
-    function showToast(text) {
-      toast.textContent = text;
-      toast.classList.add('show');
-      clearTimeout(showToast._t);
-      showToast._t = setTimeout(() => toast.classList.remove('show'), 1400);
-    }
 
     function resize() {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -338,39 +266,59 @@
     window.addEventListener('resize', resize);
     resize();
 
+    function showToast(text) {
+      const el = document.getElementById('toast');
+      el.textContent = text;
+      el.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => el.classList.remove('show'), 1400);
+    }
+
+    function laneToX(lane) {
+      const roadCenter = window.innerWidth * 0.5;
+      const laneWidth = Math.min(128, window.innerWidth * 0.19);
+      return roadCenter + lane * laneWidth;
+    }
+
     function resetGame() {
       state.running = true;
       state.paused = false;
-      state.time = 0;
-      state.distance = 0;
       state.score = 0;
       state.coins = 0;
-      state.speed = 460;
+      state.speed = 420;
       state.speedScale = 1;
-      state.spawnTimer = 0.65;
+      state.time = 0;
+      state.laneOffset = 0;
+      state.spawnTimer = 0.7;
       state.coinTimer = 0.45;
-      state.difficultyTimer = 0;
-      state.roadStripeOffset = 0;
+      state.diffTimer = 0;
       state.obstacles = [];
       state.coinsList = [];
       state.particles = [];
       state.player.lane = 0;
       state.player.targetLane = 0;
-      state.player.x = 0;
+      state.player.x = laneToX(0);
       state.player.y = 0;
       state.player.vy = 0;
       state.player.jumping = false;
       state.player.sliding = false;
       state.player.slideTimer = 0;
-      state.player.height = state.player.baseHeight;
+      state.player.animTime = 0;
       startScreen.style.display = 'none';
-      gameOverScreen.style.display = 'none';
       pauseScreen.style.display = 'none';
+      gameOverScreen.style.display = 'none';
       updateHud();
       showToast('Los geht’s');
     }
 
-    function gameOver() {
+    function updateHud() {
+      scoreText.textContent = Math.floor(state.score);
+      coinText.textContent = state.coins;
+      bestText.textContent = bestScore;
+      speedText.textContent = state.speedScale.toFixed(1) + 'x';
+    }
+
+    function finishGame() {
       state.running = false;
       bestScore = Math.max(bestScore, Math.floor(state.score));
       localStorage.setItem(STORAGE_KEY, String(bestScore));
@@ -381,81 +329,104 @@
       updateHud();
     }
 
-    function updateHud() {
-      scoreText.textContent = Math.floor(state.score);
-      coinText.textContent = state.coins;
-      bestText.textContent = bestScore;
-      speedText.textContent = state.speedScale.toFixed(1) + 'x';
-    }
-
-    function laneToX(lane) {
-      const roadCenter = window.innerWidth * 0.5;
-      const laneWidth = Math.min(120, window.innerWidth * 0.18);
-      return roadCenter + lane * laneWidth;
-    }
-
     function spawnObstacle() {
-      const lane = LANES[Math.floor(Math.random() * LANES.length)];
-      const typeRoll = Math.random();
-      let type = 'low';
-      if (typeRoll > 0.66) type = 'high';
-      else if (typeRoll > 0.33) type = 'full';
+      const lane = [-1, 0, 1][Math.floor(Math.random() * 3)];
+      const kindRoll = Math.random();
+      let kind = 'full';
+      if (kindRoll < 0.34) kind = 'low';
+      else if (kindRoll < 0.68) kind = 'high';
 
-      const obstacle = {
+      state.obstacles.push({
         lane,
-        z: 0,
-        width: 72,
-        height: type === 'low' ? 46 : type === 'high' ? 120 : 92,
-        type,
-        color: type === 'low' ? '#ff9e57' : type === 'high' ? '#65d2ff' : '#ff5f72'
-      };
-      state.obstacles.push(obstacle);
+        z: -140,
+        kind,
+        width: 80,
+        height: kind === 'low' ? 44 : kind === 'high' ? 132 : 94,
+        color: kind === 'low' ? '#ff9e57' : kind === 'high' ? '#56d1ff' : '#ff6074'
+      });
     }
 
-    function spawnCoinLine() {
-      const lane = LANES[Math.floor(Math.random() * LANES.length)];
+    function spawnCoins() {
+      const lane = [-1, 0, 1][Math.floor(Math.random() * 3)];
       const count = 3 + Math.floor(Math.random() * 4);
       for (let i = 0; i < count; i++) {
         state.coinsList.push({
           lane,
-          z: -i * 120,
-          y: 0
+          z: -i * 120 - 80
         });
       }
     }
 
-    function addCoinParticles(x, y) {
+    function playerRect() {
+      const sliding = state.player.sliding;
+      const width = sliding ? 88 : 66;
+      const height = sliding ? 58 : 102;
+      return {
+        x: state.player.x - width / 2,
+        y: window.innerHeight - 126 - height + state.player.y,
+        w: width,
+        h: height
+      };
+    }
+
+    function perspectiveScale(z) {
+      return 0.28 + ((z + 140) / (window.innerHeight + 260)) * 1.08;
+    }
+
+    function obstacleRect(o) {
+      const s = perspectiveScale(o.z);
+      const x = laneToX(o.lane);
+      const yBase = window.innerHeight - 118;
+      const w = o.width * s;
+      const h = o.height * s;
+      return { x: x - w / 2, y: yBase - h, w, h };
+    }
+
+    function coinRect(c) {
+      const s = perspectiveScale(c.z);
+      const x = laneToX(c.lane);
+      const y = window.innerHeight - 170;
+      const size = 30 * s;
+      return { x: x - size / 2, y: y - size, w: size, h: size };
+    }
+
+    function intersects(a, b) {
+      return a.x < b.x + b.w &&
+             a.x + a.w > b.x &&
+             a.y < b.y + b.h &&
+             a.y + a.h > b.y;
+    }
+
+    function addCoinBurst(x, y) {
       for (let i = 0; i < 10; i++) {
         state.particles.push({
           x, y,
-          vx: (Math.random() - 0.5) * 4,
-          vy: (Math.random() - 0.5) * 4 - 1,
-          life: 0.7 + Math.random() * 0.4,
+          vx: (Math.random() - 0.5) * 4.4,
+          vy: (Math.random() - 0.5) * 4.2 - 0.8,
+          life: 0.55 + Math.random() * 0.35,
           size: 2 + Math.random() * 3
         });
       }
     }
 
-    function handleInput(code) {
-      if (code === 'ArrowLeft' || code === 'KeyA') {
-        state.player.targetLane = Math.max(-1, state.player.targetLane - 1);
-      }
-      if (code === 'ArrowRight' || code === 'KeyD') {
-        state.player.targetLane = Math.min(1, state.player.targetLane + 1);
-      }
+    function input(code) {
+      if (code === 'ArrowLeft' || code === 'KeyA') state.player.targetLane = Math.max(-1, state.player.targetLane - 1);
+      if (code === 'ArrowRight' || code === 'KeyD') state.player.targetLane = Math.min(1, state.player.targetLane + 1);
+
       if (code === 'ArrowUp' || code === 'KeyW' || code === 'Space') {
         if (!state.player.jumping) {
           state.player.jumping = true;
           state.player.vy = -980;
         }
       }
+
       if (code === 'ArrowDown' || code === 'KeyS') {
         if (!state.player.sliding && !state.player.jumping) {
           state.player.sliding = true;
           state.player.slideTimer = 0.55;
-          state.player.height = state.player.slideHeight;
         }
       }
+
       if (code === 'KeyP' && state.running) {
         state.paused = !state.paused;
         pauseScreen.style.display = state.paused ? 'flex' : 'none';
@@ -463,51 +434,48 @@
     }
 
     window.addEventListener('keydown', (e) => {
-      if (startScreen.style.display !== 'none') {
-        if (e.code === 'Space' || e.code === 'Enter') {
-          e.preventDefault();
-          resetGame();
-        }
-      }
-      if (gameOverScreen.style.display !== 'none' && (e.code === 'Space' || e.code === 'Enter')) {
+      if ((e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'ArrowDown') && document.activeElement === document.body) e.preventDefault();
+      if (startScreen.style.display !== 'none' && (e.code === 'Enter' || e.code === 'Space')) {
         e.preventDefault();
         resetGame();
         return;
       }
-      if (pauseScreen.style.display !== 'none' && e.code === 'KeyP') {
+      if (gameOverScreen.style.display !== 'none' && (e.code === 'Enter' || e.code === 'Space')) {
         e.preventDefault();
+        resetGame();
+        return;
       }
-      handleInput(e.code);
+      input(e.code);
     }, { passive: false });
 
-    startBtn.onclick = resetGame;
-    restartBtn.onclick = resetGame;
-    resumeBtn.onclick = () => {
+    document.getElementById('startBtn').onclick = resetGame;
+    document.getElementById('restartBtn').onclick = resetGame;
+    document.getElementById('resumeBtn').onclick = () => {
       state.paused = false;
       pauseScreen.style.display = 'none';
     };
-    restartFromPauseBtn.onclick = resetGame;
-    howBtn.onclick = () => showToast('A/D wechseln Spur, W springen, S sliden');
+    document.getElementById('restartPauseBtn').onclick = resetGame;
+    document.getElementById('helpBtn').onclick = () => showToast('A/D wechseln, W springt, S slidet');
 
     function update(dt) {
       if (!state.running || state.paused) return;
 
       state.time += dt;
-      state.distance += state.speed * dt;
-      state.score += dt * 18 * state.speedScale;
-      state.difficultyTimer += dt;
-      state.roadStripeOffset += state.speed * dt * 0.02;
+      state.player.animTime += dt;
+      state.score += dt * 17 * state.speedScale;
+      state.diffTimer += dt;
+      state.laneOffset += state.speed * dt * 0.02;
 
-      if (state.difficultyTimer >= 1.6) {
-        state.difficultyTimer = 0;
-        state.speed = Math.min(980, state.speed + 14);
-        state.speedScale = 1 + (state.speed - 460) / 520;
+      if (state.diffTimer > 1.6) {
+        state.diffTimer = 0;
+        state.speed = Math.min(980, state.speed + 15);
+        state.speedScale = 1 + (state.speed - 420) / 560;
       }
 
       const targetX = laneToX(state.player.targetLane);
       state.player.x += (targetX - state.player.x) * Math.min(1, dt * 14);
 
-      if (Math.abs(targetX - state.player.x) < 1) {
+      if (Math.abs(targetX - state.player.x) < 0.6) {
         state.player.x = targetX;
         state.player.lane = state.player.targetLane;
       }
@@ -526,53 +494,47 @@
         state.player.slideTimer -= dt;
         if (state.player.slideTimer <= 0) {
           state.player.sliding = false;
-          state.player.height = state.player.baseHeight;
+          state.player.slideTimer = 0;
         }
       }
 
       state.spawnTimer -= dt;
       if (state.spawnTimer <= 0) {
         spawnObstacle();
-        state.spawnTimer = Math.max(0.28, 0.72 - state.speedScale * 0.11 + Math.random() * 0.16);
+        state.spawnTimer = Math.max(0.28, 0.76 - state.speedScale * 0.12 + Math.random() * 0.16);
       }
 
       state.coinTimer -= dt;
       if (state.coinTimer <= 0) {
-        spawnCoinLine();
-        state.coinTimer = 1.05 + Math.random() * 0.6;
+        spawnCoins();
+        state.coinTimer = 1.0 + Math.random() * 0.5;
       }
 
-      for (const ob of state.obstacles) ob.z += state.speed * dt;
+      for (const o of state.obstacles) o.z += state.speed * dt;
       for (const c of state.coinsList) c.z += state.speed * dt;
 
-      state.obstacles = state.obstacles.filter(ob => ob.z < window.innerHeight + 200);
+      state.obstacles = state.obstacles.filter(o => o.z < window.innerHeight + 200);
       state.coinsList = state.coinsList.filter(c => c.z < window.innerHeight + 120);
 
-      const playerRect = getPlayerRect();
+      const pRect = playerRect();
 
-      for (const ob of state.obstacles) {
-        const rect = getObstacleRect(ob);
-        if (intersects(playerRect, rect)) {
-          if (ob.type === 'low' && state.player.jumping) continue;
-          if (ob.type === 'high' && state.player.sliding) continue;
-          if (ob.type === 'full') {
-            gameOver();
-            return;
-          }
-          if (ob.type === 'low' && state.player.jumping) continue;
-          if (ob.type === 'high' && state.player.sliding) continue;
-          gameOver();
-          return;
-        }
+      for (const o of state.obstacles) {
+        const r = obstacleRect(o);
+        if (!intersects(pRect, r)) continue;
+
+        if (o.kind === 'low' && state.player.jumping) continue;
+        if (o.kind === 'high' && state.player.sliding) continue;
+        finishGame();
+        return;
       }
 
       const remainingCoins = [];
       for (const c of state.coinsList) {
-        const rect = getCoinRect(c);
-        if (intersects(playerRect, rect)) {
+        const r = coinRect(c);
+        if (intersects(pRect, r)) {
           state.coins += 1;
           state.score += 25;
-          addCoinParticles(rect.x + rect.w / 2, rect.y + rect.h / 2);
+          addCoinBurst(r.x + r.w / 2, r.y + r.h / 2);
         } else {
           remainingCoins.push(c);
         }
@@ -594,55 +556,6 @@
       updateHud();
     }
 
-    function getPlayerRect() {
-      const w = state.player.width * (state.player.sliding ? 1.12 : 1);
-      const h = state.player.height;
-      return {
-        x: state.player.x - w / 2,
-        y: window.innerHeight - 120 - h + state.player.y,
-        w,
-        h
-      };
-    }
-
-    function getObstacleRect(ob) {
-      const scale = perspectiveScale(ob.z);
-      const x = laneToX(ob.lane);
-      const yBase = window.innerHeight - 120;
-      const w = ob.width * scale;
-      const h = ob.height * scale;
-      return {
-        x: x - w / 2,
-        y: yBase - h,
-        w,
-        h
-      };
-    }
-
-    function getCoinRect(c) {
-      const scale = perspectiveScale(c.z);
-      const x = laneToX(c.lane);
-      const yBase = window.innerHeight - 180;
-      const s = 28 * scale;
-      return {
-        x: x - s / 2,
-        y: yBase - s + c.y,
-        w: s,
-        h: s
-      };
-    }
-
-    function intersects(a, b) {
-      return a.x < b.x + b.w &&
-             a.x + a.w > b.x &&
-             a.y < b.y + b.h &&
-             a.y + a.h > b.y;
-    }
-
-    function perspectiveScale(z) {
-      return 0.35 + (z / (window.innerHeight + 200)) * 1.15;
-    }
-
     function drawBackground() {
       const sky = ctx.createLinearGradient(0, 0, 0, window.innerHeight);
       sky.addColorStop(0, '#1b335c');
@@ -652,30 +565,30 @@
       ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
       ctx.fillStyle = 'rgba(255,255,255,0.06)';
-      for (let i = 0; i < 20; i++) {
-        const x = (i * 180 + state.time * 18) % (window.innerWidth + 200) - 100;
-        const y = 70 + (i % 5) * 26;
+      for (let i = 0; i < 18; i++) {
+        const x = (i * 190 + state.time * 18) % (window.innerWidth + 220) - 110;
+        const y = 60 + (i % 5) * 28;
         ctx.beginPath();
-        ctx.ellipse(x, y, 46, 16, 0, 0, Math.PI * 2);
+        ctx.ellipse(x, y, 48, 16, 0, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      ctx.fillStyle = '#111a29';
-      ctx.fillRect(0, window.innerHeight - 180, window.innerWidth, 180);
+      ctx.fillStyle = '#121b2b';
+      ctx.fillRect(0, window.innerHeight - 182, window.innerWidth, 182);
 
-      ctx.fillStyle = '#162338';
-      for (let i = 0; i < 18; i++) {
-        const h = 50 + (i % 6) * 16;
-        const x = i * (window.innerWidth / 16) - 20;
-        ctx.fillRect(x, window.innerHeight - 180 - h, 50, h);
+      ctx.fillStyle = '#1a2537';
+      for (let i = 0; i < 20; i++) {
+        const h = 48 + (i % 6) * 18;
+        const x = i * (window.innerWidth / 17) - 18;
+        ctx.fillRect(x, window.innerHeight - 182 - h, 52, h);
       }
     }
 
     function drawRoad() {
-      const roadTopY = 110;
+      const roadTopY = 104;
       const roadBottomY = window.innerHeight;
       const roadTopWidth = 180;
-      const roadBottomWidth = Math.min(window.innerWidth * 0.82, 780);
+      const roadBottomWidth = Math.min(window.innerWidth * 0.82, 790);
       const cx = window.innerWidth / 2;
 
       ctx.beginPath();
@@ -684,13 +597,14 @@
       ctx.lineTo(cx + roadBottomWidth / 2, roadBottomY);
       ctx.lineTo(cx - roadBottomWidth / 2, roadBottomY);
       ctx.closePath();
+
       const roadGrad = ctx.createLinearGradient(0, roadTopY, 0, roadBottomY);
       roadGrad.addColorStop(0, '#2e3849');
-      roadGrad.addColorStop(1, '#141c28');
+      roadGrad.addColorStop(1, '#121924');
       ctx.fillStyle = roadGrad;
       ctx.fill();
 
-      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+      ctx.strokeStyle = 'rgba(255,255,255,.16)';
       ctx.lineWidth = 2;
       ctx.stroke();
 
@@ -698,7 +612,7 @@
         const t = i / 3;
         const topX = cx - roadTopWidth / 2 + roadTopWidth * t;
         const bottomX = cx - roadBottomWidth / 2 + roadBottomWidth * t;
-        ctx.strokeStyle = 'rgba(255,255,255,0.10)';
+        ctx.strokeStyle = 'rgba(255,255,255,.10)';
         ctx.beginPath();
         ctx.moveTo(topX, roadTopY);
         ctx.lineTo(bottomX, roadBottomY);
@@ -706,53 +620,80 @@
       }
 
       for (let i = 0; i < 18; i++) {
-        const y = ((i * 70 + state.roadStripeOffset) % (window.innerHeight + 120)) - 120;
+        const y = ((i * 72 + state.laneOffset) % (window.innerHeight + 130)) - 130;
         const p = Math.max(0, Math.min(1, y / window.innerHeight));
         const width = 10 + p * 18;
-        const height = 20 + p * 30;
-        ctx.fillStyle = 'rgba(255, 240, 120, 0.85)';
+        const height = 22 + p * 34;
+        ctx.fillStyle = 'rgba(255, 238, 120, .9)';
         ctx.fillRect(cx - width / 2, y, width, height);
       }
     }
 
     function drawPlayer() {
-      const p = getPlayerRect();
+      const p = playerRect();
+      const t = state.player.animTime * 12;
+      const runBob = state.player.jumping ? 0 : Math.sin(t) * 3;
+      const armSwing = state.player.jumping ? 0.1 : Math.sin(t) * 0.35;
+      const legSwing = state.player.jumping ? 0.15 : Math.sin(t + Math.PI) * 0.45;
 
       ctx.save();
-      ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+      ctx.translate(p.x + p.w / 2, p.y + p.h / 2 + runBob);
 
-      if (state.player.sliding) ctx.rotate(-0.08);
+      if (state.player.sliding) ctx.rotate(-0.12);
 
+      // legs
+      ctx.save();
+      ctx.rotate(legSwing * 0.2);
+      ctx.fillStyle = '#11161d';
+      ctx.fillRect(-16, 8, 10, 34);
+      ctx.restore();
+
+      ctx.save();
+      ctx.rotate(-legSwing * 0.2);
+      ctx.fillStyle = '#11161d';
+      ctx.fillRect(6, 8, 10, 34);
+      ctx.restore();
+
+      // body
+      ctx.fillStyle = '#ff6275';
+      ctx.fillRect(-22, -32, 44, 42);
+
+      // arms
+      ctx.save();
+      ctx.rotate(armSwing * 0.32);
+      ctx.fillStyle = '#f1b188';
+      ctx.fillRect(-30, -26, 8, 28);
+      ctx.restore();
+
+      ctx.save();
+      ctx.rotate(-armSwing * 0.32);
+      ctx.fillStyle = '#f1b188';
+      ctx.fillRect(22, -26, 8, 28);
+      ctx.restore();
+
+      // head
       ctx.fillStyle = '#f2b287';
-      ctx.fillRect(-p.w * 0.18, -p.h * 0.1, p.w * 0.36, p.h * 0.42);
-
-      ctx.fillStyle = '#ff5f72';
-      ctx.fillRect(-p.w * 0.34, -p.h * 0.46, p.w * 0.68, p.h * 0.42);
-
-      ctx.fillStyle = '#101418';
-      ctx.fillRect(-p.w * 0.18, p.h * 0.12, p.w * 0.12, p.h * 0.34);
-      ctx.fillRect(p.w * 0.06, p.h * 0.12, p.w * 0.12, p.h * 0.34);
-
+      ctx.fillRect(-14, -56, 28, 26);
       ctx.fillStyle = '#ffd86f';
-      ctx.fillRect(-p.w * 0.26, -p.h * 0.32, p.w * 0.52, p.h * 0.1);
+      ctx.fillRect(-18, -52, 36, 8);
 
       ctx.restore();
     }
 
-    function drawObstacle(ob) {
-      const r = getObstacleRect(ob);
+    function drawObstacle(o) {
+      const r = obstacleRect(o);
       const grad = ctx.createLinearGradient(r.x, r.y, r.x, r.y + r.h);
-      grad.addColorStop(0, ob.color);
+      grad.addColorStop(0, o.color);
       grad.addColorStop(1, '#1a1a1a');
       ctx.fillStyle = grad;
       ctx.fillRect(r.x, r.y, r.w, r.h);
 
-      ctx.fillStyle = 'rgba(255,255,255,0.15)';
-      ctx.fillRect(r.x + r.w * 0.12, r.y + r.h * 0.12, r.w * 0.18, r.h * 0.22);
+      ctx.fillStyle = 'rgba(255,255,255,.14)';
+      ctx.fillRect(r.x + r.w * 0.12, r.y + r.h * 0.12, r.w * 0.18, r.h * 0.2);
     }
 
     function drawCoin(c) {
-      const r = getCoinRect(c);
+      const r = coinRect(c);
       ctx.beginPath();
       ctx.fillStyle = '#ffd84a';
       ctx.arc(r.x + r.w / 2, r.y + r.h / 2, r.w / 2, 0, Math.PI * 2);
@@ -779,12 +720,11 @@
     function render() {
       drawBackground();
       drawRoad();
-
       state.coinsList.sort((a, b) => a.z - b.z);
       state.obstacles.sort((a, b) => a.z - b.z);
 
       for (const c of state.coinsList) drawCoin(c);
-      for (const ob of state.obstacles) drawObstacle(ob);
+      for (const o of state.obstacles) drawObstacle(o);
       drawPlayer();
       drawParticles();
     }
