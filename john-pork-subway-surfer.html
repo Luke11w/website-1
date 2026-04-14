@@ -3,627 +3,802 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>John Pork Subway Surfer Deluxe</title>
+  <title>John Pork Runner</title>
   <style>
     * { box-sizing: border-box; }
-    html, body { margin: 0; height: 100%; overflow: hidden; font-family: Arial, sans-serif; background: #111; }
-    body { color: white; }
-    canvas { display: block; width: 100vw; height: 100vh; touch-action: none; }
-    .hud {
-      position: fixed; inset: 0; pointer-events: none; z-index: 10;
-      display: flex; flex-direction: column; justify-content: space-between; padding: 12px;
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: Inter, Arial, sans-serif;
+      background: #09111f;
+      color: white;
     }
-    .top, .bottom { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    body {
+      background:
+        radial-gradient(circle at 20% 10%, rgba(72, 169, 255, 0.18), transparent 28%),
+        radial-gradient(circle at 80% 0%, rgba(255, 140, 80, 0.16), transparent 30%),
+        linear-gradient(180deg, #12233f 0%, #09111f 100%);
+    }
+    #gameWrap {
+      position: fixed;
+      inset: 0;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    #hud {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 14px;
+    }
+    .topbar, .bottombar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
     .panel {
-      background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.12);
-      backdrop-filter: blur(8px); border-radius: 16px; padding: 10px 14px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      background: rgba(7, 12, 22, 0.58);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px;
+      padding: 10px 14px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.22);
     }
-    .title { font-size: 22px; font-weight: 800; }
-    .stats { display: flex; gap: 12px; flex-wrap: wrap; }
-    .label { font-size: 11px; opacity: 0.8; }
-    .value { font-size: 22px; font-weight: 800; color: #ffe65a; }
-    .btnRow { display: flex; gap: 10px; flex-wrap: wrap; pointer-events: auto; }
-    button {
-      appearance: none; border: none; border-radius: 14px; padding: 12px 16px;
-      font-size: 15px; font-weight: 700; background: linear-gradient(90deg, #ffe600, #ffae00);
-      color: #111; cursor: pointer;
+    .brand {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
     }
-    .help { max-width: 620px; line-height: 1.45; font-size: 13px; }
-    #startScreen, #gameOverScreen {
-      position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center;
-      background: rgba(0,0,0,0.74); padding: 16px;
+    .sub {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 4px;
     }
-    #gameOverScreen { display: none; }
+    .stats {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .stat {
+      min-width: 92px;
+    }
+    .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.68;
+    }
+    .value {
+      margin-top: 2px;
+      font-size: 21px;
+      font-weight: 900;
+      color: #ffe56c;
+    }
+    #tip {
+      max-width: 430px;
+      line-height: 1.45;
+      font-size: 13px;
+      opacity: 0.92;
+    }
+    #startScreen, #gameOverScreen, #pauseScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: radial-gradient(circle at top, rgba(44,78,125,0.34), rgba(0,0,0,0.82));
+    }
+    #gameOverScreen, #pauseScreen {
+      display: none;
+    }
     .box {
-      width: min(94vw, 780px); background: rgba(0,0,0,0.62); border: 1px solid rgba(255,255,255,0.14);
-      backdrop-filter: blur(10px); border-radius: 28px; padding: 24px; text-align: center;
-      box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+      width: min(94vw, 920px);
+      background: rgba(5, 10, 18, 0.74);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 30px;
+      padding: 28px;
+      box-shadow: 0 30px 70px rgba(0,0,0,0.35);
     }
-    h1 { margin: 0 0 12px; font-size: clamp(32px, 5vw, 56px); }
-    p { font-size: clamp(16px, 2.2vw, 20px); line-height: 1.55; }
-    .touchControls {
-      position: fixed; left: 0; right: 0; bottom: 12px; z-index: 12; display: none;
-      justify-content: center; pointer-events: none;
+    h1, h2 {
+      margin: 0 0 10px;
+      font-size: clamp(34px, 6vw, 62px);
+      line-height: 0.95;
     }
-    .touchPad { display: grid; grid-template-columns: repeat(3, 70px); gap: 10px; pointer-events: auto; }
-    .touchBtn {
-      width: 70px; height: 70px; border-radius: 18px; background: rgba(0,0,0,0.44);
-      border: 1px solid rgba(255,255,255,0.15); color: white; font-weight: 800;
-      display: flex; align-items: center; justify-content: center; user-select: none;
+    p {
+      margin: 10px 0 0;
+      line-height: 1.6;
+      opacity: 0.94;
     }
-    .touchBtn.empty { opacity: 0; pointer-events: none; }
-    @media (max-width: 900px) {
-      .touchControls { display: flex; }
-      .title { font-size: 18px; }
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+    button {
+      appearance: none;
+      border: none;
+      border-radius: 16px;
+      padding: 14px 18px;
+      font-size: 15px;
+      font-weight: 900;
+      cursor: pointer;
+      color: #111;
+      background: linear-gradient(90deg, #ffe14f, #ffae2f);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.24);
+    }
+    button.secondary {
+      color: white;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: none;
+    }
+    .cards {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .cardTitle {
+      font-size: 14px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+    .cardText {
+      font-size: 13px;
+      opacity: 0.84;
+      line-height: 1.5;
+    }
+    #toast {
+      position: fixed;
+      left: 50%;
+      top: 90px;
+      transform: translateX(-50%);
+      z-index: 30;
+      background: rgba(0,0,0,0.72);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 10px 14px;
+      opacity: 0;
+      transition: opacity .2s ease;
+      pointer-events: none;
+      max-width: min(90vw, 520px);
+      text-align: center;
+    }
+    #toast.show { opacity: 1; }
+    @media (max-width: 700px) {
+      .panel { padding: 9px 12px; }
+      .brand { font-size: 19px; }
       .value { font-size: 18px; }
-      .help { max-width: 100%; }
+      #tip { max-width: 100%; }
     }
   </style>
 </head>
 <body>
-  <canvas id="gameCanvas"></canvas>
+  <div id="gameWrap"><canvas id="game"></canvas></div>
+  <div id="toast"></div>
 
-  <div class="hud">
-    <div class="top">
-      <div class="panel title">🚇 John Pork Subway Surfer Deluxe</div>
+  <div id="hud">
+    <div class="topbar">
+      <div class="panel">
+        <div class="brand">🐷 John Pork Runner</div>
+        <div class="sub">Eigenes High-Quality Browser-Runner-Game</div>
+      </div>
       <div class="panel stats">
-        <div><div class="label">Score</div><div class="value" id="scoreText">0</div></div>
-        <div><div class="label">Best</div><div class="value" id="bestText">0</div></div>
-        <div><div class="label">Coins</div><div class="value" id="coinText">0</div></div>
-        <div><div class="label">Multiplier</div><div class="value" id="multiText">x1</div></div>
+        <div class="stat"><div class="label">Score</div><div class="value" id="scoreText">0</div></div>
+        <div class="stat"><div class="label">Coins</div><div class="value" id="coinText">0</div></div>
+        <div class="stat"><div class="label">Best</div><div class="value" id="bestText">0</div></div>
+        <div class="stat"><div class="label">Speed</div><div class="value" id="speedText">1.0x</div></div>
       </div>
     </div>
-    <div class="bottom">
-      <div class="panel help">
-        <b>Steuerung:</b> A / ← links, D / → rechts, W / ↑ / Leertaste springen, S / ↓ rutschen. <br>
-        Jetzt mit echterem Subway-Surfer-Gefühl: Zug-Spuren, Coin-Lines, Polizei, Sprung- und Duck-Hindernisse.
-      </div>
-      <div class="btnRow">
-        <button id="restartBtn">🔁 Neustart</button>
-        <button id="homeBtn">🏠 Home</button>
+    <div class="bottombar">
+      <div class="panel" id="tip">
+        Steuerung: <b>A/D</b> oder <b>←/→</b> Spur wechseln, <b>W/↑/Leertaste</b> springen, <b>S/↓</b> sliden, <b>P</b> pausieren.
       </div>
     </div>
   </div>
 
   <div id="startScreen">
     <div class="box">
-      <h1>🐷 SUBWAY SURFER</h1>
-      <p>Diese Version ist jetzt viel näher am echten Feeling: drei Spuren, Polizei hinter dir, lange Coin-Linien, große Züge, Barrieren und Duck-Hindernisse.</p>
-      <div class="btnRow" style="justify-content:center; margin-top: 12px;">
-        <button id="startBtn">▶️ Starten</button>
+      <h1>John Pork Runner</h1>
+      <p>Ein eigenes Endless-Runner-Spiel mit besserer Qualität, sauberem Look, Coins, Hindernissen, Geschwindigkeitsskalierung und flüssigerem Spielgefühl.</p>
+      <div class="row">
+        <button id="startBtn">▶ Spiel starten</button>
+        <button class="secondary" id="howBtn">❓ Kurz erklären</button>
+      </div>
+      <div class="cards">
+        <div class="card"><div class="cardTitle">3 Spuren</div><div class="cardText">Wechsle sauber zwischen links, mitte und rechts.</div></div>
+        <div class="card"><div class="cardTitle">Jump & Slide</div><div class="cardText">Springe über Barrieren und slide unter hohen Hindernissen durch.</div></div>
+        <div class="card"><div class="cardTitle">Coins & Score</div><div class="cardText">Sammle Coins, steigere deinen Score und knackle den Highscore.</div></div>
+        <div class="card"><div class="cardTitle">Mehr Tempo</div><div class="cardText">Das Spiel wird mit der Zeit schneller und schwerer.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pauseScreen">
+    <div class="box">
+      <h2>Pausiert</h2>
+      <p>Drück <b>P</b>, um weiterzuspielen.</p>
+      <div class="row">
+        <button id="resumeBtn">Weiter</button>
+        <button class="secondary" id="restartFromPauseBtn">Neu starten</button>
       </div>
     </div>
   </div>
 
   <div id="gameOverScreen">
     <div class="box">
-      <h1>💥 Game Over</h1>
-      <p id="finalScoreText">Dein Score: 0</p>
-      <div class="btnRow" style="justify-content:center; margin-top: 12px;">
-        <button id="playAgainBtn">🔥 Nochmal</button>
+      <h2>Game Over</h2>
+      <p>Du bist gegen ein Hindernis gelaufen.</p>
+      <div class="cards">
+        <div class="card"><div class="cardTitle">Dein Score</div><div class="cardText" id="finalScore">0</div></div>
+        <div class="card"><div class="cardTitle">Coins</div><div class="cardText" id="finalCoins">0</div></div>
+        <div class="card"><div class="cardTitle">Best Score</div><div class="cardText" id="finalBest">0</div></div>
+      </div>
+      <div class="row">
+        <button id="restartBtn">Nochmal spielen</button>
       </div>
     </div>
   </div>
 
-  <div class="touchControls">
-    <div class="touchPad">
-      <div class="touchBtn" data-action="left">◀</div>
-      <div class="touchBtn" data-action="jump">▲</div>
-      <div class="touchBtn" data-action="right">▶</div>
-      <div class="touchBtn empty"></div>
-      <div class="touchBtn" data-action="slide">▼</div>
-      <div class="touchBtn empty"></div>
-    </div>
-  </div>
-
   <script>
-    const canvas = document.getElementById('gameCanvas');
+    const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
 
     const scoreText = document.getElementById('scoreText');
-    const bestText = document.getElementById('bestText');
     const coinText = document.getElementById('coinText');
-    const multiText = document.getElementById('multiText');
+    const bestText = document.getElementById('bestText');
+    const speedText = document.getElementById('speedText');
+
     const startScreen = document.getElementById('startScreen');
     const gameOverScreen = document.getElementById('gameOverScreen');
-    const finalScoreText = document.getElementById('finalScoreText');
+    const pauseScreen = document.getElementById('pauseScreen');
+
+    const finalScore = document.getElementById('finalScore');
+    const finalCoins = document.getElementById('finalCoins');
+    const finalBest = document.getElementById('finalBest');
+
     const startBtn = document.getElementById('startBtn');
     const restartBtn = document.getElementById('restartBtn');
-    const playAgainBtn = document.getElementById('playAgainBtn');
-    const homeBtn = document.getElementById('homeBtn');
+    const resumeBtn = document.getElementById('resumeBtn');
+    const restartFromPauseBtn = document.getElementById('restartFromPauseBtn');
+    const howBtn = document.getElementById('howBtn');
+    const toast = document.getElementById('toast');
 
-    let width = 0, height = 0, horizonY = 0, roadBottomWidth = 0, roadTopWidth = 0, laneBottomWidth = 0;
     const LANES = [-1, 0, 1];
-    let gameRunning = false, gameOver = false;
-    let score = 0, coins = 0, speed = 10, distance = 0, multiplier = 1;
-    let bestScore = Number(localStorage.getItem('johnPorkSubwayBest2') || 0);
-    let lastTime = 0;
-    let spawnTimer = 0, coinTimer = 0, decorTimer = 0, safeTimer = 0;
-    let policeDistance = 120;
+    const STORAGE_KEY = 'johnPorkRunnerBest';
+    let bestScore = Number(localStorage.getItem(STORAGE_KEY) || 0);
 
-    const objects = [];
-    const coinsList = [];
-    const decor = [];
-
-    const player = {
-      lane: 0,
-      x: 0,
-      width: 56,
-      fullHeight: 92,
-      slideHeight: 48,
-      yOffset: 0,
-      velY: 0,
-      jumping: false,
-      sliding: false,
-      slideTimer: 0
+    const state = {
+      running: false,
+      paused: false,
+      time: 0,
+      distance: 0,
+      score: 0,
+      coins: 0,
+      speed: 460,
+      speedScale: 1,
+      spawnTimer: 0,
+      coinTimer: 0,
+      difficultyTimer: 0,
+      roadStripeOffset: 0,
+      player: {
+        lane: 0,
+        targetLane: 0,
+        x: 0,
+        y: 0,
+        vy: 0,
+        width: 64,
+        height: 96,
+        jumping: false,
+        sliding: false,
+        slideTimer: 0,
+        baseHeight: 96,
+        slideHeight: 56
+      },
+      obstacles: [],
+      coinsList: [],
+      particles: []
     };
 
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => toast.classList.remove('show'), 1400);
+    }
+
     function resize() {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
-      horizonY = height * 0.24;
-      roadBottomWidth = Math.min(width * 0.82, 640);
-      roadTopWidth = roadBottomWidth * 0.18;
-      laneBottomWidth = roadBottomWidth / 3;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(window.innerWidth * dpr);
+      canvas.height = Math.floor(window.innerHeight * dpr);
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
-
-    function laneX(lane, scale = 1) {
-      return width / 2 + lane * (roadBottomWidth / 3) * 0.5 * scale;
-    }
-
-    function playerGroundY() {
-      return height - 120;
-    }
-
-    function currentPlayerHeight() {
-      return player.sliding ? player.slideHeight : player.fullHeight;
-    }
-
-    function playerRect() {
-      const targetX = laneX(player.lane, 1);
-      player.x += (targetX - player.x) * 0.22;
-      const h = currentPlayerHeight();
-      const y = playerGroundY() - h - player.yOffset;
-      return { x: player.x - player.width / 2, y, w: player.width, h };
-    }
+    window.addEventListener('resize', resize);
+    resize();
 
     function resetGame() {
-      score = 0;
-      coins = 0;
-      speed = 10;
-      distance = 0;
-      multiplier = 1;
-      policeDistance = 120;
-      spawnTimer = 0.9;
-      coinTimer = 0.6;
-      decorTimer = 0.1;
-      safeTimer = 1.6;
-      objects.length = 0;
-      coinsList.length = 0;
-      decor.length = 0;
-      player.lane = 0;
-      player.x = width / 2;
-      player.yOffset = 0;
-      player.velY = 0;
-      player.jumping = false;
-      player.sliding = false;
-      player.slideTimer = 0;
-      gameOver = false;
-      updateHud();
-    }
-
-    function startGame() {
-      resetGame();
-      gameRunning = true;
+      state.running = true;
+      state.paused = false;
+      state.time = 0;
+      state.distance = 0;
+      state.score = 0;
+      state.coins = 0;
+      state.speed = 460;
+      state.speedScale = 1;
+      state.spawnTimer = 0.65;
+      state.coinTimer = 0.45;
+      state.difficultyTimer = 0;
+      state.roadStripeOffset = 0;
+      state.obstacles = [];
+      state.coinsList = [];
+      state.particles = [];
+      state.player.lane = 0;
+      state.player.targetLane = 0;
+      state.player.x = 0;
+      state.player.y = 0;
+      state.player.vy = 0;
+      state.player.jumping = false;
+      state.player.sliding = false;
+      state.player.slideTimer = 0;
+      state.player.height = state.player.baseHeight;
       startScreen.style.display = 'none';
       gameOverScreen.style.display = 'none';
+      pauseScreen.style.display = 'none';
+      updateHud();
+      showToast('Los geht’s');
     }
 
-    function endGame() {
-      gameRunning = false;
-      gameOver = true;
-      const rounded = Math.floor(score);
-      if (rounded > bestScore) {
-        bestScore = rounded;
-        localStorage.setItem('johnPorkSubwayBest2', String(bestScore));
-      }
-      updateHud();
-      finalScoreText.textContent = `Dein Score: ${rounded} | Coins: ${coins} | Distanz: ${Math.floor(distance)}m`;
+    function gameOver() {
+      state.running = false;
+      bestScore = Math.max(bestScore, Math.floor(state.score));
+      localStorage.setItem(STORAGE_KEY, String(bestScore));
+      finalScore.textContent = Math.floor(state.score);
+      finalCoins.textContent = state.coins;
+      finalBest.textContent = bestScore;
       gameOverScreen.style.display = 'flex';
+      updateHud();
     }
 
     function updateHud() {
-      scoreText.textContent = Math.floor(score);
+      scoreText.textContent = Math.floor(state.score);
+      coinText.textContent = state.coins;
       bestText.textContent = bestScore;
-      coinText.textContent = coins;
-      multiText.textContent = 'x' + multiplier;
+      speedText.textContent = state.speedScale.toFixed(1) + 'x';
     }
 
-    function moveLeft() { if (gameRunning) player.lane = Math.max(-1, player.lane - 1); }
-    function moveRight() { if (gameRunning) player.lane = Math.min(1, player.lane + 1); }
-    function jump() {
-      if (!gameRunning || player.jumping) return;
-      player.jumping = true;
-      player.velY = 17;
-    }
-    function slide() {
-      if (!gameRunning || player.sliding || player.jumping) return;
-      player.sliding = true;
-      player.slideTimer = 0.65;
+    function laneToX(lane) {
+      const roadCenter = window.innerWidth * 0.5;
+      const laneWidth = Math.min(120, window.innerWidth * 0.18);
+      return roadCenter + lane * laneWidth;
     }
 
-    function project(z) {
-      const p = Math.max(0.01, 1 - z / 140);
-      const scale = 0.2 + p * 1.8;
-      const y = horizonY + (1 - p) * (height - horizonY);
-      const roadW = roadTopWidth + (roadBottomWidth - roadTopWidth) * (1 - p);
-      return { scale, y, roadW };
-    }
+    function spawnObstacle() {
+      const lane = LANES[Math.floor(Math.random() * LANES.length)];
+      const typeRoll = Math.random();
+      let type = 'low';
+      if (typeRoll > 0.66) type = 'high';
+      else if (typeRoll > 0.33) type = 'full';
 
-    function laneWorldX(lane, roadW) {
-      return width / 2 + lane * (roadW / 3);
-    }
-
-    function spawnObject(type, lane, z) {
-      objects.push({ type, lane, z, hit: false });
-    }
-
-    function spawnPattern() {
-      const r = Math.random();
-      const z = 132;
-
-      if (r < 0.28) {
-        spawnObject('train', LANES[Math.floor(Math.random() * 3)], z);
-        return;
-      }
-
-      if (r < 0.58) {
-        const openLane = LANES[Math.floor(Math.random() * 3)];
-        for (const lane of LANES) {
-          if (lane === openLane) continue;
-          spawnObject(Math.random() < 0.5 ? 'barrier' : 'duck', lane, z + (lane === 0 ? 5 : 0));
-        }
-        return;
-      }
-
-      const lane = LANES[Math.floor(Math.random() * 3)];
-      spawnObject(Math.random() < 0.55 ? 'barrier' : 'duck', lane, z);
+      const obstacle = {
+        lane,
+        z: 0,
+        width: 72,
+        height: type === 'low' ? 46 : type === 'high' ? 120 : 92,
+        type,
+        color: type === 'low' ? '#ff9e57' : type === 'high' ? '#65d2ff' : '#ff5f72'
+      };
+      state.obstacles.push(obstacle);
     }
 
     function spawnCoinLine() {
-      const lane = LANES[Math.floor(Math.random() * 3)];
-      const amount = 6 + Math.floor(Math.random() * 4);
-      for (let i = 0; i < amount; i++) {
-        coinsList.push({ lane, z: 120 + i * 8, lift: (i % 3) * 10, taken: false });
+      const lane = LANES[Math.floor(Math.random() * LANES.length)];
+      const count = 3 + Math.floor(Math.random() * 4);
+      for (let i = 0; i < count; i++) {
+        state.coinsList.push({
+          lane,
+          z: -i * 120,
+          y: 0
+        });
       }
     }
 
-    function spawnDecor() {
-      decor.push({ side: Math.random() < 0.5 ? -1 : 1, z: 145, type: Math.random() < 0.5 ? 'lamp' : 'sign' });
-    }
-
-    function intersects(a, b) {
-      return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
-    }
-
-    function objectRect(obj) {
-      const p = project(obj.z);
-      const cx = laneWorldX(obj.lane, p.roadW);
-      let w = 54 * p.scale;
-      let h = 60 * p.scale;
-      let y = p.y - h;
-      if (obj.type === 'train') {
-        w = 94 * p.scale;
-        h = 156 * p.scale;
-        y = p.y - h;
-      } else if (obj.type === 'duck') {
-        w = 62 * p.scale;
-        h = 34 * p.scale;
-        y = p.y - h;
+    function addCoinParticles(x, y) {
+      for (let i = 0; i < 10; i++) {
+        state.particles.push({
+          x, y,
+          vx: (Math.random() - 0.5) * 4,
+          vy: (Math.random() - 0.5) * 4 - 1,
+          life: 0.7 + Math.random() * 0.4,
+          size: 2 + Math.random() * 3
+        });
       }
-      return { x: cx - w / 2, y, w, h, scale: p.scale, yBase: p.y, xCenter: cx };
     }
 
-    function update(dt) {
-      if (!gameRunning) return;
+    function handleInput(code) {
+      if (code === 'ArrowLeft' || code === 'KeyA') {
+        state.player.targetLane = Math.max(-1, state.player.targetLane - 1);
+      }
+      if (code === 'ArrowRight' || code === 'KeyD') {
+        state.player.targetLane = Math.min(1, state.player.targetLane + 1);
+      }
+      if (code === 'ArrowUp' || code === 'KeyW' || code === 'Space') {
+        if (!state.player.jumping) {
+          state.player.jumping = true;
+          state.player.vy = -980;
+        }
+      }
+      if (code === 'ArrowDown' || code === 'KeyS') {
+        if (!state.player.sliding && !state.player.jumping) {
+          state.player.sliding = true;
+          state.player.slideTimer = 0.55;
+          state.player.height = state.player.slideHeight;
+        }
+      }
+      if (code === 'KeyP' && state.running) {
+        state.paused = !state.paused;
+        pauseScreen.style.display = state.paused ? 'flex' : 'none';
+      }
+    }
 
-      distance += speed * dt * 0.8;
-      speed = Math.min(21, speed + dt * 0.14);
-      multiplier = 1 + Math.floor(distance / 250);
-      score += dt * 10 * multiplier + speed * dt * 2.6 + coins * 0.015;
-
-      if (safeTimer > 0) safeTimer -= dt;
-      policeDistance = Math.max(0, policeDistance - dt * (speed < 12 ? 10 : 2));
-      if (policeDistance <= 0) {
-        endGame();
+    window.addEventListener('keydown', (e) => {
+      if (startScreen.style.display !== 'none') {
+        if (e.code === 'Space' || e.code === 'Enter') {
+          e.preventDefault();
+          resetGame();
+        }
+      }
+      if (gameOverScreen.style.display !== 'none' && (e.code === 'Space' || e.code === 'Enter')) {
+        e.preventDefault();
+        resetGame();
         return;
       }
+      if (pauseScreen.style.display !== 'none' && e.code === 'KeyP') {
+        e.preventDefault();
+      }
+      handleInput(e.code);
+    }, { passive: false });
 
-      if (player.jumping) {
-        player.velY -= 34 * dt;
-        player.yOffset += player.velY;
-        if (player.yOffset <= 0) {
-          player.yOffset = 0;
-          player.velY = 0;
-          player.jumping = false;
+    startBtn.onclick = resetGame;
+    restartBtn.onclick = resetGame;
+    resumeBtn.onclick = () => {
+      state.paused = false;
+      pauseScreen.style.display = 'none';
+    };
+    restartFromPauseBtn.onclick = resetGame;
+    howBtn.onclick = () => showToast('A/D wechseln Spur, W springen, S sliden');
+
+    function update(dt) {
+      if (!state.running || state.paused) return;
+
+      state.time += dt;
+      state.distance += state.speed * dt;
+      state.score += dt * 18 * state.speedScale;
+      state.difficultyTimer += dt;
+      state.roadStripeOffset += state.speed * dt * 0.02;
+
+      if (state.difficultyTimer >= 1.6) {
+        state.difficultyTimer = 0;
+        state.speed = Math.min(980, state.speed + 14);
+        state.speedScale = 1 + (state.speed - 460) / 520;
+      }
+
+      const targetX = laneToX(state.player.targetLane);
+      state.player.x += (targetX - state.player.x) * Math.min(1, dt * 14);
+
+      if (Math.abs(targetX - state.player.x) < 1) {
+        state.player.x = targetX;
+        state.player.lane = state.player.targetLane;
+      }
+
+      if (state.player.jumping || state.player.y < 0) {
+        state.player.vy += 1900 * dt;
+        state.player.y += state.player.vy * dt;
+        if (state.player.y >= 0) {
+          state.player.y = 0;
+          state.player.vy = 0;
+          state.player.jumping = false;
         }
       }
 
-      if (player.sliding) {
-        player.slideTimer -= dt;
-        if (player.slideTimer <= 0) player.sliding = false;
+      if (state.player.sliding) {
+        state.player.slideTimer -= dt;
+        if (state.player.slideTimer <= 0) {
+          state.player.sliding = false;
+          state.player.height = state.player.baseHeight;
+        }
       }
 
-      spawnTimer -= dt;
-      coinTimer -= dt;
-      decorTimer -= dt;
-
-      if (spawnTimer <= 0 && safeTimer <= 0) {
-        spawnPattern();
-        spawnTimer = Math.max(0.5, 1.1 - speed * 0.025 + Math.random() * 0.15);
+      state.spawnTimer -= dt;
+      if (state.spawnTimer <= 0) {
+        spawnObstacle();
+        state.spawnTimer = Math.max(0.28, 0.72 - state.speedScale * 0.11 + Math.random() * 0.16);
       }
-      if (coinTimer <= 0) {
+
+      state.coinTimer -= dt;
+      if (state.coinTimer <= 0) {
         spawnCoinLine();
-        coinTimer = 1 + Math.random() * 0.6;
-      }
-      if (decorTimer <= 0) {
-        spawnDecor();
-        decorTimer = 0.25;
+        state.coinTimer = 1.05 + Math.random() * 0.6;
       }
 
-      const pr = playerRect();
+      for (const ob of state.obstacles) ob.z += state.speed * dt;
+      for (const c of state.coinsList) c.z += state.speed * dt;
 
-      for (const obj of objects) {
-        obj.z -= speed * dt * 2.9;
-        if (obj.hit) continue;
-        if (obj.z < 7) {
-          const r = objectRect(obj);
-          if (intersects(pr, r)) {
-            const canClearByJump = obj.type !== 'duck' && player.jumping && player.yOffset > 38;
-            const canClearBySlide = obj.type === 'duck' && player.sliding;
-            if (!canClearByJump && !canClearBySlide) {
-              obj.hit = true;
-              endGame();
-              return;
-            }
+      state.obstacles = state.obstacles.filter(ob => ob.z < window.innerHeight + 200);
+      state.coinsList = state.coinsList.filter(c => c.z < window.innerHeight + 120);
+
+      const playerRect = getPlayerRect();
+
+      for (const ob of state.obstacles) {
+        const rect = getObstacleRect(ob);
+        if (intersects(playerRect, rect)) {
+          if (ob.type === 'low' && state.player.jumping) continue;
+          if (ob.type === 'high' && state.player.sliding) continue;
+          if (ob.type === 'full') {
+            gameOver();
+            return;
           }
+          if (ob.type === 'low' && state.player.jumping) continue;
+          if (ob.type === 'high' && state.player.sliding) continue;
+          gameOver();
+          return;
         }
       }
 
-      for (const coin of coinsList) {
-        coin.z -= speed * dt * 2.9;
-        if (coin.taken) continue;
-        const p = project(coin.z);
-        const cx = laneWorldX(coin.lane, p.roadW);
-        const size = 18 * p.scale;
-        const cy = p.y - 48 * p.scale - coin.lift * p.scale;
-        const cr = { x: cx - size / 2, y: cy - size / 2, w: size, h: size };
-        if (intersects(pr, cr)) {
-          coin.taken = true;
-          coins += 1;
-          score += 15 * multiplier;
-          policeDistance = Math.min(140, policeDistance + 1.8);
+      const remainingCoins = [];
+      for (const c of state.coinsList) {
+        const rect = getCoinRect(c);
+        if (intersects(playerRect, rect)) {
+          state.coins += 1;
+          state.score += 25;
+          addCoinParticles(rect.x + rect.w / 2, rect.y + rect.h / 2);
+        } else {
+          remainingCoins.push(c);
         }
       }
+      state.coinsList = remainingCoins;
 
-      for (const d of decor) d.z -= speed * dt * 2.6;
+      const nextParticles = [];
+      for (const p of state.particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.12;
+        p.life -= dt;
+        if (p.life > 0) nextParticles.push(p);
+      }
+      state.particles = nextParticles;
 
-      for (let i = objects.length - 1; i >= 0; i--) if (objects[i].z < 0) objects.splice(i, 1);
-      for (let i = coinsList.length - 1; i >= 0; i--) if (coinsList[i].z < 0 || coinsList[i].taken) coinsList.splice(i, 1);
-      for (let i = decor.length - 1; i >= 0; i--) if (decor[i].z < 0) decor.splice(i, 1);
-
+      bestScore = Math.max(bestScore, Math.floor(state.score));
+      localStorage.setItem(STORAGE_KEY, String(bestScore));
       updateHud();
     }
 
-    function drawSky() {
-      const sky = ctx.createLinearGradient(0, 0, 0, horizonY);
-      sky.addColorStop(0, '#63c7ff');
-      sky.addColorStop(1, '#dff6ff');
-      ctx.fillStyle = sky;
-      ctx.fillRect(0, 0, width, horizonY);
+    function getPlayerRect() {
+      const w = state.player.width * (state.player.sliding ? 1.12 : 1);
+      const h = state.player.height;
+      return {
+        x: state.player.x - w / 2,
+        y: window.innerHeight - 120 - h + state.player.y,
+        w,
+        h
+      };
+    }
 
-      ctx.fillStyle = '#d0d0d0';
-      for (let i = 0; i < 7; i++) {
-        ctx.fillRect(i * 180 - ((distance * 3) % 180), horizonY - 46 - (i % 2) * 8, 110, 25);
+    function getObstacleRect(ob) {
+      const scale = perspectiveScale(ob.z);
+      const x = laneToX(ob.lane);
+      const yBase = window.innerHeight - 120;
+      const w = ob.width * scale;
+      const h = ob.height * scale;
+      return {
+        x: x - w / 2,
+        y: yBase - h,
+        w,
+        h
+      };
+    }
+
+    function getCoinRect(c) {
+      const scale = perspectiveScale(c.z);
+      const x = laneToX(c.lane);
+      const yBase = window.innerHeight - 180;
+      const s = 28 * scale;
+      return {
+        x: x - s / 2,
+        y: yBase - s + c.y,
+        w: s,
+        h: s
+      };
+    }
+
+    function intersects(a, b) {
+      return a.x < b.x + b.w &&
+             a.x + a.w > b.x &&
+             a.y < b.y + b.h &&
+             a.y + a.h > b.y;
+    }
+
+    function perspectiveScale(z) {
+      return 0.35 + (z / (window.innerHeight + 200)) * 1.15;
+    }
+
+    function drawBackground() {
+      const sky = ctx.createLinearGradient(0, 0, 0, window.innerHeight);
+      sky.addColorStop(0, '#1b335c');
+      sky.addColorStop(0.55, '#183052');
+      sky.addColorStop(1, '#0c1526');
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+      ctx.fillStyle = 'rgba(255,255,255,0.06)';
+      for (let i = 0; i < 20; i++) {
+        const x = (i * 180 + state.time * 18) % (window.innerWidth + 200) - 100;
+        const y = 70 + (i % 5) * 26;
+        ctx.beginPath();
+        ctx.ellipse(x, y, 46, 16, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = '#111a29';
+      ctx.fillRect(0, window.innerHeight - 180, window.innerWidth, 180);
+
+      ctx.fillStyle = '#162338';
+      for (let i = 0; i < 18; i++) {
+        const h = 50 + (i % 6) * 16;
+        const x = i * (window.innerWidth / 16) - 20;
+        ctx.fillRect(x, window.innerHeight - 180 - h, 50, h);
       }
     }
 
-    function drawTrack() {
-      ctx.fillStyle = '#2a2a2a';
+    function drawRoad() {
+      const roadTopY = 110;
+      const roadBottomY = window.innerHeight;
+      const roadTopWidth = 180;
+      const roadBottomWidth = Math.min(window.innerWidth * 0.82, 780);
+      const cx = window.innerWidth / 2;
+
       ctx.beginPath();
-      ctx.moveTo(width / 2 - roadBottomWidth / 2, height);
-      ctx.lineTo(width / 2 - roadTopWidth / 2, horizonY);
-      ctx.lineTo(width / 2 + roadTopWidth / 2, horizonY);
-      ctx.lineTo(width / 2 + roadBottomWidth / 2, height);
+      ctx.moveTo(cx - roadTopWidth / 2, roadTopY);
+      ctx.lineTo(cx + roadTopWidth / 2, roadTopY);
+      ctx.lineTo(cx + roadBottomWidth / 2, roadBottomY);
+      ctx.lineTo(cx - roadBottomWidth / 2, roadBottomY);
       ctx.closePath();
+      const roadGrad = ctx.createLinearGradient(0, roadTopY, 0, roadBottomY);
+      roadGrad.addColorStop(0, '#2e3849');
+      roadGrad.addColorStop(1, '#141c28');
+      ctx.fillStyle = roadGrad;
       ctx.fill();
 
-      ctx.strokeStyle = '#666';
-      ctx.lineWidth = 4;
-      for (let i = -1; i <= 1; i++) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      for (let i = 1; i < 3; i++) {
+        const t = i / 3;
+        const topX = cx - roadTopWidth / 2 + roadTopWidth * t;
+        const bottomX = cx - roadBottomWidth / 2 + roadBottomWidth * t;
+        ctx.strokeStyle = 'rgba(255,255,255,0.10)';
         ctx.beginPath();
-        ctx.moveTo(width / 2 + i * laneBottomWidth / 2, height);
-        ctx.lineTo(width / 2 + i * roadTopWidth / 6, horizonY);
+        ctx.moveTo(topX, roadTopY);
+        ctx.lineTo(bottomX, roadBottomY);
         ctx.stroke();
       }
 
-      for (let i = 0; i < 28; i++) {
-        const z = ((i * 7 + distance * 4) % 140) + 1;
-        const p = project(z);
-        const tieW = Math.max(10, p.roadW * 0.22);
-        const tieH = Math.max(2, 4 * p.scale);
-        ctx.fillStyle = '#8b5a2b';
-        ctx.fillRect(width / 2 - tieW / 2, p.y - tieH / 2, tieW, tieH);
+      for (let i = 0; i < 18; i++) {
+        const y = ((i * 70 + state.roadStripeOffset) % (window.innerHeight + 120)) - 120;
+        const p = Math.max(0, Math.min(1, y / window.innerHeight));
+        const width = 10 + p * 18;
+        const height = 20 + p * 30;
+        ctx.fillStyle = 'rgba(255, 240, 120, 0.85)';
+        ctx.fillRect(cx - width / 2, y, width, height);
       }
-    }
-
-    function drawDecor() {
-      for (const d of decor) {
-        const p = project(d.z);
-        const x = width / 2 + d.side * (p.roadW * 0.95);
-        if (d.type === 'lamp') {
-          ctx.fillStyle = '#666';
-          ctx.fillRect(x - 2 * p.scale, p.y - 48 * p.scale, 4 * p.scale, 48 * p.scale);
-          ctx.fillStyle = '#fff3a2';
-          ctx.beginPath();
-          ctx.arc(x, p.y - 54 * p.scale, 9 * p.scale, 0, Math.PI * 2);
-          ctx.fill();
-        } else {
-          ctx.fillStyle = '#444';
-          ctx.fillRect(x - 2 * p.scale, p.y - 36 * p.scale, 4 * p.scale, 36 * p.scale);
-          ctx.fillStyle = '#ffda2d';
-          ctx.fillRect(x - 16 * p.scale, p.y - 58 * p.scale, 32 * p.scale, 18 * p.scale);
-        }
-      }
-    }
-
-    function drawCoins() {
-      for (const coin of coinsList) {
-        const p = project(coin.z);
-        const cx = laneWorldX(coin.lane, p.roadW);
-        const cy = p.y - 48 * p.scale - coin.lift * p.scale;
-        const r = Math.max(4, 10 * p.scale);
-        ctx.fillStyle = '#ffd84c';
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#ffb700';
-        ctx.lineWidth = Math.max(2, 2 * p.scale);
-        ctx.stroke();
-      }
-    }
-
-    function drawObjects() {
-      const sorted = [...objects].sort((a, b) => b.z - a.z);
-      for (const obj of sorted) {
-        const r = objectRect(obj);
-        if (obj.type === 'train') {
-          ctx.fillStyle = '#d63b3b';
-          ctx.fillRect(r.x, r.y, r.w, r.h);
-          ctx.fillStyle = '#8fe0ff';
-          ctx.fillRect(r.x + r.w * 0.15, r.y + r.h * 0.14, r.w * 0.7, r.h * 0.18);
-          ctx.fillStyle = '#222';
-          ctx.fillRect(r.x, r.y + r.h * 0.82, r.w, r.h * 0.18);
-        } else if (obj.type === 'duck') {
-          ctx.fillStyle = '#ff9a1f';
-          ctx.fillRect(r.x, r.y, r.w, r.h);
-          ctx.fillStyle = '#fff';
-          ctx.fillRect(r.x + r.w * 0.18, r.y + r.h * 0.25, r.w * 0.64, r.h * 0.18);
-        } else {
-          ctx.fillStyle = '#ff4f4f';
-          ctx.fillRect(r.x, r.y, r.w, r.h);
-          ctx.strokeStyle = '#fff';
-          ctx.lineWidth = Math.max(2, 3 * r.scale);
-          ctx.beginPath();
-          ctx.moveTo(r.x + r.w * 0.18, r.y + r.h * 0.2);
-          ctx.lineTo(r.x + r.w * 0.82, r.y + r.h * 0.8);
-          ctx.moveTo(r.x + r.w * 0.82, r.y + r.h * 0.2);
-          ctx.lineTo(r.x + r.w * 0.18, r.y + r.h * 0.8);
-          ctx.stroke();
-        }
-      }
-    }
-
-    function drawPolice() {
-      const distFactor = Math.max(0, Math.min(1, policeDistance / 120));
-      const y = height - 76;
-      const x = width / 2 - 120 + (1 - distFactor) * 72;
-      ctx.globalAlpha = 0.75;
-      ctx.fillStyle = '#2c52ff';
-      ctx.fillRect(x, y - 34, 26, 34);
-      ctx.fillStyle = '#f0c19e';
-      ctx.fillRect(x + 5, y - 48, 16, 14);
-      ctx.fillStyle = '#fff';
-      ctx.fillText('🚓', x + 36, y - 14);
-      ctx.globalAlpha = 1;
     }
 
     function drawPlayer() {
-      const pr = playerRect();
-      ctx.fillStyle = '#f2c19c';
-      ctx.fillRect(pr.x + 12, pr.y + 2, pr.w - 24, 18);
-      ctx.fillStyle = '#f05b8f';
-      ctx.fillRect(pr.x + 7, pr.y + 20, pr.w - 14, pr.h - 20);
-      ctx.fillStyle = '#111';
-      ctx.fillRect(pr.x + 4, pr.y + pr.h - 18, 14, 18);
-      ctx.fillRect(pr.x + pr.w - 18, pr.y + pr.h - 18, 14, 18);
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(pr.x + 14, pr.y + 6, 7, 7);
-      ctx.fillRect(pr.x + pr.w - 21, pr.y + 6, 7, 7);
-      ctx.fillStyle = '#000';
-      ctx.fillRect(pr.x + 16, pr.y + 8, 3, 3);
-      ctx.fillRect(pr.x + pr.w - 19, pr.y + 8, 3, 3);
+      const p = getPlayerRect();
+
+      ctx.save();
+      ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+
+      if (state.player.sliding) ctx.rotate(-0.08);
+
+      ctx.fillStyle = '#f2b287';
+      ctx.fillRect(-p.w * 0.18, -p.h * 0.1, p.w * 0.36, p.h * 0.42);
+
+      ctx.fillStyle = '#ff5f72';
+      ctx.fillRect(-p.w * 0.34, -p.h * 0.46, p.w * 0.68, p.h * 0.42);
+
+      ctx.fillStyle = '#101418';
+      ctx.fillRect(-p.w * 0.18, p.h * 0.12, p.w * 0.12, p.h * 0.34);
+      ctx.fillRect(p.w * 0.06, p.h * 0.12, p.w * 0.12, p.h * 0.34);
+
+      ctx.fillStyle = '#ffd86f';
+      ctx.fillRect(-p.w * 0.26, -p.h * 0.32, p.w * 0.52, p.h * 0.1);
+
+      ctx.restore();
     }
 
-    function draw() {
-      ctx.clearRect(0, 0, width, height);
-      drawSky();
-      drawTrack();
-      drawDecor();
-      drawCoins();
-      drawObjects();
-      drawPolice();
+    function drawObstacle(ob) {
+      const r = getObstacleRect(ob);
+      const grad = ctx.createLinearGradient(r.x, r.y, r.x, r.y + r.h);
+      grad.addColorStop(0, ob.color);
+      grad.addColorStop(1, '#1a1a1a');
+      ctx.fillStyle = grad;
+      ctx.fillRect(r.x, r.y, r.w, r.h);
+
+      ctx.fillStyle = 'rgba(255,255,255,0.15)';
+      ctx.fillRect(r.x + r.w * 0.12, r.y + r.h * 0.12, r.w * 0.18, r.h * 0.22);
+    }
+
+    function drawCoin(c) {
+      const r = getCoinRect(c);
+      ctx.beginPath();
+      ctx.fillStyle = '#ffd84a';
+      ctx.arc(r.x + r.w / 2, r.y + r.h / 2, r.w / 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.strokeStyle = '#fff0a2';
+      ctx.lineWidth = 2;
+      ctx.arc(r.x + r.w / 2, r.y + r.h / 2, r.w / 2.8, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    function drawParticles() {
+      for (const p of state.particles) {
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = '#ffd84a';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function render() {
+      drawBackground();
+      drawRoad();
+
+      state.coinsList.sort((a, b) => a.z - b.z);
+      state.obstacles.sort((a, b) => a.z - b.z);
+
+      for (const c of state.coinsList) drawCoin(c);
+      for (const ob of state.obstacles) drawObstacle(ob);
       drawPlayer();
+      drawParticles();
     }
 
-    function loop(ts) {
-      const dt = Math.min(0.032, (ts - lastTime) / 1000 || 0.016);
-      lastTime = ts;
+    let last = performance.now();
+    function loop(now) {
+      const dt = Math.min(0.032, (now - last) / 1000);
+      last = now;
       update(dt);
-      draw();
+      render();
       requestAnimationFrame(loop);
     }
 
-    function handleKeyDown(e) {
-      if (e.repeat) return;
-      if (['ArrowLeft', 'KeyA'].includes(e.code)) moveLeft();
-      if (['ArrowRight', 'KeyD'].includes(e.code)) moveRight();
-      if (['ArrowUp', 'KeyW', 'Space'].includes(e.code)) jump();
-      if (['ArrowDown', 'KeyS'].includes(e.code)) slide();
-    }
-    document.addEventListener('keydown', handleKeyDown);
-
-    document.querySelectorAll('.touchBtn[data-action]').forEach(btn => {
-      btn.addEventListener('pointerdown', () => {
-        const action = btn.dataset.action;
-        if (action === 'left') moveLeft();
-        if (action === 'right') moveRight();
-        if (action === 'jump') jump();
-        if (action === 'slide') slide();
-      });
-    });
-
-    let touchStartX = 0, touchStartY = 0;
-    canvas.addEventListener('touchstart', (e) => {
-      const t = e.touches[0];
-      touchStartX = t.clientX;
-      touchStartY = t.clientY;
-    }, { passive: true });
-    canvas.addEventListener('touchend', (e) => {
-      const t = e.changedTouches[0];
-      const dx = t.clientX - touchStartX;
-      const dy = t.clientY - touchStartY;
-      if (Math.abs(dx) > Math.abs(dy)) {
-        if (dx > 30) moveRight();
-        if (dx < -30) moveLeft();
-      } else {
-        if (dy < -30) jump();
-        if (dy > 30) slide();
-      }
-    }, { passive: true });
-
-    startBtn.onclick = startGame;
-    restartBtn.onclick = startGame;
-    playAgainBtn.onclick = startGame;
-    homeBtn.onclick = () => { window.location.href = 'index.html'; };
-
-    resize();
-    window.addEventListener('resize', resize);
-    updateHud();
-    draw();
+    bestText.textContent = bestScore;
     requestAnimationFrame(loop);
   </script>
 </body>
