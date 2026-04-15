@@ -3,53 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>John Pork Runner Deluxe</title>
+  <title>Pork Runner Select</title>
   <style>
     * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      height: 100%;
-      overflow: hidden;
-      font-family: Inter, Arial, sans-serif;
-      background: #0a1322;
-      color: white;
-    }
+    html, body { margin: 0; height: 100%; overflow: hidden; font-family: Inter, Arial, sans-serif; background: #0b1322; color: white; }
     body {
       background:
         radial-gradient(circle at 20% 0%, rgba(81,156,255,.18), transparent 30%),
         radial-gradient(circle at 80% 10%, rgba(255,138,80,.14), transparent 28%),
-        linear-gradient(180deg, #142645 0%, #0a1322 100%);
+        linear-gradient(180deg, #152746 0%, #0b1322 100%);
     }
-    #game {
-      position: fixed;
-      inset: 0;
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
+    #game { position: fixed; inset: 0; display: block; width: 100%; height: 100%; }
     #hud {
-      position: fixed;
-      inset: 0;
-      z-index: 10;
-      pointer-events: none;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 14px;
+      position: fixed; inset: 0; z-index: 10; pointer-events: none;
+      display: flex; flex-direction: column; justify-content: space-between; padding: 14px;
     }
-    .topbar, .bottombar {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+    .topbar, .bottombar { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
     .panel {
-      background: rgba(8, 13, 24, .58);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 18px;
-      padding: 10px 14px;
+      background: rgba(8,13,24,.58); backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,.10); border-radius: 18px; padding: 10px 14px;
       box-shadow: 0 12px 30px rgba(0,0,0,.22);
     }
     .brand { font-size: 22px; font-weight: 900; }
@@ -58,82 +30,47 @@
     .stat { min-width: 90px; }
     .label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; opacity: .68; }
     .value { font-size: 21px; font-weight: 900; color: #ffe56c; margin-top: 2px; }
-    #tip { max-width: 460px; font-size: 13px; line-height: 1.45; opacity: .9; }
-
+    #tip { max-width: 520px; font-size: 13px; line-height: 1.45; opacity: .9; }
     .screen {
-      position: fixed;
-      inset: 0;
-      z-index: 20;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      background: radial-gradient(circle at top, rgba(35,62,97,.34), rgba(0,0,0,.82));
+      position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center;
+      padding: 16px; background: radial-gradient(circle at top, rgba(35,62,97,.34), rgba(0,0,0,.82));
     }
     #pauseScreen, #gameOverScreen { display: none; }
     .box {
-      width: min(94vw, 930px);
-      background: rgba(6, 10, 18, .76);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 30px;
-      padding: 28px;
+      width: min(94vw, 980px); background: rgba(6,10,18,.76); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,.10); border-radius: 30px; padding: 28px;
       box-shadow: 0 30px 70px rgba(0,0,0,.35);
     }
-    h1, h2 {
-      margin: 0 0 10px;
-      font-size: clamp(34px, 6vw, 60px);
-      line-height: .95;
-    }
+    h1, h2 { margin: 0 0 10px; font-size: clamp(34px, 6vw, 60px); line-height: .95; }
     p { margin: 10px 0 0; line-height: 1.6; opacity: .94; }
     .row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
-    .cards {
-      margin-top: 18px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-    }
-    .card {
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 20px;
-      padding: 16px;
+    .cards, .skins { margin-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .card, .skin {
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); border-radius: 20px; padding: 16px;
     }
     .cardTitle { font-size: 14px; font-weight: 900; margin-bottom: 6px; }
     .cardText { font-size: 13px; opacity: .84; line-height: 1.5; }
+    .skin { cursor: pointer; text-align: center; }
+    .skin.active { outline: 2px solid #ffe56c; box-shadow: 0 0 0 4px rgba(255,229,108,.12); }
+    .skinPreview {
+      width: 84px; height: 84px; margin: 0 auto 10px; border-radius: 18px;
+      background: rgba(255,255,255,.06); display: flex; align-items: center; justify-content: center; overflow: hidden;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .skinPreview img { width: 100%; height: 100%; object-fit: cover; }
+    .skinName { font-weight: 900; }
+    .skinText { font-size: 12px; opacity: .8; margin-top: 6px; line-height: 1.4; }
     button {
-      appearance: none;
-      border: none;
-      border-radius: 16px;
-      padding: 14px 18px;
-      font-size: 15px;
-      font-weight: 900;
-      cursor: pointer;
-      color: #111;
-      background: linear-gradient(90deg, #ffe14f, #ffae2f);
-      box-shadow: 0 10px 25px rgba(0,0,0,.24);
+      appearance: none; border: none; border-radius: 16px; padding: 14px 18px;
+      font-size: 15px; font-weight: 900; cursor: pointer; color: #111;
+      background: linear-gradient(90deg, #ffe14f, #ffae2f); box-shadow: 0 10px 25px rgba(0,0,0,.24);
     }
-    button.secondary {
-      color: white;
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.12);
-      box-shadow: none;
-    }
+    button.secondary { color: white; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); box-shadow: none; }
     #toast {
-      position: fixed;
-      left: 50%;
-      top: 92px;
-      transform: translateX(-50%);
-      z-index: 30;
-      background: rgba(0,0,0,.72);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 14px;
-      padding: 10px 14px;
-      opacity: 0;
-      transition: opacity .2s ease;
-      pointer-events: none;
-      max-width: min(90vw, 520px);
-      text-align: center;
+      position: fixed; left: 50%; top: 92px; transform: translateX(-50%); z-index: 30;
+      background: rgba(0,0,0,.72); border: 1px solid rgba(255,255,255,.12); border-radius: 14px;
+      padding: 10px 14px; opacity: 0; transition: opacity .2s ease; pointer-events: none;
+      max-width: min(90vw, 520px); text-align: center;
     }
     #toast.show { opacity: 1; }
   </style>
@@ -145,8 +82,8 @@
   <div id="hud">
     <div class="topbar">
       <div class="panel">
-        <div class="brand">🐷 John Pork Runner Deluxe</div>
-        <div class="sub">Funktionierende eigene High-Quality Runner-Version</div>
+        <div class="brand">🐷 Pork Runner Select</div>
+        <div class="sub">Eigener Premium-Runner mit Character-Auswahl und Jeffry-Verfolger</div>
       </div>
       <div class="panel stats">
         <div class="stat"><div class="label">Score</div><div class="value" id="scoreText">0</div></div>
@@ -164,17 +101,18 @@
 
   <div id="startScreen" class="screen">
     <div class="box">
-      <h1>John Pork Runner</h1>
-      <p>Eine saubere eigene Runner-Version mit flüssigeren Animationen, Coins, sauberem Score-System und deutlich besserem Spielgefühl.</p>
+      <h1>Pork Runner Select</h1>
+      <p>Wähle deinen Runner und renn so weit wie möglich. Sammle Coins, weich Hindernissen aus und lass dich nicht von Jeffry einholen.</p>
+      <div class="skins" id="skins"></div>
       <div class="row">
         <button id="startBtn">▶ Starten</button>
         <button class="secondary" id="helpBtn">❓ Kurz erklären</button>
       </div>
       <div class="cards">
-        <div class="card"><div class="cardTitle">3 Spuren</div><div class="cardText">Sauberer Spurwechsel mit weicher Bewegung.</div></div>
-        <div class="card"><div class="cardTitle">Jump & Slide</div><div class="cardText">Eigene Animationen für Springen und Sliden.</div></div>
-        <div class="card"><div class="cardTitle">Coins & Highscore</div><div class="cardText">Sammle Coins und knacke deinen Bestwert.</div></div>
-        <div class="card"><div class="cardTitle">Mehr Tempo</div><div class="cardText">Das Spiel steigert mit der Zeit automatisch die Schwierigkeit.</div></div>
+        <div class="card"><div class="cardTitle">Runner-Feeling</div><div class="cardText">Saubere Bewegung mit Jump, Slide und weichem Spurwechsel.</div></div>
+        <div class="card"><div class="cardTitle">Character-Auswahl</div><div class="cardText">Wähle zwischen mehreren Bild-Skins oder Fallback-Figuren.</div></div>
+        <div class="card"><div class="cardTitle">Jeffry verfolgt dich</div><div class="cardText">Ein eigener Chaser läuft hinter dir und baut Spannung auf.</div></div>
+        <div class="card"><div class="cardTitle">Coins & Highscore</div><div class="cardText">Sammle Coins und knackle deinen Bestwert.</div></div>
       </div>
     </div>
   </div>
@@ -193,7 +131,7 @@
   <div id="gameOverScreen" class="screen">
     <div class="box">
       <h2>Game Over</h2>
-      <p>Du bist gegen ein Hindernis gelaufen.</p>
+      <p>Jeffry war zu nah oder du bist gegen ein Hindernis gelaufen.</p>
       <div class="cards">
         <div class="card"><div class="cardTitle">Dein Score</div><div class="cardText" id="finalScore">0</div></div>
         <div class="card"><div class="cardTitle">Coins</div><div class="cardText" id="finalCoins">0</div></div>
@@ -213,47 +151,70 @@
     const coinText = document.getElementById('coinText');
     const bestText = document.getElementById('bestText');
     const speedText = document.getElementById('speedText');
-
     const startScreen = document.getElementById('startScreen');
     const pauseScreen = document.getElementById('pauseScreen');
     const gameOverScreen = document.getElementById('gameOverScreen');
-
+    const skinsEl = document.getElementById('skins');
     const finalScore = document.getElementById('finalScore');
     const finalCoins = document.getElementById('finalCoins');
     const finalBest = document.getElementById('finalBest');
 
-    const STORAGE_KEY = 'johnPorkRunnerDeluxeBest';
+    const STORAGE_KEY = 'porkRunnerSelectBest';
     let bestScore = Number(localStorage.getItem(STORAGE_KEY) || 0);
 
+    const skinDefs = [
+      { id: 'bala', name: 'Bala', path: 'Image (40).jpg', fallback: '#4ec9b0', desc: 'Bild-Skin Bala' },
+      { id: 'janis', name: 'Janis', path: 'Image (41).jpg', fallback: '#b084ff', desc: 'Bild-Skin Janis' },
+      { id: 'cem', name: 'Cem', path: 'Screenshot 2026-03-20 155545.png', fallback: '#ff9c6b', desc: 'Bild-Skin Cem' },
+      { id: 'pork', name: 'Pork', path: '', fallback: '#ff6175', desc: 'Original Pork Runner' }
+    ];
+    let selectedSkin = skinDefs[0].id;
+    const loadedImages = {};
+
     const state = {
-      running: false,
-      paused: false,
-      score: 0,
-      coins: 0,
-      speed: 420,
-      speedScale: 1,
-      time: 0,
-      laneOffset: 0,
-      spawnTimer: 0.6,
-      coinTimer: 0.4,
-      diffTimer: 0,
-      obstacles: [],
-      coinsList: [],
-      particles: [],
-      player: {
-        lane: 0,
-        targetLane: 0,
-        x: 0,
-        y: 0,
-        vy: 0,
-        width: 66,
-        height: 102,
-        jumping: false,
-        sliding: false,
-        slideTimer: 0,
-        animTime: 0
-      }
+      running: false, paused: false, score: 0, coins: 0, speed: 430, speedScale: 1, time: 0, laneOffset: 0,
+      spawnTimer: 0.6, coinTimer: 0.4, diffTimer: 0, obstacles: [], coinsList: [], particles: [], chaserGap: 170,
+      player: { lane: 0, targetLane: 0, x: 0, y: 0, vy: 0, width: 66, height: 102, jumping: false, sliding: false, slideTimer: 0, animTime: 0 }
     };
+
+    function loadImages() {
+      for (const skin of skinDefs) {
+        if (!skin.path) continue;
+        const img = new Image();
+        img.src = skin.path;
+        img.onload = () => loadedImages[skin.id] = img;
+      }
+      const jeffry = new Image();
+      jeffry.src = 'Screenshot 2026-03-20 181111.png';
+      jeffry.onload = () => loadedImages.jeffry = jeffry;
+    }
+
+    function buildSkinUI() {
+      skinsEl.innerHTML = '';
+      for (const skin of skinDefs) {
+        const div = document.createElement('div');
+        div.className = 'skin' + (skin.id === selectedSkin ? ' active' : '');
+        div.onclick = () => { selectedSkin = skin.id; buildSkinUI(); };
+        const prev = document.createElement('div');
+        prev.className = 'skinPreview';
+        if (skin.path) {
+          const img = document.createElement('img');
+          img.src = skin.path;
+          img.onerror = () => { img.remove(); prev.style.background = skin.fallback; };
+          prev.appendChild(img);
+        } else {
+          prev.style.background = skin.fallback;
+        }
+        const n = document.createElement('div');
+        n.className = 'skinName';
+        n.textContent = skin.name;
+        const t = document.createElement('div');
+        t.className = 'skinText';
+        t.textContent = skin.desc;
+        div.append(prev, n, t);
+        skinsEl.appendChild(div);
+      }
+    }
 
     function resize() {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -281,34 +242,13 @@
     }
 
     function resetGame() {
-      state.running = true;
-      state.paused = false;
-      state.score = 0;
-      state.coins = 0;
-      state.speed = 420;
-      state.speedScale = 1;
-      state.time = 0;
-      state.laneOffset = 0;
-      state.spawnTimer = 0.7;
-      state.coinTimer = 0.45;
-      state.diffTimer = 0;
-      state.obstacles = [];
-      state.coinsList = [];
-      state.particles = [];
-      state.player.lane = 0;
-      state.player.targetLane = 0;
-      state.player.x = laneToX(0);
-      state.player.y = 0;
-      state.player.vy = 0;
-      state.player.jumping = false;
-      state.player.sliding = false;
-      state.player.slideTimer = 0;
-      state.player.animTime = 0;
-      startScreen.style.display = 'none';
-      pauseScreen.style.display = 'none';
-      gameOverScreen.style.display = 'none';
-      updateHud();
-      showToast('Los geht’s');
+      state.running = true; state.paused = false; state.score = 0; state.coins = 0; state.speed = 430; state.speedScale = 1;
+      state.time = 0; state.laneOffset = 0; state.spawnTimer = 0.72; state.coinTimer = 0.48; state.diffTimer = 0;
+      state.obstacles = []; state.coinsList = []; state.particles = []; state.chaserGap = 170;
+      state.player.lane = 0; state.player.targetLane = 0; state.player.x = laneToX(0); state.player.y = 0; state.player.vy = 0;
+      state.player.jumping = false; state.player.sliding = false; state.player.slideTimer = 0; state.player.animTime = 0;
+      startScreen.style.display = 'none'; pauseScreen.style.display = 'none'; gameOverScreen.style.display = 'none';
+      updateHud(); showToast('Los geht’s');
     }
 
     function updateHud() {
@@ -331,17 +271,14 @@
 
     function spawnObstacle() {
       const lane = [-1, 0, 1][Math.floor(Math.random() * 3)];
-      const kindRoll = Math.random();
+      const roll = Math.random();
       let kind = 'full';
-      if (kindRoll < 0.34) kind = 'low';
-      else if (kindRoll < 0.68) kind = 'high';
-
+      if (roll < 0.34) kind = 'low';
+      else if (roll < 0.68) kind = 'high';
       state.obstacles.push({
-        lane,
-        z: -140,
-        kind,
-        width: 80,
-        height: kind === 'low' ? 44 : kind === 'high' ? 132 : 94,
+        lane, z: -160, kind,
+        width: 82,
+        height: kind === 'low' ? 44 : kind === 'high' ? 132 : 96,
         color: kind === 'low' ? '#ff9e57' : kind === 'high' ? '#56d1ff' : '#ff6074'
       });
     }
@@ -349,84 +286,36 @@
     function spawnCoins() {
       const lane = [-1, 0, 1][Math.floor(Math.random() * 3)];
       const count = 3 + Math.floor(Math.random() * 4);
-      for (let i = 0; i < count; i++) {
-        state.coinsList.push({
-          lane,
-          z: -i * 120 - 80
-        });
-      }
+      for (let i = 0; i < count; i++) state.coinsList.push({ lane, z: -i * 120 - 100 });
     }
 
     function playerRect() {
       const sliding = state.player.sliding;
       const width = sliding ? 88 : 66;
       const height = sliding ? 58 : 102;
-      return {
-        x: state.player.x - width / 2,
-        y: window.innerHeight - 126 - height + state.player.y,
-        w: width,
-        h: height
-      };
+      return { x: state.player.x - width / 2, y: window.innerHeight - 126 - height + state.player.y, w: width, h: height };
     }
 
-    function perspectiveScale(z) {
-      return 0.28 + ((z + 140) / (window.innerHeight + 260)) * 1.08;
-    }
-
-    function obstacleRect(o) {
-      const s = perspectiveScale(o.z);
-      const x = laneToX(o.lane);
-      const yBase = window.innerHeight - 118;
-      const w = o.width * s;
-      const h = o.height * s;
-      return { x: x - w / 2, y: yBase - h, w, h };
-    }
-
-    function coinRect(c) {
-      const s = perspectiveScale(c.z);
-      const x = laneToX(c.lane);
-      const y = window.innerHeight - 170;
-      const size = 30 * s;
-      return { x: x - size / 2, y: y - size, w: size, h: size };
-    }
-
-    function intersects(a, b) {
-      return a.x < b.x + b.w &&
-             a.x + a.w > b.x &&
-             a.y < b.y + b.h &&
-             a.y + a.h > b.y;
-    }
+    function perspectiveScale(z) { return 0.28 + ((z + 160) / (window.innerHeight + 260)) * 1.08; }
+    function obstacleRect(o) { const s = perspectiveScale(o.z), x = laneToX(o.lane), yBase = window.innerHeight - 118, w = o.width * s, h = o.height * s; return { x: x - w / 2, y: yBase - h, w, h }; }
+    function coinRect(c) { const s = perspectiveScale(c.z), x = laneToX(c.lane), y = window.innerHeight - 170, size = 30 * s; return { x: x - size / 2, y: y - size, w: size, h: size }; }
+    function intersects(a, b) { return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y; }
 
     function addCoinBurst(x, y) {
       for (let i = 0; i < 10; i++) {
-        state.particles.push({
-          x, y,
-          vx: (Math.random() - 0.5) * 4.4,
-          vy: (Math.random() - 0.5) * 4.2 - 0.8,
-          life: 0.55 + Math.random() * 0.35,
-          size: 2 + Math.random() * 3
-        });
+        state.particles.push({ x, y, vx: (Math.random() - 0.5) * 4.4, vy: (Math.random() - 0.5) * 4.2 - 0.8, life: 0.55 + Math.random() * 0.35, size: 2 + Math.random() * 3 });
       }
     }
 
     function input(code) {
       if (code === 'ArrowLeft' || code === 'KeyA') state.player.targetLane = Math.max(-1, state.player.targetLane - 1);
       if (code === 'ArrowRight' || code === 'KeyD') state.player.targetLane = Math.min(1, state.player.targetLane + 1);
-
       if (code === 'ArrowUp' || code === 'KeyW' || code === 'Space') {
-        if (!state.player.jumping) {
-          state.player.jumping = true;
-          state.player.vy = -980;
-        }
+        if (!state.player.jumping) { state.player.jumping = true; state.player.vy = -980; }
       }
-
       if (code === 'ArrowDown' || code === 'KeyS') {
-        if (!state.player.sliding && !state.player.jumping) {
-          state.player.sliding = true;
-          state.player.slideTimer = 0.55;
-        }
+        if (!state.player.sliding && !state.player.jumping) { state.player.sliding = true; state.player.slideTimer = 0.55; }
       }
-
       if (code === 'KeyP' && state.running) {
         state.paused = !state.paused;
         pauseScreen.style.display = state.paused ? 'flex' : 'none';
@@ -435,46 +324,31 @@
 
     window.addEventListener('keydown', (e) => {
       if ((e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'ArrowDown') && document.activeElement === document.body) e.preventDefault();
-      if (startScreen.style.display !== 'none' && (e.code === 'Enter' || e.code === 'Space')) {
-        e.preventDefault();
-        resetGame();
-        return;
-      }
-      if (gameOverScreen.style.display !== 'none' && (e.code === 'Enter' || e.code === 'Space')) {
-        e.preventDefault();
-        resetGame();
-        return;
-      }
+      if (startScreen.style.display !== 'none' && (e.code === 'Enter' || e.code === 'Space')) { e.preventDefault(); resetGame(); return; }
+      if (gameOverScreen.style.display !== 'none' && (e.code === 'Enter' || e.code === 'Space')) { e.preventDefault(); resetGame(); return; }
       input(e.code);
     }, { passive: false });
 
     document.getElementById('startBtn').onclick = resetGame;
     document.getElementById('restartBtn').onclick = resetGame;
-    document.getElementById('resumeBtn').onclick = () => {
-      state.paused = false;
-      pauseScreen.style.display = 'none';
-    };
+    document.getElementById('resumeBtn').onclick = () => { state.paused = false; pauseScreen.style.display = 'none'; };
     document.getElementById('restartPauseBtn').onclick = resetGame;
     document.getElementById('helpBtn').onclick = () => showToast('A/D wechseln, W springt, S slidet');
 
     function update(dt) {
       if (!state.running || state.paused) return;
-
-      state.time += dt;
-      state.player.animTime += dt;
-      state.score += dt * 17 * state.speedScale;
-      state.diffTimer += dt;
-      state.laneOffset += state.speed * dt * 0.02;
+      state.time += dt; state.player.animTime += dt; state.score += dt * 17 * state.speedScale; state.diffTimer += dt; state.laneOffset += state.speed * dt * 0.02;
 
       if (state.diffTimer > 1.6) {
         state.diffTimer = 0;
         state.speed = Math.min(980, state.speed + 15);
-        state.speedScale = 1 + (state.speed - 420) / 560;
+        state.speedScale = 1 + (state.speed - 430) / 550;
       }
+
+      state.chaserGap -= dt * (10 + state.speedScale * 4);
 
       const targetX = laneToX(state.player.targetLane);
       state.player.x += (targetX - state.player.x) * Math.min(1, dt * 14);
-
       if (Math.abs(targetX - state.player.x) < 0.6) {
         state.player.x = targetX;
         state.player.lane = state.player.targetLane;
@@ -513,7 +387,7 @@
       for (const o of state.obstacles) o.z += state.speed * dt;
       for (const c of state.coinsList) c.z += state.speed * dt;
 
-      state.obstacles = state.obstacles.filter(o => o.z < window.innerHeight + 200);
+      state.obstacles = state.obstacles.filter(o => o.z < window.innerHeight + 220);
       state.coinsList = state.coinsList.filter(c => c.z < window.innerHeight + 120);
 
       const pRect = playerRect();
@@ -521,35 +395,37 @@
       for (const o of state.obstacles) {
         const r = obstacleRect(o);
         if (!intersects(pRect, r)) continue;
-
         if (o.kind === 'low' && state.player.jumping) continue;
         if (o.kind === 'high' && state.player.sliding) continue;
         finishGame();
         return;
       }
 
-      const remainingCoins = [];
+      const nextCoins = [];
       for (const c of state.coinsList) {
         const r = coinRect(c);
         if (intersects(pRect, r)) {
           state.coins += 1;
           state.score += 25;
+          state.chaserGap = Math.min(220, state.chaserGap + 7);
           addCoinBurst(r.x + r.w / 2, r.y + r.h / 2);
         } else {
-          remainingCoins.push(c);
+          nextCoins.push(c);
         }
       }
-      state.coinsList = remainingCoins;
+      state.coinsList = nextCoins;
 
       const nextParticles = [];
       for (const p of state.particles) {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vy += 0.12;
-        p.life -= dt;
+        p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.life -= dt;
         if (p.life > 0) nextParticles.push(p);
       }
       state.particles = nextParticles;
+
+      if (state.chaserGap <= 18) {
+        finishGame();
+        return;
+      }
 
       bestScore = Math.max(bestScore, Math.floor(state.score));
       localStorage.setItem(STORAGE_KEY, String(bestScore));
@@ -585,33 +461,24 @@
     }
 
     function drawRoad() {
-      const roadTopY = 104;
-      const roadBottomY = window.innerHeight;
-      const roadTopWidth = 180;
-      const roadBottomWidth = Math.min(window.innerWidth * 0.82, 790);
-      const cx = window.innerWidth / 2;
-
+      const roadTopY = 104, roadBottomY = window.innerHeight, roadTopWidth = 180, roadBottomWidth = Math.min(window.innerWidth * 0.82, 790), cx = window.innerWidth / 2;
       ctx.beginPath();
       ctx.moveTo(cx - roadTopWidth / 2, roadTopY);
       ctx.lineTo(cx + roadTopWidth / 2, roadTopY);
       ctx.lineTo(cx + roadBottomWidth / 2, roadBottomY);
       ctx.lineTo(cx - roadBottomWidth / 2, roadBottomY);
       ctx.closePath();
-
       const roadGrad = ctx.createLinearGradient(0, roadTopY, 0, roadBottomY);
       roadGrad.addColorStop(0, '#2e3849');
       roadGrad.addColorStop(1, '#121924');
       ctx.fillStyle = roadGrad;
       ctx.fill();
-
       ctx.strokeStyle = 'rgba(255,255,255,.16)';
       ctx.lineWidth = 2;
       ctx.stroke();
 
       for (let i = 1; i < 3; i++) {
-        const t = i / 3;
-        const topX = cx - roadTopWidth / 2 + roadTopWidth * t;
-        const bottomX = cx - roadBottomWidth / 2 + roadBottomWidth * t;
+        const t = i / 3, topX = cx - roadTopWidth / 2 + roadTopWidth * t, bottomX = cx - roadBottomWidth / 2 + roadBottomWidth * t;
         ctx.strokeStyle = 'rgba(255,255,255,.10)';
         ctx.beginPath();
         ctx.moveTo(topX, roadTopY);
@@ -622,62 +489,49 @@
       for (let i = 0; i < 18; i++) {
         const y = ((i * 72 + state.laneOffset) % (window.innerHeight + 130)) - 130;
         const p = Math.max(0, Math.min(1, y / window.innerHeight));
-        const width = 10 + p * 18;
-        const height = 22 + p * 34;
+        const width = 10 + p * 18, height = 22 + p * 34;
         ctx.fillStyle = 'rgba(255, 238, 120, .9)';
         ctx.fillRect(cx - width / 2, y, width, height);
       }
     }
 
-    function drawPlayer() {
+    function drawRunner() {
       const p = playerRect();
-      const t = state.player.animTime * 12;
-      const runBob = state.player.jumping ? 0 : Math.sin(t) * 3;
-      const armSwing = state.player.jumping ? 0.1 : Math.sin(t) * 0.35;
-      const legSwing = state.player.jumping ? 0.15 : Math.sin(t + Math.PI) * 0.45;
+      const img = loadedImages[selectedSkin];
+      const fallback = skinDefs.find(s => s.id === selectedSkin)?.fallback || '#ff6175';
+      const runBob = state.player.jumping ? 0 : Math.sin(state.player.animTime * 12) * 3;
 
       ctx.save();
       ctx.translate(p.x + p.w / 2, p.y + p.h / 2 + runBob);
-
       if (state.player.sliding) ctx.rotate(-0.12);
-
-      // legs
-      ctx.save();
-      ctx.rotate(legSwing * 0.2);
-      ctx.fillStyle = '#11161d';
-      ctx.fillRect(-16, 8, 10, 34);
+      if (img && img.complete) {
+        ctx.drawImage(img, -p.w / 2, -p.h / 2, p.w, p.h);
+      } else {
+        ctx.fillStyle = fallback;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.fillStyle = '#ffd86f';
+        ctx.fillRect(-p.w * 0.3, -p.h * 0.35, p.w * 0.6, p.h * 0.12);
+      }
       ctx.restore();
+    }
 
-      ctx.save();
-      ctx.rotate(-legSwing * 0.2);
-      ctx.fillStyle = '#11161d';
-      ctx.fillRect(6, 8, 10, 34);
-      ctx.restore();
+    function drawChaser() {
+      const p = playerRect();
+      const scale = Math.max(0.55, Math.min(1.15, 1.15 - state.chaserGap / 260));
+      const w = p.w * 0.88 * scale, h = p.h * 0.94 * scale;
+      const x = p.x + Math.sin(state.time * 8) * 4 - state.chaserGap * 0.9;
+      const y = p.y + 8;
+      const img = loadedImages.jeffry;
 
-      // body
-      ctx.fillStyle = '#ff6275';
-      ctx.fillRect(-22, -32, 44, 42);
-
-      // arms
-      ctx.save();
-      ctx.rotate(armSwing * 0.32);
-      ctx.fillStyle = '#f1b188';
-      ctx.fillRect(-30, -26, 8, 28);
-      ctx.restore();
-
-      ctx.save();
-      ctx.rotate(-armSwing * 0.32);
-      ctx.fillStyle = '#f1b188';
-      ctx.fillRect(22, -26, 8, 28);
-      ctx.restore();
-
-      // head
-      ctx.fillStyle = '#f2b287';
-      ctx.fillRect(-14, -56, 28, 26);
-      ctx.fillStyle = '#ffd86f';
-      ctx.fillRect(-18, -52, 36, 8);
-
-      ctx.restore();
+      if (img && img.complete) {
+        ctx.save();
+        ctx.globalAlpha = 0.92;
+        ctx.drawImage(img, x, y, w, h);
+        ctx.restore();
+      } else {
+        ctx.fillStyle = '#8de1ff';
+        ctx.fillRect(x, y, w, h);
+      }
     }
 
     function drawObstacle(o) {
@@ -687,7 +541,6 @@
       grad.addColorStop(1, '#1a1a1a');
       ctx.fillStyle = grad;
       ctx.fillRect(r.x, r.y, r.w, r.h);
-
       ctx.fillStyle = 'rgba(255,255,255,.14)';
       ctx.fillRect(r.x + r.w * 0.12, r.y + r.h * 0.12, r.w * 0.18, r.h * 0.2);
     }
@@ -698,7 +551,6 @@
       ctx.fillStyle = '#ffd84a';
       ctx.arc(r.x + r.w / 2, r.y + r.h / 2, r.w / 2, 0, Math.PI * 2);
       ctx.fill();
-
       ctx.beginPath();
       ctx.strokeStyle = '#fff0a2';
       ctx.lineWidth = 2;
@@ -722,10 +574,10 @@
       drawRoad();
       state.coinsList.sort((a, b) => a.z - b.z);
       state.obstacles.sort((a, b) => a.z - b.z);
-
+      drawChaser();
       for (const c of state.coinsList) drawCoin(c);
       for (const o of state.obstacles) drawObstacle(o);
-      drawPlayer();
+      drawRunner();
       drawParticles();
     }
 
@@ -738,6 +590,8 @@
       requestAnimationFrame(loop);
     }
 
+    loadImages();
+    buildSkinUI();
     bestText.textContent = bestScore;
     requestAnimationFrame(loop);
   </script>
