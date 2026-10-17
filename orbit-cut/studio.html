@@ -438,6 +438,7 @@ init();
     byId('exportResolution').value=exportResolution;
     byId('exportResolution').onchange=e=>{exportResolution=e.target.value};
   };
+  byId('exportBtn').onclick=()=>showExport();
   const oldBeginExport=beginExport;
   beginExport=async function(){
     const [rw,rh]=RATIO[project.ratio]||RATIO['9:16'];
