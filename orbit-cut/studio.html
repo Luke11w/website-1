@@ -21,7 +21,7 @@
 .upgrade-properties h3,.upgrade-subtitle h3,.upgrade-presets h3{font-size:12px;letter-spacing:.01em;color:#e5d9ff;margin:22px 0 11px}.upgrade-properties{margin-top:23px;border-top:1px solid #343950}.upgrade-subtitle{margin-bottom:17px}.upgrade-preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.upgrade-preset-grid .btn{font-size:11px;white-space:normal;min-height:43px;text-align:center}.upgrade-version{color:#b6a4ff;font-size:9px}.inspector .upgrade-properties input[type="range"]{margin-bottom:3px}.upgrade-subtitle .full-btn{white-space:normal}.footer{gap:12px}.topbar .brand small{color:#a79aff}@media(max-width:750px){.footer .upgrade-version{display:none}.inspector{overscroll-behavior:contain}.upgrade-preset-grid{grid-template-columns:1fr 1fr}.topbar .brand strong{color:#c3a9ff}}@media(prefers-reduced-motion:reduce){button{transition:none!important}}
 
 </style>
-  <title>ORBIT CUT · Videoeditor</title>
+  <title>ORBIT CUT 2.1 · Smooth Studio</title>
 </head>
 <body>
 <div id="app">
@@ -464,6 +464,263 @@ init();
   const info=document.createElement('span');info.className='upgrade-version';info.textContent='2.0 · Creative Edition';
   document.querySelector('.footer')?.appendChild(info);
 })();
+
+</script>
+<script>
+/* ORBIT CUT 2.1 - adaptive preview, efficient media timing, responsive controls.
+   Runs AFTER app.js and upgrades.js. Video files never leave the device. */
+(() => {
+  'use strict';
+  const $s = id => document.getElementById(id);
+  const smallScreen = () => window.matchMedia('(max-width: 750px)').matches;
+  const previewModes = {fast: 540, balanced: 720, sharp: 1080};
+  let mode = 'auto';
+  try{mode=localStorage.getItem('orbitcut-preview-mode')||'auto'}catch{}
+  if (!['auto','fast','balanced','sharp'].includes(mode)) mode='auto';
+  let adaptiveEdge = null;
+  let lastDrawCost = 0, sampleDrawCost = 0, samples = 0, lastAdapt = performance.now();
+  let paintedFrames = 0, lastFpsAt = performance.now(), measuredFps = 0, lastFrameTime = 0;
+  let lastUILabel = '', lastTotalLabel = '', lastScrubValue = -1;
+  let lastVideoFrameId = '', lastPlaybackUi = 0;
+  let layoutCache = null, durationCache = null, cachedClipCount = -1, cachedClipArray = null;
+  const qualityControls = document.createElement('div');
+  qualityControls.className = 'speed-controls';
+  qualityControls.innerHTML = '<label class="speed-quality-label" for="previewQuality">Vorschau</label><select id="previewQuality" class="speed-select" aria-label="Vorschauqualität"><option value="auto">Auto · flüssig</option><option value="fast">Schnell</option><option value="balanced">Standard</option><option value="sharp">Scharf</option></select><span id="actualFps" title="Tatsächlich gezeichnete Vorschaubilder pro Sekunde">FPS —</span>';
+  const topRight = document.querySelector('.preview-topright');
+  if(topRight) topRight.prepend(qualityControls);
+  $s('previewQuality').value = mode;
+
+  const seekBar = document.createElement('div');
+  seekBar.className = 'speed-scrub';
+  seekBar.innerHTML = '<label for="quickScrub" class="sr-only">Videoposition</label><input id="quickScrub" type="range" min="0" max="1000" value="0" step="1" aria-label="Video schnell durchspulen"><span class="speed-scrub-end">↔ Ziehen zum Spulen</span>';
+  document.querySelector('.transport')?.after(seekBar);
+  let manualSeeking = false, wasPlayingBeforeScrub = false;
+  const scrub = $s('quickScrub');
+  scrub.addEventListener('pointerdown',()=>{if(exporting)return;manualSeeking=true;wasPlayingBeforeScrub=isPlaying;if(isPlaying)stopPlayback()});
+  scrub.addEventListener('input',()=>{if(exporting)return;seek(totalDuration()*Number(scrub.value)/1000)});
+  const endScrub=()=>{if(!manualSeeking)return;manualSeeking=false;if(wasPlayingBeforeScrub)play()};
+  scrub.addEventListener('pointerup',endScrub);scrub.addEventListener('pointercancel',endScrub);
+  scrub.addEventListener('change',endScrub);
+
+  // Reuse placements across video frames. Invalidate only after a project edit.
+  const previousPlacements=placements, previousAfterChange=afterChange;
+  const invalidate=()=>{layoutCache=null;durationCache=null;cachedClipCount=-1;cachedClipArray=null;lastVideoFrameId=''};
+  placements=function(){
+    if(layoutCache && cachedClipArray===project.clips && cachedClipCount===project.clips.length)return layoutCache;
+    cachedClipArray=project.clips;cachedClipCount=project.clips.length;durationCache=null;
+    return (layoutCache=previousPlacements());
+  };
+  totalDuration=function(){
+    const ps=placements();
+    if(durationCache!==null)return durationCache;
+    return (durationCache=Math.max(0,ps.length?ps[ps.length-1].end:0,
+      ...project.texts.map(t=>Math.max(0,Number(t.start)+Number(t.duration))),
+      ...project.audios.map(a=>Math.max(0,Number(a.start)+Number(a.trimEnd)-Number(a.trimStart)))));
+  };
+  afterChange=function(){invalidate();return previousAfterChange()};
+
+  // Preview pixel count, independent of final export size.
+  const beforeCanvasSize=setCanvasSize;
+  function desiredLongEdge(){
+    if (mode!=='auto')return previewModes[mode];
+    return adaptiveEdge || (smallScreen()?720:960);
+  }
+  function applyPreviewResolution(){
+    if(exporting)return;
+    const [rw,rh]=RATIO[project.ratio]||RATIO['9:16'];
+    const longSide=desiredLongEdge();
+    const w=rw>=rh?longSide:Math.round(longSide*rw/rh);
+    const h=rw>=rh?Math.round(longSide*rh/rw):longSide;
+    if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
+    resizeStage();
+    drawFrame();
+  }
+  setCanvasSize=function(){
+    beforeCanvasSize(); // preserve aspect, settings, and mobile shell dimensions
+    applyPreviewResolution();
+  };
+  $s('previewQuality').addEventListener('change',e=>{
+    mode=e.target.value;adaptiveEdge=null;
+    try{localStorage.setItem('orbitcut-preview-mode',mode)}catch{}
+    applyPreviewResolution();
+    toast(mode==='sharp'?'Scharfe Vorschau: braucht mehr Leistung':mode==='auto'?'Adaptive Vorschau aktiviert':'Vorschauqualität angepasst');
+  });
+
+  // Keep native media decoders running. Re-seek only at cut/jump or real drift.
+  const beforeMakeMedia=makeMedia;
+  makeMedia=function(c){
+    const r=beforeMakeMedia(c);
+    if(!r||r.speedInit)return r;
+    r.speedInit=true;r.hasSynced=false;
+    r.el.addEventListener('loadedmetadata',()=>{
+      if(!r.el.paused)return;
+      const p=placements().find(x=>x.clip.id===c.id) || project.audios.find(x=>x.id===c.id);
+      if(p && p.clip && playTime>=p.start && playTime<=p.end){
+        const desired=c.trimStart+(playTime-p.start)*(c.speed||1);
+        if(!r.el.seeking && Math.abs(r.el.currentTime-desired)>.1){try{r.el.currentTime=Math.min(desired,Math.max(0,r.el.duration-.05))}catch{}}
+      }
+    });
+    return r;
+  };
+  syncMedia=function(t,playing){
+    const positions=placements();
+    const active = positions.filter(p=>t>=p.start-.04&&t<=p.end+.04);
+    const activeIds=new Set();
+    for(const p of active){
+      const c=p.clip, a=getAsset(c.assetId);
+      if(a?.kind!=='video')continue;
+      const r=makeMedia(c);if(!r)continue;
+      activeIds.add(c.id);
+      const wanted=c.trimStart+Math.max(0,Math.min(p.duration,t-p.start))*(c.speed||1);
+      const drift=Math.abs((r.el.currentTime||0)-wanted);
+      const cutoff=playing?0.75:0.045;
+      if(r.el.readyState>=1&&!r.el.seeking&&drift>cutoff){
+        try{r.el.currentTime=Math.max(0,Math.min(wanted,(r.el.duration||wanted+.1)-.025))}catch{}
+      }
+      r.hasSynced=true;
+      const rate=Math.max(.25,Math.min(4,c.speed||1));if(r.el.playbackRate!==rate)r.el.playbackRate=rate;
+      if(r.gain){
+        const next=positions[p.index+1];
+        let gain=p.overlap?Math.max(0,Math.min(1,(t-p.start)/p.overlap)):1;
+        if(next?.overlap&&t>=next.start)gain*=Math.max(0,Math.min(1,(p.end-t)/next.overlap));
+        r.gain.gain.value=Math.max(0,Math.min(2,c.volume??1))*gain;
+      }
+      if(playing){if(r.el.paused)r.el.play().catch(()=>{})}
+      else if(!r.el.paused)r.el.pause();
+    }
+    for(const a of project.audios){
+      const local=t-a.start;
+      if(local<-.03||local>a.trimEnd-a.trimStart+.02)continue;
+      const r=makeMedia(a);if(!r)continue;
+      activeIds.add(a.id);
+      const wanted=a.trimStart+Math.max(0,Math.min(local,a.trimEnd-a.trimStart));
+      if(r.el.readyState>=1&&!r.el.seeking&&Math.abs(r.el.currentTime-wanted)>(playing?.7:.045)){
+        try{r.el.currentTime=wanted}catch{}
+      }
+      if(r.gain)r.gain.gain.value=Math.max(0,Math.min(2,a.volume??1));
+      if(playing){if(r.el.paused)r.el.play().catch(()=>{})}
+      else if(!r.el.paused)r.el.pause();
+    }
+    for(const [id,r] of runtime)if(!activeIds.has(id)&&!r.el.paused){r.el.pause();r.hasSynced=false;}
+    if(mixer)mixer.gain.value=project.masterVolume??1;
+  };
+
+  // Avoid repeating layout reads, inspector updates, or drawing the same decoded frame.
+  function isStaticVideoFrame(){
+    const on=placements().filter(p=>playTime>=p.start&&playTime<p.end);
+    if(on.length!==1)return false;
+    const p=on[0],c=p.clip,a=getAsset(c.assetId);
+    if(a?.kind!=='video'||(c.zoomStart??1)!==(c.zoomEnd??1))return false;
+    if(project.texts.some(x=>playTime>=x.start&&playTime<x.start+x.duration&&x.animation!=='none'))return false;
+    const r=runtime.get(c.id);if(!r||r.el.readyState<2)return false;
+    const quality=r.el.getVideoPlaybackQuality?.();
+    if(!quality||!Number.isFinite(quality.totalVideoFrames))return false;
+    const identity=c.id+':'+quality.totalVideoFrames+':'+canvas.width+':'+canvas.height;
+    if(identity===lastVideoFrameId)return true;
+    lastVideoFrameId=identity;return false;
+  }
+  const previousDraw=drawFrame;
+  drawFrame=function(){
+    const start=performance.now();
+    if(!exporting && isPlaying && isStaticVideoFrame()){
+      updatePlaybackChrome();return;
+    }
+    const w=canvas.width,h=canvas.height;
+    ctx.save();ctx.globalAlpha=1;ctx.filter='none';ctx.fillStyle=project.bg;ctx.fillRect(0,0,w,h);
+    for(const p of placements())if(playTime>=p.start-.001&&playTime<=p.end+.001)drawClip(p,playTime);
+    for(const t of project.texts)if(playTime>=t.start&&playTime<=t.start+t.duration)drawText(t);
+    ctx.restore();updatePlaybackChrome();
+    if(isPlaying&&!exporting){
+      paintedFrames++;
+      lastDrawCost=performance.now()-start;
+      sampleDrawCost+=lastDrawCost;samples++;
+    }
+  };
+  const playhead=$s('playhead');
+  playhead.style.left='0';
+  playhead.style.willChange='transform';
+  function updatePlaybackChrome(){
+    const now=performance.now();
+    if(now-lastPlaybackUi>=40||!isPlaying){
+      const time=sec(playTime),total=sec(totalDuration());
+      if(lastUILabel!==time){$s('currentTimeLabel').textContent=time;lastUILabel=time}
+      if(lastTotalLabel!==total){$s('totalTimeLabel').textContent=total;lastTotalLabel=total}
+      const percent=totalDuration()?Math.round(playTime/totalDuration()*1000):0;
+      if(!manualSeeking && lastScrubValue!==percent){scrub.value=percent;lastScrubValue=percent}
+      lastPlaybackUi=now;
+    }
+    playhead.style.transform=`translate3d(${Math.round(playTime*zoom)}px,0,0)`;
+    $s('emptyOverlay').classList.toggle('hidden',hasContent());
+  }
+  const oldTick=tick;
+  tick=function(now){
+    if(!isPlaying)return;
+    const elapsed=Math.max(0,Math.min(.5,(now-lastNow)/1000));lastNow=now;
+    playTime=Math.min(totalDuration(),playTime+elapsed);
+    if(playTime>=totalDuration()){
+      drawFrame();stopPlayback();if(exporting)finishExport();return;
+    }
+    syncMedia(playTime,true);
+    drawFrame();
+    if(now-lastFpsAt>=1200){
+      measuredFps=Math.round(paintedFrames*1000/(now-lastFpsAt));
+      $s('actualFps').textContent=`${measuredFps} FPS`;
+      $s('actualFps').title=`Gemessene Vorschau-Bilder pro Sekunde. Quellvideos können weniger Bilder enthalten.`;
+      paintedFrames=0;lastFpsAt=now;
+    }
+    if(mode==='auto'&&!exporting&&samples>=45&&now-lastAdapt>5500){
+      const avg=sampleDrawCost/samples;
+      if(avg>26 && desiredLongEdge()>540){
+        adaptiveEdge=Math.max(540,Math.round(desiredLongEdge()*.75/2)*2);
+        applyPreviewResolution();
+        toast('Vorschau für flüssigeres Schneiden optimiert',2500);
+      }
+      samples=0;sampleDrawCost=0;lastAdapt=now;
+    }
+    frameID=requestAnimationFrame(tick);
+  };
+  const oldStop=stopPlayback;
+  stopPlayback=function(){oldStop();lastVideoFrameId='';$s('actualFps').textContent='FPS —';paintedFrames=0;lastFpsAt=performance.now()};
+
+  // Simple, accessible jump controls make cuts easier on phones.
+  const actions=document.createElement('span');actions.className='speed-jump-actions';
+  actions.innerHTML='<button class="tl-tool speed-jump" id="seekBack5" title="5 Sekunden zurück" aria-label="5 Sekunden zurück">−5s</button><button class="tl-tool speed-jump" id="seekNext5" title="5 Sekunden vor" aria-label="5 Sekunden vor">+5s</button>';
+  document.querySelector('.tl-left')?.append(actions);
+  $s('seekBack5').onclick=()=>seek(playTime-5);
+  $s('seekNext5').onclick=()=>seek(playTime+5);
+  const touchStyle=document.createElement('style');
+  touchStyle.textContent=`
+    .speed-controls{display:flex;gap:7px;align-items:center;color:#adb8cf;font-size:10px}
+    .speed-select{background:#171f30;border:1px solid #46526c;color:#eee9ff;border-radius:7px;max-width:148px;padding:5px 6px;font-size:10px;cursor:pointer}
+    #actualFps{min-width:47px;font-variant-numeric:tabular-nums;color:#7fe3d1;white-space:nowrap}
+    .speed-quality-label{font-size:10px;font-weight:700}
+    .speed-scrub{display:flex;align-items:center;gap:12px;padding:1px 18px 9px;min-height:26px;background:#0c111c}
+    .speed-scrub input{flex:1;min-width:0;margin:0;accent-color:#ae91ff;height:19px;cursor:pointer;touch-action:pan-x}
+    .speed-scrub-end{font-size:10px;color:#93a2bd;white-space:nowrap}
+    .sr-only{position:absolute!important;clip:rect(0,0,0,0);width:1px;height:1px;overflow:hidden;white-space:nowrap}
+    .speed-jump-actions{display:flex;gap:3px}
+    .timeline-item{touch-action:none;will-change:transform}
+    .timeline-item .trim-handle{width:13px;opacity:.8}
+    .timeline-item .trim-handle.end{right:0}
+    .tl-tool,.transport-btn,.chip{touch-action:manipulation}
+    #playhead{left:0;will-change:transform}
+    .inspector{overscroll-behavior:contain}
+    @media(max-width:750px){
+      .speed-quality-label,.speed-scrub-end{display:none}
+      .speed-controls{gap:4px}.speed-select{max-width:87px;padding:5px 3px;font-size:9px}
+      #actualFps{min-width:33px;font-size:9px}
+      .preview-topright{gap:3px}.preview-topright .chip{max-width:64px;overflow:hidden;text-overflow:ellipsis}
+      .speed-scrub{padding:0 9px 6px;min-height:22px}
+      .speed-jump{font-size:9px;padding:5px 3px}
+      .timeline-item .trim-handle{width:17px;opacity:1;background:#b9a2f9b0}
+    }
+  `;
+  document.head.appendChild(touchStyle);
+  window.addEventListener('resize',()=>{if(mode==='auto'&&!exporting){adaptiveEdge=null;applyPreviewResolution()}},{passive:true});
+  applyPreviewResolution();
+  window.ORBIT_PERF={version:'2.1',get quality(){return mode},get fps(){return measuredFps},get previewSize(){return [canvas.width,canvas.height]},get avgDrawMs(){return lastDrawCost}};
+})();
+
 
 </script>
 </body>
