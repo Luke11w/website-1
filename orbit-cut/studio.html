@@ -301,9 +301,10 @@ init();
       ctx.beginPath();ctx.rect(0,0,w*progress,h);ctx.clip();
     }
     if (p.overlap && c.transition==='slide') ctx.translate((1-progress)*w,0);
-    ctx.globalAlpha=p.overlap && c.transition==='fade'?progress:(c.opacity??1);
+    ctx.globalAlpha=(p.overlap && c.transition==='fade'?progress:1)*(c.opacity??1);
     const bright=clampU(c.brightness??1,.25,2.5), contrast=clampU(c.contrast??1,.25,2.5), sat=clampU(c.saturation??1,0,3);
-    ctx.filter=`${videoFilter(c.filter)} brightness(${bright}) contrast(${contrast}) saturate(${sat})`;
+    const presetFilter=videoFilter(c.filter);
+    ctx.filter=`${presetFilter==='none'?'':presetFilter+' '}brightness(${bright}) contrast(${contrast}) saturate(${sat})`;
     const z1=clampU(c.zoomStart??1,1,2.5),z2=clampU(c.zoomEnd??1,1,2.5);
     const zoomNow=z1+(z2-z1)*clampU(local/Math.max(.1,p.duration),0,1);
     ctx.translate(w/2,h/2);ctx.scale(zoomNow,zoomNow);ctx.translate(-w/2,-h/2);
