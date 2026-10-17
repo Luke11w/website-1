@@ -489,6 +489,8 @@ init();
   const topRight = document.querySelector('.preview-topright');
   if(topRight) topRight.prepend(qualityControls);
   $s('previewQuality').value = mode;
+  // Resolve the export click to the 2.0 enhanced dialog, not the older handler.
+  $s('exportBtn').onclick=()=>showExport();
 
   const seekBar = document.createElement('div');
   seekBar.className = 'speed-scrub';
