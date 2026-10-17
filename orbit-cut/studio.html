@@ -605,6 +605,132 @@ init();
     if(mixer)mixer.gain.value=project.masterVolume??1;
   };
 
+  // Critical fast path: CSS filter identity still triggers costly CPU pixel processing.
+  // The previous renderer used brightness(1) contrast(1) saturate(1) on EVERY frame.
+  // Only enable canvas filtering when a clip actually needs color correction.
+  drawClip=function(p,t){
+    const c=p.clip,a=getAsset(c.assetId);if(!a)return;
+    const w=canvas.width,h=canvas.height;
+    ctx.save();
+    const fade=p.overlap?Math.max(0,Math.min(1,(t-p.start)/p.overlap)):1;
+    if(p.overlap&&c.transition==='wipe'){
+      ctx.beginPath();ctx.rect(0,0,w*fade,h);ctx.clip();
+    }
+    if(p.overlap&&c.transition==='slide')ctx.translate((1-fade)*w,0);
+    const opacity=(c.opacity??1)*(p.overlap&&c.transition==='fade'?fade:1);
+    if(opacity!==1)ctx.globalAlpha=opacity;
+    const bright=c.brightness??1,contrast=c.contrast??1,sat=c.saturation??1;
+    const preset=videoFilter(c.filter);
+    if(preset!=='none'||bright!==1||contrast!==1||sat!==1){
+      let parts=[];
+      if(preset!=='none')parts.push(preset);
+      if(bright!==1)parts.push(`brightness(${Math.max(.25,Math.min(2.5,bright))})`);
+      if(contrast!==1)parts.push(`contrast(${Math.max(.25,Math.min(2.5,contrast))})`);
+      if(sat!==1)parts.push(`saturate(${Math.max(0,Math.min(3,sat))})`);
+      ctx.filter=parts.join(' ');
+    }
+    const z1=c.zoomStart??1,z2=c.zoomEnd??1;
+    if(z1!==1||z2!==1){
+      const progress=Math.max(0,Math.min(1,(t-p.start)/Math.max(.1,p.duration)));
+      const scale=Math.max(1,Math.min(2.5,z1+(z2-z1)*progress));
+      ctx.translate(w/2,h/2);ctx.scale(scale,scale);ctx.translate(-w/2,-h/2);
+    }
+    if(a.kind==='color')drawColor(a,t);
+    else {
+      const source=a.kind==='image'?imageFor(a):makeMedia(c)?.el;
+      if(source&&(a.kind==='image'?source.complete&&source.naturalWidth:source.readyState>=2))
+        drawFit(source,c.fit||'cover');
+    }
+    ctx.restore();
+  };
+
+  // Native compositor path: render single video clips as a real HTMLVideoElement.
+  // This avoids the expensive 2D drawImage(video) every frame (often ~10fps on mobiles).
+  // Exports and crossfades still use the faithful canvas compositor.
+  const shell=$s('canvasShell');
+  const captionLayer=document.createElement('canvas');
+  captionLayer.className='orbit-captions-overlay';
+  captionLayer.setAttribute('aria-hidden','true');
+  Object.assign(captionLayer.style,{position:'absolute',inset:'0',width:'100%',height:'100%',zIndex:'4',pointerEvents:'none',display:'none'});
+  shell.appendChild(captionLayer);
+  const captionCtx=captionLayer.getContext('2d',{alpha:true});
+  let nativeVideo=null,captionWasVisible=false;
+  function clearNative(){
+    if(nativeVideo){nativeVideo.style.display='none';nativeVideo=null}
+    captionLayer.style.display='none';canvas.style.opacity='1';captionWasVisible=false;
+  }
+  function paintNativeText(t){
+    const w=captionLayer.width,h=captionLayer.height;
+    const base=Math.min(w,h),size=Math.max(1,Math.min(25,Number(t.size)||6))/100*base;
+    const {alpha,scale,offset}=textPosition(t);
+    captionCtx.save();captionCtx.globalAlpha=alpha;
+    captionCtx.translate(Math.max(0,Math.min(1,t.x??.5))*w,Math.max(0,Math.min(1,t.y??.5))*h+offset);
+    captionCtx.scale(scale,scale);
+    captionCtx.textBaseline='middle';captionCtx.textAlign='center';
+    captionCtx.fillStyle=t.color||'#fff';captionCtx.font=`${t.weight||800} ${size}px ${t.font||'system-ui, sans-serif'}`;
+    const lines=String(t.text||'').split('\n');
+    const step=size*1.16,first=-(lines.length-1)*step/2;
+    captionCtx.shadowColor=t.shadow===false?'transparent':'#000c';
+    captionCtx.shadowBlur=t.shadow===false?0:size*.16;
+    captionCtx.shadowOffsetY=t.shadow===false?0:size*.055;
+    lines.forEach((line,i)=>{
+      if(t.style==='subtitle'){
+        const width=Math.min(w*.91,captionCtx.measureText(line).width+size*.65);
+        captionCtx.fillStyle='#000b';captionCtx.fillRect(-width/2,first+i*step-size*.57,width,size*1.16);
+        captionCtx.fillStyle=t.color||'#fff';
+      }
+      if(t.style==='neon'){
+        captionCtx.shadowColor=t.color||'#cf92ff';captionCtx.shadowBlur=size*.4;
+      }
+      captionCtx.fillText(line,0,first+i*step,w*.9);
+    });
+    captionCtx.restore();
+  }
+  function useNativePreview(){
+    if(exporting||!project.clips.length)return false;
+    const active=placements().filter(p=>playTime>=p.start-.001&&playTime<=p.end+.001);
+    if(active.length!==1)return false;
+    const p=active[0], c=p.clip,a=getAsset(c.assetId);
+    if(a?.kind!=='video'||!a.url)return false;
+    const r=makeMedia(c);
+    if(!r || r.el.readyState<2)return false;
+    if(nativeVideo!==r.el){
+      if(nativeVideo)nativeVideo.style.display='none';
+      nativeVideo=r.el;
+      shell.appendChild(nativeVideo);
+    }
+    const v=r.el;
+    Object.assign(v.style,{
+      display:'block',position:'absolute',inset:'0',width:'100%',height:'100%',zIndex:'3',pointerEvents:'none',
+      objectFit:c.fit||'cover',objectPosition:'center',willChange:'transform',
+      opacity:String(c.opacity??1)
+    });
+    const zoomFrom=c.zoomStart??1,zoomTo=c.zoomEnd??1;
+    const fraction=Math.max(0,Math.min(1,(playTime-p.start)/Math.max(.1,p.duration)));
+    const nativeScale=Math.max(1,Math.min(2.5,zoomFrom+(zoomTo-zoomFrom)*fraction));
+    v.style.transform=nativeScale===1?'none':`scale(${nativeScale})`;
+    const filt=videoFilter(c.filter);
+    const fx=[];
+    if(filt!=='none')fx.push(filt);
+    if((c.brightness??1)!==1)fx.push(`brightness(${c.brightness})`);
+    if((c.contrast??1)!==1)fx.push(`contrast(${c.contrast})`);
+    if((c.saturation??1)!==1)fx.push(`saturate(${c.saturation})`);
+    v.style.filter=fx.length?fx.join(' '):'none';
+    canvas.style.opacity='0';
+    const visibleTexts=project.texts.filter(t=>playTime>=t.start&&playTime<=t.start+t.duration);
+    if(visibleTexts.length){
+      if(captionLayer.width!==canvas.width||captionLayer.height!==canvas.height){
+        captionLayer.width=canvas.width;captionLayer.height=canvas.height;
+      }
+      captionLayer.style.display='block';
+      captionCtx.clearRect(0,0,captionLayer.width,captionLayer.height);
+      visibleTexts.forEach(paintNativeText);captionWasVisible=true;
+    }else if(captionWasVisible){
+      captionLayer.style.display='none';captionWasVisible=false;
+    }
+    return true;
+  }
+
   // Avoid repeating layout reads, inspector updates, or drawing the same decoded frame.
   function isStaticVideoFrame(){
     const on=placements().filter(p=>playTime>=p.start&&playTime<p.end);
@@ -622,6 +748,10 @@ init();
   const previousDraw=drawFrame;
   drawFrame=function(){
     const start=performance.now();
+    if(useNativePreview()){
+      updatePlaybackChrome();return;
+    }
+    clearNative();
     if(!exporting && isPlaying && isStaticVideoFrame()){
       updatePlaybackChrome();return;
     }
@@ -664,8 +794,8 @@ init();
     drawFrame();
     if(now-lastFpsAt>=1200){
       measuredFps=Math.round(paintedFrames*1000/(now-lastFpsAt));
-      $s('actualFps').textContent=`${measuredFps} FPS`;
-      $s('actualFps').title=`Gemessene Vorschau-Bilder pro Sekunde. Quellvideos können weniger Bilder enthalten.`;
+      $s('actualFps').textContent=nativeVideo?'GPU ✓':`${measuredFps} FPS`;
+      $s('actualFps').title=nativeVideo?'Native Videovorschau statt aufwendiger Canvas-Neuberechnung':'Gemessene Canvas-Bilder pro Sekunde';
       paintedFrames=0;lastFpsAt=now;
     }
     if(mode==='auto'&&!exporting&&samples>=45&&now-lastAdapt>5500){
@@ -681,6 +811,18 @@ init();
   };
   const oldStop=stopPlayback;
   stopPlayback=function(){oldStop();lastVideoFrameId='';$s('actualFps').textContent='FPS —';paintedFrames=0;lastFpsAt=performance.now()};
+
+  // Make the first imported file immediately editable, including on small screens.
+  const baseImportFiles=importFiles;
+  importFiles=async function(files){
+    const initialIds=new Set(assets.keys());
+    const empty=project.clips.length===0;
+    await baseImportFiles(files);
+    if(empty&&!project.clips.length){
+      const first=[...assets.values()].find(a=>!initialIds.has(a.id)&&['video','image'].includes(a.kind));
+      if(first){addClip(first.id);seek(0);toast('Video importiert! Jetzt schneiden, Text hinzufügen oder exportieren.');}
+    }
+  };
 
   // Simple, accessible jump controls make cuts easier on phones.
   const actions=document.createElement('span');actions.className='speed-jump-actions';
@@ -720,7 +862,6 @@ init();
   applyPreviewResolution();
   window.ORBIT_PERF={version:'2.1',get quality(){return mode},get fps(){return measuredFps},get previewSize(){return [canvas.width,canvas.height]},get avgDrawMs(){return lastDrawCost}};
 })();
-
 
 </script>
 </body>
