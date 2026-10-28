@@ -63,7 +63,7 @@ const W=600,H=500,TAU=Math.PI*2,rnd=(a,b)=>Math.random()*(b-a)+a,clamp=(v,a,b)=>
 const input=new Set();let G=null,raf=0,last=0,muted=false,ac=null;
 function sound(freq=480,duration=.07,kind="sine",volume=.035){if(muted)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),v=ac.createGain();o.type=kind;o.frequency.setValueAtTime(freq,ac.currentTime);o.frequency.exponentialRampToValueAtTime(Math.max(60,freq*.58),ac.currentTime+duration);v.gain.setValueAtTime(volume,ac.currentTime);v.gain.exponentialRampToValueAtTime(.001,ac.currentTime+duration);o.connect(v).connect(ac.destination);o.start();o.stop(ac.currentTime+duration)}catch{}}
 function sparks(x,y,color,n=12){if(!G)return;for(let i=0;i<n;i++)G.fx.push({x,y,vx:rnd(-4,4),vy:rnd(-5,3),life:rnd(13,36),size:rnd(2,6),color})}
-function score(n,x=300,y=190){G.score+=n;if(n>0){G.combo++;if(x!==null)sparks(x,y,G.accent,7);sound(420+Math.min(G.combo,20)*28,.055)}if(G.score>=G.nextStage){G.level++;G.nextStage+=G.goal;G.banner=90;G.shake=13;sparks(300,240,"#ffe477",75);sound(800,.28,"sawtooth",.025);}}
+function score(n,x=300,y=190){G.score+=n;if(n>=3){G.combo++;if(x!==null)sparks(x,y,G.accent,7);sound(420+Math.min(G.combo,20)*28,.055)}if(G.type!=="maze"&&G.type!=="memory"&&G.score>=G.nextStage){G.level++;G.nextStage+=G.goal;G.banner=90;G.shake=13;sparks(300,240,"#ffe477",75);sound(800,.28,"sawtooth",.025);}}
 function lose(x=G.p.x,y=G.p.y){if(G.shield>0){G.shield=0;sparks(x,y,"#63edff",22);return}G.lives--;G.combo=0;G.shake=18;G.invuln=75;sparks(x,y,"#ff526f",30);sound(110,.23,"sawtooth",.045);if(G.lives<=0)end(false)}
 function end(win){if(!G||G.over)return;G.over=true;G.win=win;finishHighscore();sound(win?900:110,.3)}
 function finishHighscore(){if(!G)return;const n=Math.floor(G.score);if(n>(bests[G.id]||0)){bests[G.id]=n;persist();render()}}
@@ -104,7 +104,7 @@ function advance(dt){
    if(s.stepClock>=Math.max(4.7,9.2/speed-(s.level-1)*.4)){
      s.stepClock=0;s.dir=s.nextDir;
      const delta=[[1,0],[0,1],[-1,0],[0,-1]][s.dir],head=[s.snake[0][0]+delta[0],s.snake[0][1]+delta[1]],eat=head[0]===s.food[0]&&head[1]===s.food[1];
-     if(head[0]<0||head[0]>25||head[1]<0||head[1]>18||s.snake.slice(0,eat?undefined:-1).some(p=>p[0]===head[0]&&p[1]===head[1])||s.mines.some(p=>p[0]===head[0]&&p[1]===head[1])){end(false);return}
+     if(head[0]<0||head[0]>25||head[1]<0||head[1]>18||s.snake.slice(0,eat?s.snake.length:-1).some(p=>p[0]===head[0]&&p[1]===head[1])||s.mines.some(p=>p[0]===head[0]&&p[1]===head[1])){end(false);return}
      s.snake.unshift(head);if(eat){score(10,40+head[0]*20,62+head[1]*20);s.food=snakeFood();if(s.level>=2&&s.mines.length<Math.min(8,s.level+s.variant)){const mine=snakeFood();if(mine[0]!==s.food[0]||mine[1]!==s.food[1])s.mines.push(mine)}}else s.snake.pop();
    }
  }
@@ -236,7 +236,7 @@ function clickCanvas(e){
  if(!G)return;if(G.ready||G.over||G.paused){startGame();return}
  const r=canvas.getBoundingClientRect(),xx=(e.clientX-r.left)*600/r.width,yy=(e.clientY-r.top)*500/r.height,s=G;s.pointerX=xx;s.pointerY=yy;
  if(s.type==="target"){for(let i=s.ents.length-1;i>=0;i--){const a=s.ents[i];if(Math.hypot(xx-a.x,yy-a.y)<a.r+6){s.ents.splice(i,1);if(a.kind==="bomb")lose(xx,yy);else score(10+Math.min(30,s.combo*2),xx,yy);return}}s.combo=0;sound(170,.04)}
- else if(s.type==="memory"){if(s.lock>0||s.preview>0)return;const n=s.deck.length,cols=4,cw=97,ch=n===20?71:88,gapX=15,gapY=10,ox=74,oy=n===20?65:72;const col=Math.floor((xx-ox)/(cw+gapX)),row=Math.floor((yy-oy)/(ch+gapY)),i=row*cols+col;if(col<0||col>=4||row<0||i>=n)return;const left=ox+col*(cw+gapX),top=oy+row*(ch+gapY);if(xx>left+cw||yy>top+ch)return;const a=s.deck[i];if(a.open||a.matched)return;a.open=true;s.picks.push(i);s.moves++;sound(480,.05);if(s.picks.length===2){const [i1,i2]=s.picks;if(s.deck[i1].symbol===s.deck[i2].symbol){s.deck[i1].matched=true;s.deck[i2].matched=true;s.picks=[];s.found++;s.combo++;s.score+=10+Math.min(20,s.combo*2);sparks(xx,yy,s.accent,18);if(s.found===n/2){s.level++;s.score+=30;if(s.level>4)end(true);else {buildMemory();s.banner=90}}}else{s.combo=0;s.lock=42}}}
+ else if(s.type==="memory"){if(s.lock>0||s.preview>0)return;const n=s.deck.length,cols=4,cw=97,ch=n===20?71:88,gapX=15,gapY=10,ox=74,oy=n===20?65:72;const col=Math.floor((xx-ox)/(cw+gapX)),row=Math.floor((yy-oy)/(ch+gapY)),i=row*cols+col;if(col<0||col>=4||row<0||i>=n)return;const left=ox+col*(cw+gapX),top=oy+row*(ch+gapY);if(xx>left+cw||yy>top+ch)return;const a=s.deck[i];if(a.open||a.matched)return;a.open=true;s.picks.push(i);s.moves++;sound(480,.05);if(s.picks.length===2){const [i1,i2]=s.picks;if(s.deck[i1].symbol===s.deck[i2].symbol){s.deck[i1].matched=true;s.deck[i2].matched=true;s.picks=[];s.found++;s.combo++;s.score+=10+Math.min(20,s.combo*2);sparks(xx,yy,s.accent,18);sound(710,.09);if(s.found===n/2){s.level++;s.score+=30;if(s.level>4)end(true);else {buildMemory();s.banner=90}}}else{s.combo=0;s.lock=42}}}
  else if(s.type==="hop"||s.type==="runner"){jump()}else if(s.type==="shooter"){input.add(" ");setTimeout(()=>input.delete(" "),125)}
 }
 function jump(){if(!G||G.over||G.ready)return;if(G.type==="runner"&&G.jumps<2){G.p.vy=G.jumps===0?-11.4:-10;G.jumps++;sparks(105,G.p.y,G.accent,10);sound(300,.08)}}
