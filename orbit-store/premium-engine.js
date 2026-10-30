@@ -21,13 +21,13 @@ function open(id){const item=lib.games.find(x=>x.id===id);if(!item||item.url)ret
 function initialize(){const s=G;if(!s)return;Object.assign(s,{hp:3,score:0,combo:0,level:1,fx:[],obj:[],shoot:[],t:0,scroll:0,invuln:0,shield:0,shake:0,flash:0,banner:0,dead:false,won:false,paused:false,ready:true,spawn:16,cool:0,player:{x:470,y:460,vx:0,vy:0}});
 if(s.mode==="drift"){s.player.x=480;s.road=0;s.nitro=50;s.boost=0;s.distance=0}
 if(s.mode==="runner"){s.player.x=204;s.player.y=482;s.jumps=0;s.slide=0;s.speed=9;s.spawn=75}
-if(s.mode==="inferno"){s.player.x=480;s.ball=[{x:470,y:430,vx:5.5,vy:-6.4}];s.bricks=[];buildBricks()}
+if(s.mode==="inferno"){s.player.x=480;s.ball=[{x:470,y:430,vx:5.5,vy:-6.4}];s.bricks=[];s.coreBoss=null;buildBricks()}
 if(s.mode==="astro"){s.player.x=480;s.player.y=500;s.spawn=28;s.boss=null;s.bossNext=220;s.hp=4}
 if(s.mode==="maze"){s.hp=3;buildMaze()}
 if(s.mode==="target"){s.hp=3;s.clock=65*60;s.spawn=10}
 if(s.mode==="sky"){s.player.x=470;s.player.y=420;s.player.vy=-12;s.camera=0;s.height=0;s.obj=[];s.hp=1;for(let i=0;i<9;i++)s.obj.push({x:120+(i*191)%650,y:540-i*83,w:105,kind:"platform",moving:i%4===0})}
 }
-function buildBricks(){const s=G;s.bricks=[];for(let row=0;row<5+s.level%4;row++)for(let col=0;col<12;col++){if((row*7+col+s.level)%11===0)continue;s.bricks.push({x:80+col*67,y:88+row*36,hp:1+((row+col+s.level)%7===0?1:0),phase:rnd(0,TAU)})}s.banner=90}
+function buildBricks(){const s=G;s.bricks=[];for(let row=0;row<5+s.level%4;row++)for(let col=0;col<12;col++){if((row*7+col+s.level)%11===0)continue;s.bricks.push({x:80+col*67,y:88+row*36,hp:1+((row+col+s.level)%7===0?1:0),phase:rnd(0,TAU)})}s.coreBoss=s.level%3===0?{x:480,y:90,hp:22+s.level*6,max:22+s.level*6,t:0,fire:95}:null;s.banner=90}
 function buildMaze(){const s=G;s.maze=Array.from({length:15},()=>Array(25).fill(1));function dig(x,y){s.maze[y][x]=0;const ds=[[0,2],[2,0],[-2,0],[0,-2]].sort(()=>Math.random()-.5);for(const [dx,dy]of ds){const xx=x+dx,yy=y+dy;if(xx>0&&yy>0&&xx<24&&yy<14&&s.maze[yy][xx]){s.maze[y+dy/2][x+dx/2]=0;dig(xx,yy)}}}dig(1,1);s.player.x=1;s.player.y=1;s.maze[13][23]=0;s.gems=[];for(let i=0;i<7+s.level;i++){let x,y;do{x=1+Math.floor(rnd(0,12))*2;y=1+Math.floor(rnd(0,7))*2}while(s.gems.some(p=>p.x===x&&p.y===y)||x===1&&y===1);s.gems.push({x,y,taken:false})}s.guard={x:23,y:13,timer:45};s.moveTimer=0}
 const pressed=(k,k2)=>keys.has(k)||!!k2&&keys.has(k2),axisX=()=>Number(pressed("ArrowRight","KeyD"))-Number(pressed("ArrowLeft","KeyA")),axisY=()=>Number(pressed("ArrowDown","KeyS"))-Number(pressed("ArrowUp","KeyW"));
 function action(){const s=G;if(!s||s.dead||s.ready)return;if(s.mode==="runner"&&s.jumps<2){s.player.vy=s.jumps===0?-14:-12;s.jumps++;particle(s.player.x,s.player.y,s.accent,10);audioFx(370,.06)}if(s.mode==="drift"&&s.nitro>1){s.boost=42;s.nitro=Math.max(0,s.nitro-28);audioFx(700,.17,"sawtooth")}}
@@ -56,7 +56,12 @@ if(s.mode==="inferno"){
  }
  s.ball=s.ball.filter(b=>!b.dead);if(!s.ball.length&&s.hp>0)s.ball=[{x:s.player.x,y:440,vx:rnd(-5,5)||5,vy:-7}];
  for(const brick of s.bricks)if(brick.hp>0){const centre={x:brick.x+28,y:brick.y+13};let impact=false;for(const b of s.ball)if(b.x>brick.x-13&&b.x<brick.x+69&&b.y>brick.y-13&&b.y<brick.y+36){b.vy*=-1;impact=true;break}for(const sh of s.shoot)if(sh.y>brick.y&&sh.y<brick.y+32&&sh.x>brick.x&&sh.x<brick.x+56){sh.y=-100;impact=true;break}if(impact){brick.hp--;if(brick.hp===0){points(10,centre.x,centre.y);if(Math.random()<.035&&s.ball.length<3)s.ball.push({x:centre.x,y:centre.y,vx:rnd(-6,6)||4,vy:5})}}}
- if(!s.bricks.some(b=>b.hp>0)){newLevel();buildBricks();s.ball=[{x:s.player.x,y:415,vx:5+s.level*.5,vy:-6-s.level*.4}]}
+ if(s.coreBoss){const boss=s.coreBoss;boss.t+=dt;boss.x=480+Math.sin(boss.t*.019)*215;boss.fire-=dt;if(boss.fire<=0){boss.fire=Math.max(30,95-s.level*4);s.obj.push({x:boss.x,y:160,vy:3+s.level*.5,kind:"fire"})}
+for(const b of s.ball)if(b.vy<0&&Math.abs(b.x-boss.x)<82&&Math.abs(b.y-boss.y)<69){b.vy=Math.abs(b.vy);boss.hp--;particle(b.x,b.y,"#ffdc6a",10)}
+for(const sh of s.shoot)if(sh.y>boss.y-55&&sh.y<boss.y+55&&Math.abs(sh.x-boss.x)<85){sh.y=-100;boss.hp--;particle(sh.x,sh.y,"#ffc66d",6)}
+if(boss.hp<=0){points(180,boss.x,boss.y);particle(boss.x,boss.y,"#ff822f",85,2);s.coreBoss=null;s.shake=27}}
+for(const e of s.obj){e.y+=e.vy*dt;if(e.y>650)e.gone=true;if(!e.gone&&Math.abs(e.y-535)<28&&Math.abs(e.x-s.player.x)<85){e.gone=true;damage(e.x,e.y)}}s.obj=s.obj.filter(e=>!e.gone);
+if(!s.bricks.some(b=>b.hp>0)&&!s.coreBoss){newLevel();buildBricks();s.obj=[];s.ball=[{x:s.player.x,y:415,vx:5+s.level*.5,vy:-6-s.level*.4}]}
 }
 if(s.mode==="astro"){
  const p=s.player;p.x=clamp(p.x+mx*8*dt,40,920);p.y=clamp(p.y+my*7*dt,290,555);
@@ -85,7 +90,8 @@ if(s.mode==="sky"){
  for(const e of s.obj)if(e.kind==="platform"&&p.vy>0&&old+22<=e.y&&p.y+22>=e.y&&p.x+22>e.x&&p.x-22<e.x+e.w){p.y=e.y-22;p.vy=-13.6;particle(p.x,e.y,s.accent,7);audioFx(400,.05)}
  if(p.y<240){const d=240-p.y;p.y=240;s.height+=d;s.score+=d*.15;for(const e of s.obj)e.y+=d}
  for(const e of s.obj)if(e.moving)e.x=clamp(e.x+Math.sin(s.t*.032+e.y)*.9*dt,15,850);
- s.obj=s.obj.filter(e=>e.y<670);let top=s.obj.reduce((m,e)=>Math.min(m,e.y),600);while(top>-70){top-=rnd(63,105);s.obj.push({x:rnd(40,815),y:top,w:rnd(84,170),kind:"platform",moving:Math.random()<.25+s.level*.04})}
+ for(const e of s.obj)if(e.kind==="gem"&&Math.hypot(e.x-p.x,e.y-p.y)<33){e.y=999;points(30,p.x,p.y)}
+s.obj=s.obj.filter(e=>e.y<670);let top=s.obj.filter(e=>e.kind==="platform").reduce((m,e)=>Math.min(m,e.y),600);while(top>-70){top-=rnd(63,105);{const platform={x:rnd(40,815),y:top,w:rnd(84,170),kind:"platform",moving:Math.random()<.25+s.level*.04};s.obj.push(platform);if(Math.random()<.35)s.obj.push({x:platform.x+platform.w/2,y:top-35,kind:"gem"})}}
  if(p.y>650)finish();if(s.score>s.level*260)newLevel();
 }
 for(const f of s.fx){f.x+=f.vx*dt;f.y+=f.vy*dt;f.vy+=.15*dt;f.ttl-=dt}s.fx=s.fx.filter(f=>f.ttl>0).slice(-320);
@@ -121,6 +127,8 @@ for(const b of s.bricks)if(b.hp>0){const pul=Math.sin(s.t*.045+b.phase)*.2+.8;gl
 glow(p.x,535,130,"#ff9c4063");rect(p.x-86,530,172,17,"#fff5dc");rect(p.x-69,535,138,9,"#ff9d46");
 for(const b of s.ball){glow(b.x,b.y,37,"#ffe7a879");circle(b.x,b.y,12,"#fff6c4");circle(b.x-3,b.y-4,4,"#fff")}
 for(const sh of s.shoot){glow(sh.x,sh.y,20,"#ffad5080");rect(sh.x-4,sh.y-18,8,32,"#fff1af")}
+for(const e of s.obj){glow(e.x,e.y,45,"#ff803d79");circle(e.x,e.y,14,"#ffb14e")}
+if(s.coreBoss){const b=s.coreBoss;glow(b.x,b.y,130,"#ff592f9f");circle(b.x,b.y,62,"#67212e");circle(b.x,b.y,50,"#ff8c36");circle(b.x-19,b.y-8,11,"#421323");circle(b.x+19,b.y-8,11,"#421323");poly([[b.x-23,b.y+19],[b.x+23,b.y+19],[b.x,b.y+35]],"#421323");rect(340,38,280,12,"#ffffff3d");rect(340,38,280*b.hp/b.max,12,"#ffc061")}
 rect(18,554,210,8,"#ffffff32");rect(18,554,210*clamp(1-s.cool/65,0,1),8,"#ffbd65");
 }
 if(s.mode==="astro"){
@@ -145,7 +153,7 @@ const x=s.pointer.x,y=s.pointer.y;line(x-22,y,x-6,y,"#bfffff",2);line(x+6,y,x+22
 text("ZEIT "+Math.ceil(s.clock/60)+"s",870,87,23,"#fff3ab");text("COMBO ×"+Math.max(1,s.combo),90,87,20,"#ffb3ea");
 }
 if(s.mode==="sky"){
-for(const e of s.obj){glow(e.x+e.w/2,e.y,65,"#fff1b35e");poly([[e.x,e.y],[e.x+e.w,e.y],[e.x+e.w-13,e.y+18],[e.x+10,e.y+18]],"#ead2ad");rect(e.x+10,e.y+18,e.w-20,6,"#a9dff0");if(e.moving)circle(e.x+e.w/2,e.y-11,6,"#fff5ac")}
+for(const e of s.obj){if(e.kind==="gem"){glow(e.x,e.y,50,"#fff3b189");text("💎",e.x,e.y+12,27);continue}glow(e.x+e.w/2,e.y,65,"#fff1b35e");poly([[e.x,e.y],[e.x+e.w,e.y],[e.x+e.w-13,e.y+18],[e.x+10,e.y+18]],"#ead2ad");rect(e.x+10,e.y+18,e.w-20,6,"#a9dff0");if(e.moving)circle(e.x+e.w/2,e.y-11,6,"#fff5ac")}
 g.save();g.translate(p.x,p.y);glow(0,0,80,"#ffeaa876");g.rotate(Math.sin(s.t*.09)*.08);circle(0,0,21,"#fff5de");poly([[-5,12],[-35,27],[-9,-13]],"#fff0c4");poly([[8,14],[38,24],[10,-13]],"#fff0c4");circle(7,-5,3,"#534871");g.restore();
 text("HÖHE "+Math.floor(s.height)+"m",790,78,21,"#fff4ce");
 }
